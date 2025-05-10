@@ -1,37 +1,101 @@
-/*
- * App Global CSS
- * ----------------------------------------------------------------------------
- * Put style rules here that you want to apply globally. These styles are for
- * the entire app and not just one component. Additionally, this file can be
- * used as an entry point to import other CSS/Sass files to be included in the
- * output CSS.
- * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
+/* ========================================
+ * 📌 Mantenemos los estilos de Ionic
+ * ========================================
  */
-
-/* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
-
-/* Basic CSS for apps built with Ionic */
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
 
-/* Optional CSS utils that can be commented out */
+/* Optional CSS utils that can be comented out */
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/float-elements.css";
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+/* ========================================
+ * 🎨 Paleta de Colores Fijos
+ * ======================================== */
+:root {
+  --color-primary: #4da6ff;         /* Azul Claro */
+  --color-secondary: #98d982;       /* Verde Suave */
+  --color-warning: #ffeb99;         /* Amarillo Claro */
+  --color-danger: #ff6b6b;          /* Rojo Claro */
+  --color-background: #f8f3e9;      /* Crema */
+  --color-text-dark: #333333;       /* Negro Suave */
+  --color-text-light: #888888;      /* Gris Claro */
+}
+/* ============================
+   🌐 Fuente Global
+============================ */
+body, ion-content {
+  font-family: 'Nunito', sans-serif;
+  color: #4a4a4a;
+  background-color: #fafafa;
+}
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+
+/* ========================================
+ * 🌐 Estilos Generales
+ * ======================================== */
+body {
+  background-color: var(--color-background) !important;
+  color: var(--color-text-dark);
+  font-family: 'Arial', sans-serif;
+}
+
+ion-header {
+  --background: var(--color-background);
+  --color: var(--color-text-dark);
+}
+
+ion-content {
+  --background: var(--color-background);
+}
+
+/* ========================================
+ * 🔘 Estilos para Botones
+ * ======================================== */
+ion-button {
+  --background: var(--color-primary);
+  --border-radius: 10px;
+}
+
+ion-button.success {
+  --background: var(--color-secondary);
+}
+
+ion-button.warning {
+  --background: var(--color-warning);
+}
+
+ion-button.danger {
+  --background: var(--color-danger);
+}
+
+/* ========================================
+ * 📝 Estilos para Inputs
+ * ======================================== */
+ion-item {
+  --border-color: var(--color-text-light);
+}
+
+ion-input {
+  --placeholder-color: var(--color-text-light);
+  --color: var(--color-text-dark);
+}
+
+ion-label {
+  --color: var(--color-text-dark);
+}
+
+/* ========================================
+ * 📌 Estilos para Tabs
+ * ======================================== */
+ion-tab-bar {
+  --background: var(--color-background);
+  --color-selected: var(--color-primary);
+  --color: var(--color-text-light);
+}

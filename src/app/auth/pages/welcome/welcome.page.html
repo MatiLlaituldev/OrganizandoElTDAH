@@ -1,0 +1,28 @@
+<ion-content class="ion-padding welcome-content">
+
+  <!-- 🌟 Contenedor de la imagen de Cerebrito -->
+  <div class="header-image">
+    <img src="assets/images/cerebritoleyendo.png" alt="Cerebrito Leyendo">
+  </div>
+
+  <!-- ✨ Contenedor principal -->
+  <div class="welcome-container">
+    <!-- 🎯 Card principal -->
+    <div class="welcome-card">
+      <h1>Bienvenido a Organizando el TDAH</h1>
+      <p>Organiza tus rutinas, tareas y hábitos de forma divertida y efectiva.</p>
+
+      <!-- 🔘 Botón para registrarse -->
+      <ion-button expand="block" color="tertiary" class="register-button" routerLink="/auth/register">
+        <ion-icon slot="start" name="mail-outline"></ion-icon>
+        Crear una cuenta con correo electrónico
+      </ion-button>
+
+      <!-- 🔗 Link para iniciar sesión -->
+      <div class="login-redirect">
+        ¿Ya tienes una cuenta? <a routerLink="/auth/login">Inicia sesión</a>
+      </div>
+    </div>
+  </div>
+
+</ion-content>

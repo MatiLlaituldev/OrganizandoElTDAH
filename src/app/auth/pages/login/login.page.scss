@@ -1,0 +1,132 @@
+/* ============================
+   🌐 Estilos del Login
+============================ */
+ion-content {
+  --background: none !important;
+}
+
+.login-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100%;
+  background: linear-gradient(180deg, #b79dffb7 0%, #d9cfff27 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 🧠 Contenedor de Cerebrito */
+.header-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: -60px;
+  z-index: 2;
+}
+
+.header-image img {
+  max-width: 270px;
+  height: auto;
+}
+
+/* 🧠 Contenedor principal */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ✨ Card en color pastel */
+.login-card {
+  background-color: #FFEAA7;
+  border-radius: 20px;
+  padding: 25px 20px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  margin-top: -40px;
+}
+
+.login-card h1 {
+  font-size: 1.8em;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #4a4a4a;
+}
+
+/* ✨ Estilo para los Inputs */
+.custom-input {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 10px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.custom-input ion-icon {
+  font-size: 1.2em;
+  margin-right: 10px;
+  color: #6a4acb;
+}
+
+.custom-input input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 1em;
+  color: #4a4a4a;
+}
+
+.custom-input input::placeholder {
+  color: #bdbdbd;
+}
+
+/* 🔘 Botón para iniciar sesión */
+.login-button {
+  --background: #6a4acb;
+  --border-radius: 10px;
+  --color: white;
+  font-size: 1.05em;
+  text-transform: none;
+  box-shadow: 0px 4px 10px rgba(106, 74, 203, 0.4);
+  --ripple-color: #4b2bb7;
+  transition: transform 0.2s ease-in-out;
+  margin-bottom: 10px;
+}
+
+.login-button:hover {
+  transform: scale(1.03);
+}
+
+/* 🔗 Link para recuperar contraseña */
+.forgot-password {
+  text-align: center;
+  font-size: 1em;
+  color: #4a4a4a;
+  margin-top: 10px;
+}
+
+.forgot-password a {
+  color: #6a4acb;
+  font-weight: bold;
+  text-decoration: none;
+}
+back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 5;
+  --background: transparent;
+  --color: #6a4acb;
+  font-size: 1.5em;
+}
