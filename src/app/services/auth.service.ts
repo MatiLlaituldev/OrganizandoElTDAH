@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Auth, user, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from '@angular/fire/auth';
+import { Auth, user, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from '@angular/fire/auth';
 import { User } from 'firebase/auth';
 import { Observable } from 'rxjs';
 
@@ -32,5 +32,10 @@ export class AuthService {
   // ✅ Usuario actual
   getCurrentUser() {
     return this.auth.currentUser;
+  }
+
+  // ✅ Recuperar Contraseña (🔥 Agregado)
+  resetPassword(email: string) {
+    return sendPasswordResetEmail(this.auth, email);
   }
 }
