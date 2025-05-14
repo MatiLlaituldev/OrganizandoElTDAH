@@ -1,0 +1,93 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>{{ esEdicion ? 'Editar Hábito' : 'Nuevo Hábito' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarModal()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="habitoForm" (ngSubmit)="guardarHabito()">
+
+    <div class="input-wrapper">
+      <ion-item class="custom-ion-item">
+        <ion-label position="floating">Nombre del Hábito <ion-text color="danger">*</ion-text></ion-label>
+        <ion-input type="text" formControlName="titulo" required></ion-input>
+      </ion-item>
+      <div *ngIf="habitoForm.get('titulo')?.invalid && (habitoForm.get('titulo')?.dirty || habitoForm.get('titulo')?.touched)"
+           class="error-message ion-padding-start">
+        <div *ngIf="habitoForm.get('titulo')?.errors?.['required']">El nombre es requerido.</div>
+        <div *ngIf="habitoForm.get('titulo')?.errors?.['minlength']">Debe tener al menos 3 caracteres.</div>
+      </div>
+    </div>
+
+    <div class="input-wrapper">
+      <ion-item class="custom-ion-item">
+        <ion-label position="floating">Descripción (Opcional)</ion-label>
+        <ion-textarea formControlName="descripcion" autoGrow="true" rows="2"></ion-textarea>
+      </ion-item>
+    </div>
+
+    <div class="input-wrapper">
+      <ion-item class="custom-ion-item">
+        <ion-label>Frecuencia</ion-label>
+        <ion-select formControlName="frecuenciaTipo" interface="popover" placeholder="Seleccionar">
+          <ion-select-option value="diaria">Diaria</ion-select-option>
+          <ion-select-option value="semanal">Semanal</ion-select-option>
+          </ion-select>
+      </ion-item>
+      </div>
+
+    <div class="input-wrapper">
+      <ion-item class="custom-ion-item">
+        <ion-label position="floating">Icono (ej: flame-outline)</ion-label>
+        <ion-input type="text" formControlName="icono" placeholder="Nombre del icono de Ionicons"></ion-input>
+      </ion-item>
+      <div class="icon-preview" *ngIf="habitoForm.get('icono')?.value">
+        <ion-icon [name]="habitoForm.get('icono')?.value" [style.color]="habitoForm.get('color')?.value || 'inherit'"></ion-icon>
+        <span class="icon-preview-text">Vista previa</span>
+      </div>
+    </div>
+
+    <div class="input-wrapper">
+      <ion-item class="custom-ion-item">
+        <ion-label>Color (opcional)</ion-label>
+        <ion-input type="color" formControlName="color" class="color-picker-input"></ion-input>
+        </ion-item>
+    </div>
+
+    <div class="input-wrapper">
+       <ion-item lines="none" class="custom-ion-item item-datetime">
+          <ion-label position="stacked">Hora Preferida (Opcional)</ion-label>
+          <ion-datetime-button datetime="horaPreferidaPicker"></ion-datetime-button>
+        </ion-item>
+        <ion-button fill="clear" size="small" (click)="limpiarHoraPreferida()" *ngIf="habitoForm.get('horaPreferida')?.value" class="clear-date-button">
+            <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+            Limpiar Hora
+        </ion-button>
+        <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+            <ion-datetime
+              id="horaPreferidaPicker"
+              formControlName="horaPreferida"
+              presentation="time"
+              doneText="Hecho"
+              cancelText="Cancelar"
+              hourCycle="h23">
+              <span slot="title">Selecciona Hora</span>
+            </ion-datetime>
+          </ng-template>
+        </ion-modal>
+    </div>
+
+
+    <ion-button expand="block" type="submit" [disabled]="habitoForm.invalid" color="primary" class="submit-button ion-margin-top">
+      <ion-icon slot="start" name="save-outline"></ion-icon>
+      {{ esEdicion ? 'Actualizar Hábito' : 'Guardar Hábito' }}
+    </ion-button>
+
+  </form>
+</ion-content>

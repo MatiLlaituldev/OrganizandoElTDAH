@@ -1,0 +1,230 @@
+// src/app/habits/pages/habits-list/habits-list.page.scss
+
+// Variables de color específicas para esta página.
+// Heredan o se inspiran en la paleta general de la aplicación.
+:host {
+  --ion-color-primary: #7F00FF;         // Morado principal
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-secondary: #6A0DAD;      // Morado más oscuro para acentos
+  --ion-color-tertiary: #FFC107;       // Amarillo/Dorado para el FAB y acentos importantes
+  --ion-color-tertiary-contrast: #000000;
+
+  --page-background: #F8F5FF;          // Fondo general de la página (ligero tinte morado)
+  --card-background: #FFFFFF;          // Fondo de las tarjetas de hábito
+  --card-shadow: rgba(0, 0, 0, 0.1);    // Sombra para las tarjetas
+  --text-color-dark: #333333;          // Texto principal oscuro
+  --text-color-medium: #666666;        // Texto secundario o descripciones
+  --text-color-light: #999999;         // Texto muy sutil o placeholders
+
+  --icon-color-default: var(--ion-color-secondary); // Color por defecto para iconos de hábito
+  --button-checkin-bg: var(--ion-color-primary);
+  --button-checkin-bg-completed: #4CAF50; // Verde para "hecho"
+  --button-checkin-color: var(--ion-color-primary-contrast);
+
+  --font-family-sans-serif: 'Inter', sans-serif;
+  --card-border-radius: 16px;
+  --fab-size: 56px;
+}
+
+// Estilos del Encabezado
+ion-header {
+  ion-toolbar {
+    font-family: var(--font-family-sans-serif);
+  }
+  ion-title {
+    font-weight: 600;
+  }
+}
+
+// Estilos del Contenido Principal
+ion-content {
+  --background: var(--page-background);
+  font-family: var(--font-family-sans-serif);
+  // Padding para que las tarjetas no peguen a los bordes
+  --padding-top: 16px;
+  --padding-bottom: calc(var(--fab-size) + 32px); // Espacio para el FAB
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+// Estilos para el Refresher
+ion-refresher ion-refresher-content {
+  --color: var(--ion-color-primary);
+}
+
+// Contenedor de Carga
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  color: var(--text-color-medium);
+  ion-spinner {
+    width: 40px;
+    height: 40px;
+    --color: var(--ion-color-primary);
+  }
+  p { margin-top: 16px; font-size: 1em; }
+}
+
+// Estado Vacío (cuando no hay hábitos)
+.empty-state-habits {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 60vh;
+  padding: 20px;
+  color: var(--text-color-medium);
+
+  .empty-icon {
+    font-size: 5em;
+    margin-bottom: 20px;
+    color: var(--ion-color-secondary);
+    opacity: 0.6;
+  }
+  p {
+    font-size: 1.1em;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .add-first-habit-button {
+    --border-color: var(--ion-color-primary);
+    --color: var(--ion-color-primary);
+    --border-radius: var(--card-border-radius);
+    font-weight: 500;
+    height: 44px;
+  }
+}
+
+// Contenedor de la lista de hábitos (si se usa ion-list)
+// O se pueden aplicar los estilos directamente a las tarjetas si no se usa ion-list.
+.habits-grid, ion-list.habits-list {
+  background: transparent; // La lista o grid no necesita su propio fondo
+  padding: 0; // Quitar padding por defecto de ion-list
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); // Cuadrícula responsiva
+  gap: 16px; // Espacio entre tarjetas
+  @media (min-width: 600px) { // En pantallas más grandes, más columnas
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+
+// Estilo para cada tarjeta de hábito
+.habit-card {
+  background: var(--card-background);
+  border-radius: var(--card-border-radius);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; // Centrar contenido de la tarjeta
+  text-align: center;
+  min-height: 180px; // Altura mínima para que las tarjetas se vean bien
+  justify-content: space-between; // Distribuye el espacio
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:active { // Efecto al presionar la tarjeta
+    transform: scale(0.98);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+
+  .habit-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 12px;
+    // El color de fondo del wrapper puede ser el color del hábito
+    // background-color: var(--habito-color, var(--ion-color-light)); // Fallback
+    border: 2px solid var(--habito-color, var(--ion-color-primary)); // Borde con el color del hábito
+
+    ion-icon {
+      font-size: 32px; // Tamaño del icono del hábito
+      color: var(--habito-color, var(--icon-color-default)); // Color del icono igual al del hábito
+    }
+  }
+
+  .habit-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-color-dark);
+    margin-bottom: 6px;
+    // Limitar a 2 líneas y añadir elipsis si es muy largo
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 2.4em; // Espacio para dos líneas
+  }
+
+  .habit-racha, .habit-frecuencia { // Para mostrar racha o frecuencia
+    font-size: 0.8em;
+    color: var(--text-color-medium);
+    margin-bottom: 12px;
+  }
+
+  .check-in-button {
+    --border-radius: 20px; // Botón redondeado
+    --padding-start: 16px;
+    --padding-end: 16px;
+    font-weight: 500;
+    height: 40px;
+    width: 100%; // Ocupa el ancho de la tarjeta
+    margin-top: auto; // Empuja el botón hacia abajo
+    text-transform: none;
+
+    &.completado {
+      --background: var(--button-checkin-bg-completed);
+      --background-activated: darken(var(--button-checkin-bg-completed), 5%);
+      --color: var(--button-checkin-color);
+      ion-icon { margin-right: 6px; }
+    }
+
+    &:not(.completado) {
+      --background: var(--button-checkin-bg);
+      --background-activated: darken(var(--button-checkin-bg), 5%);
+      --color: var(--button-checkin-color);
+    }
+  }
+}
+
+// Opciones de swipe para editar/eliminar (si se usa ion-item-sliding)
+// Si usas tarjetas, la edición/eliminación podría ser un menú contextual (ion-popover)
+// o un botón dentro de la tarjeta.
+ion-item-sliding.habit-sliding-item {
+  border-radius: var(--card-border-radius);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  margin-bottom: 16px; // Si usas ion-list con ion-item-sliding
+
+  ion-item-options ion-item-option {
+    border-radius: 0; // Ajustar si es necesario
+    &:first-child { border-top-right-radius: var(--card-border-radius); border-bottom-right-radius: var(--card-border-radius); }
+    &:last-child { border-top-left-radius: var(--card-border-radius); border-bottom-left-radius: var(--card-border-radius); }
+    ion-icon { font-size: 1.6em; }
+  }
+}
+
+
+// Botón Flotante de Acción (FAB) para añadir nuevo hábito
+ion-fab {
+  ion-fab-button {
+    --background: var(--ion-color-tertiary);
+    --background-activated: darken(var(--ion-color-tertiary), 10%);
+    --color: var(--ion-color-tertiary-contrast);
+    --box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    ion-icon { font-size: 1.8em; }
+  }
+}
+
+// Clases para alertas y toasts (si se usan con cssClass)
+.custom-alert .danger-button { color: var(--ion-color-danger-custom); }
+.custom-alert .secondary-button { color: var(--text-color-medium); }
+// .custom-toast { /* Estilos personalizados */ }
+

@@ -1,13 +1,77 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>habit-list</ion-title>
-  </ion-toolbar>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Mis Hábitos</ion-title>
+    </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">habit-list</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="habits-list-content">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="isLoading && !(habitosConEstado$ | async)?.length" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando hábitos...</p>
+  </div>
+
+  <div *ngIf="!isLoading && !(habitosConEstado$ | async)?.length" class="empty-state-habits">
+    <ion-icon name="leaf-outline" class="empty-icon"></ion-icon>
+    <p>¡Empieza a construir buenos hábitos! Todavía no has añadido ninguno.</p>
+    <ion-button fill="outline" (click)="abrirModalHabito()" class="add-first-habit-button">
+      <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+      Crear mi primer hábito
+    </ion-button>
+  </div>
+
+  <div class="habits-grid" *ngIf="(habitosConEstado$ | async)?.length">
+    <div *ngFor="let habito of (habitosConEstado$ | async); trackBy: trackHabitoById">
+      <ion-item-sliding class="habit-sliding-item" #slidingItem>
+        <ion-item lines="none" class="habit-item-wrapper" detail="false">
+          <div class="habit-card" (click)="abrirModalHabito(habito)">
+            <div class="habit-icon-wrapper" [style.border-color]="habito.color || 'var(--ion-color-primary)'">
+              <ion-icon [name]="habito.icono || 'sparkles-outline'"
+                        [style.color]="habito.color || 'var(--icon-color-default)'"></ion-icon>
+            </div>
+
+            <h2 class="habit-title">{{ habito.titulo }}</h2>
+
+            <p class="habit-racha" *ngIf="habito.rachaActual !== undefined && habito.rachaActual > 0">
+              <ion-icon name="flame" [style.color]="habito.color || 'var(--ion-color-tertiary)'"></ion-icon>
+              Racha: {{ habito.rachaActual }} {{ habito.rachaActual === 1 ? 'día' : 'días' }}
+            </p>
+            <p class="habit-racha" *ngIf="habito.rachaActual === 0">
+              ¡Empieza tu racha!
+            </p>
+
+            <ion-button expand="full"
+                        class="check-in-button"
+                        [class.completado]="habito.completadoHoy"
+                        (click)="toggleCompletadoHoy(habito, $event)">
+              <ion-icon *ngIf="habito.completadoHoy" name="checkmark-circle" slot="start"></ion-icon>
+              {{ habito.completadoHoy ? '¡Hecho Hoy!' : 'Marcar Hoy' }}
+            </ion-button>
+          </div>
+        </ion-item>
+
+        <ion-item-options side="end">
+          <ion-item-option color="light" (click)="abrirModalHabito(habito); slidingItem.close()">
+            <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+          </ion-item-option>
+          <ion-item-option color="danger" (click)="confirmarEliminar(habito, $event); slidingItem.close()">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </div>
+  </div>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="abrirModalHabito()" color="tertiary">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

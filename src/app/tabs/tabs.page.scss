@@ -1,10 +1,129 @@
+// En tu archivo SCSS para la página de Tabs (ej: tabs.page.scss)
+
+// Definición de variables de color para las pestañas.
+// Puedes ajustar estos valores o usar variables globales si las tienes definidas.
+:host { // El selector :host se aplica al componente de la página de pestañas.
+  --tabs-background: #FFFFFF;                     // Fondo blanco para la barra de pestañas.
+  --tabs-border-top-color: #E0E0E0;           // Color sutil para el borde superior.
+  --tabs-shadow-color: rgba(0, 0, 0, 0.1);      // Sombra suave para dar profundidad.
+
+  --tabs-icon-size: 24px;                       // Tamaño de los iconos.
+  --tabs-label-font-size: 10px;                 // Tamaño del texto de las etiquetas.
+  --tabs-button-padding-vertical: 6px;          // Padding vertical para cada botón de pestaña.
+  --tabs-button-padding-horizontal: 4px;        // Padding horizontal.
+
+  // Colores para los estados de los botones de las pestañas
+  --tabs-color-inactive: #8c8c8c;               // Color para icono y texto de pestañas inactivas (gris medio).
+  --tabs-color-active: #7F00FF;                 // Morado principal para la pestaña activa.
+  --tabs-indicator-color: #FFC107;              // Amarillo/Dorado para el indicador de la pestaña activa (opcional).
+
+  // Para el efecto de "elevación" del icono activo
+  --tabs-icon-active-transform: translateY(-3px) scale(1.15);
+  --tabs-icon-transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease-in-out; // Transición con rebote
+}
+
 ion-tab-bar {
-  --background: var(--color-background);
-  --color-selected: var(--color-primary);
-  --color: var(--color-text-dark);
-  --indicator-color: var(--color-primary);
+  background: var(--tabs-background);
+  // No necesitamos esquinas redondeadas si es una barra inferior estándar,
+  // pero si fuera una barra superior o con un diseño diferente, se podrían añadir.
+  // border-top-left-radius: 20px;
+  // border-top-right-radius: 20px;
+  box-shadow: var(--tabs-shadow);
+  border-top: 1px solid var(--tabs-border-top-color);
+  padding-bottom: env(safe-area-inset-bottom); // Importante para iPhones con notch.
+  padding-top: var(--tabs-button-padding-vertical); // Espacio superior dentro de la barra.
+  height: 58px; // Altura ajustada para la barra de pestañas.
+  position: relative; // Para posibles elementos decorativos o indicadores.
 }
 
 ion-tab-button {
-  --ripple-color: var(--color-primary);
+  background: transparent; // Asegurar que el fondo del botón sea transparente.
+  --color: var(--tabs-color-inactive);
+  --color-selected: var(--tabs-color-active);
+
+  // Quitar el padding por defecto para tener más control.
+  --padding-start: var(--tabs-button-padding-horizontal);
+  --padding-end: var(--tabs-button-padding-horizontal);
+  --padding-top: var(--tabs-button-padding-vertical);
+  --padding-bottom: var(--tabs-button-padding-vertical);
+
+  --ripple-color: var(--tabs-color-active); // Efecto ripple con el color activo.
+  max-width: 25%; // Asegura que los 4 botones se distribuyan bien.
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  ion-icon {
+    font-size: var(--tabs-icon-size);
+    margin-bottom: 3px; // Espacio entre el icono y la etiqueta.
+    transition: var(--tabs-icon-transition);
+    line-height: 1; // Ayuda a alinear mejor el icono.
+  }
+
+  ion-label {
+    font-size: var(--tabs-label-font-size);
+    font-weight: 500;
+    text-transform: none; // Evita que el texto se ponga en mayúsculas automáticamente.
+    margin-top: 0;
+    line-height: 1.2;
+    transition: color 0.2s ease-in-out;
+  }
+
+  // Estilos cuando la pestaña está seleccionada (activa)
+  &.tab-selected {
+    // El color ya se maneja con --color-selected, pero podemos añadir más.
+    ion-icon {
+      transform: var(--tabs-icon-active-transform);
+      // Podrías añadir un color diferente al icono si --color-selected no es suficiente
+      // color: var(--tabs-indicator-color); // Ejemplo: icono amarillo cuando está activo
+    }
+
+    ion-label {
+      font-weight: 600; // Texto un poco más grueso para la pestaña activa
+    }
+
+    // Opcional: Indicador de línea superior para la pestaña activa
+    // position: relative; // Necesario si el indicador es absoluto a este botón
+    // &::before {
+    //   content: '';
+    //   position: absolute;
+    //   top: 0;
+    //   left: 20%; // Ajusta para centrar el indicador
+    //   right: 20%;
+    //   height: 3px;
+    //   background: var(--tabs-indicator-color);
+    //   border-bottom-left-radius: 2px;
+    //   border-bottom-right-radius: 2px;
+    // }
+  }
+
+  // Efecto al pasar el mouse (para web, si aplica)
+  &:hover:not(.tab-selected) {
+    ion-icon, ion-label {
+      color: var(--tabs-color-active); // Cambia a color activo al pasar el mouse
+      opacity: 0.8;
+    }
+  }
 }
+
+// Si tuvieras un botón central que quisieras destacar (no está en tu HTML actual):
+// ion-tab-button#tab-button-central { // Asumiendo que le pones un ID
+//   --background: var(--ion-color-tertiary);
+//   --color-selected: var(--ion-color-tertiary-contrast);
+//   --border-radius: 50%;
+//   width: 56px;
+//   height: 56px;
+//   min-height: 56px;
+//   margin-top: -22px; // Para que sobresalga
+//   border: 4px solid var(--tabs-background);
+//   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+//
+//   ion-icon {
+//     font-size: 28px;
+//     transform: none !important; // Quitar la animación de "elevación" si no se quiere
+//   }
+//   ion-label {
+//     display: none; // Ocultar el label para el botón central si es solo un icono grande
+//   }
+// }

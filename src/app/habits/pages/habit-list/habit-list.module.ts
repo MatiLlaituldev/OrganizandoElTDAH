@@ -6,7 +6,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { HabitListPageRoutingModule } from './habit-list-routing.module';
 
-import { HabitListPage } from './habit-list.page';
+import { HabitsListPage } from './habit-list.page';
 
 @NgModule({
   imports: [
@@ -15,6 +15,6 @@ import { HabitListPage } from './habit-list.page';
     IonicModule,
     HabitListPageRoutingModule
   ],
-  declarations: [HabitListPage]
+  declarations: [HabitsListPage]
 })
 export class HabitListPageModule {}

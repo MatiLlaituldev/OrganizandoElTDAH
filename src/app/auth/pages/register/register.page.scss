@@ -101,3 +101,9 @@ ion-content {
 .register-button:hover {
   transform: scale(1.03);
 }
+.error-message {
+  color: var(--ion-color-danger);
+  font-size: 0.8em;
+  padding-left: 40px; /* Para alinear con el input si el icono tiene un ancho fijo */
+  margin-top: 4px;
+}

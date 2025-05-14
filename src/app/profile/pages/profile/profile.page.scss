@@ -1,0 +1,98 @@
+// profile.page.scss (Simplificado)
+
+// Importar fuentes (asegúrate de tenerlas configuradas en tu proyecto, por ejemplo, Inter)
+// Import fonts (make sure you have them configured in your project, e.g., Inter)
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+// Variables de color inspiradas en la imagen
+// Color variables inspired by the image
+:host {
+  --ion-color-primary: #7F00FF; // Un morado vibrante (A vibrant purple)
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-secondary: #6A0DAD; // Un morado más oscuro (A darker purple)
+  --ion-color-light-purple-bg: #E6E0FF; // Fondo general claro (Light general background)
+  --ion-color-yellow-card: #FFF5C3; // Color para las tarjetas (Color for cards)
+  --ion-color-dark-text: #333333;
+  --ion-font-family: 'Inter', sans-serif;
+}
+
+ion-toolbar {
+  --background: var(--ion-color-primary);
+  font-family: var(--ion-font-family);
+}
+
+ion-title {
+    font-weight: 700;
+}
+
+.profile-content-simplified {
+  --background: var(--ion-color-light-purple-bg);
+  font-family: var(--ion-font-family);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; // Centrar el contenido verticalmente (Center content vertically)
+  padding: 20px;
+  height: 100%; // Asegurar que ocupe toda la altura para centrar (Ensure it takes full height for centering)
+}
+
+.profile-header-simplified {
+  text-align: center;
+  margin-bottom: 30px; // Espacio antes de la tarjeta (Space before the card)
+}
+
+.avatar-section-simplified {
+  margin: 0 auto 15px auto;
+
+  .user-avatar-simplified {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid var(--ion-color-primary);
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.user-name-simplified {
+  font-size: 1.8em;
+  font-weight: 700;
+  margin: 0 0 5px 0;
+  color: var(--ion-color-dark-text);
+}
+
+.user-email-simplified {
+  font-size: 1em;
+  color: var(--ion-color-secondary); // Usar un color secundario para el email (Use a secondary color for the email)
+  margin: 0;
+}
+
+.profile-card-simplified {
+  background: var(--ion-color-yellow-card);
+  border-radius: 20px;
+  padding: 30px 25px;
+  width: 100%;
+  max-width: 400px; // Ancho máximo para la tarjeta (Max width for the card)
+  box-shadow: 0 6px 20px rgba(106, 13, 173, 0.1);
+  display: flex; // Para centrar el botón si fuera necesario o para manejar múltiples elementos (To center the button if necessary or to handle multiple elements)
+  flex-direction: column;
+  align-items: center;
+}
+
+.logout-button-simplified {
+  --border-radius: 12px;
+  font-weight: 500;
+  text-transform: none;
+  height: 50px;
+  font-size: 1.1em;
+  width: 100%; // El botón ocupa todo el ancho de la tarjeta (The button takes the full width of the card)
+  margin-top: 10px; // Espacio si hubiera algo encima (Space if there was something above)
+}
+
+// Media query para ajustar en pantallas más grandes si es necesario
+// Media query to adjust on larger screens if necessary
+@media (min-width: 768px) {
+  .profile-card-simplified {
+    max-width: 450px;
+  }
+}

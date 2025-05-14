@@ -1,48 +1,71 @@
 <ion-content class="ion-padding register-content">
 
-  <!-- 🔙 Botón de retroceso flotante -->
   <ion-button class="back-button" fill="clear" routerLink="/auth/welcome">
     <ion-icon name="arrow-back-outline"></ion-icon>
   </ion-button>
 
-  <!-- 🌟 Contenedor de la imagen de Cerebrito -->
   <div class="header-image">
     <img src="assets/images/c2.png" alt="Cerebrito Registrándose">
-  </div>
+    </div>
 
-  <!-- ✨ Contenedor principal -->
   <div class="register-container">
-    <!-- 🎯 Card principal -->
     <div class="register-card">
       <h1>Crear una cuenta</h1>
 
-      <!-- Formulario Reactivo -->
       <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
 
-        <!-- 👤 Campo de Nombre Completo -->
-        <div class="custom-input">
-          <ion-icon name="person-outline"></ion-icon>
-          <input type="text" formControlName="name" placeholder="Nombre Completo">
+        <div class="input-wrapper">
+          <div class="custom-input">
+            <ion-icon name="person-outline"></ion-icon>
+            <input type="text" formControlName="name" placeholder="Nombre Completo">
+          </div>
+          <div *ngIf="registerForm.get('name')?.invalid && (registerForm.get('name')?.dirty || registerForm.get('name')?.touched)"
+               class="error-message">
+            <div *ngIf="registerForm.get('name')?.errors?.['required']">
+              El nombre es requerido.
+            </div>
+            <div *ngIf="registerForm.get('name')?.errors?.['minlength']">
+              El nombre debe tener al menos 3 caracteres.
+            </div>
+          </div>
         </div>
 
-        <!-- 📧 Campo de Email -->
-        <div class="custom-input">
-          <ion-icon name="mail-outline"></ion-icon>
-          <input type="email" formControlName="email" placeholder="Correo Electrónico">
+        <div class="input-wrapper">
+          <div class="custom-input">
+            <ion-icon name="mail-outline"></ion-icon>
+            <input type="email" formControlName="email" placeholder="Correo Electrónico">
+          </div>
+          <div *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty || registerForm.get('email')?.touched)"
+               class="error-message">
+            <div *ngIf="registerForm.get('email')?.errors?.['required']">
+              El correo electrónico es requerido.
+            </div>
+            <div *ngIf="registerForm.get('email')?.errors?.['email']">
+              Ingresa un correo electrónico válido.
+            </div>
+          </div>
         </div>
 
-        <!-- 🔒 Campo de Contraseña -->
-        <div class="custom-input">
-          <ion-icon name="lock-closed-outline"></ion-icon>
-          <input type="password" formControlName="password" placeholder="Contraseña">
+        <div class="input-wrapper">
+          <div class="custom-input">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <input type="password" formControlName="password" placeholder="Contraseña">
+          </div>
+          <div *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty || registerForm.get('password')?.touched)"
+               class="error-message">
+            <div *ngIf="registerForm.get('password')?.errors?.['required']">
+              La contraseña es requerida.
+            </div>
+            <div *ngIf="registerForm.get('password')?.errors?.['minlength']">
+              La contraseña debe tener al menos 6 caracteres.
+            </div>
+          </div>
         </div>
 
-        <!-- 🔘 Botón para registrarse -->
         <ion-button expand="block" color="tertiary" class="register-button" type="submit" [disabled]="registerForm.invalid">
           Crear Cuenta
         </ion-button>
-
-      </form>
+        </form>
     </div>
   </div>
 
