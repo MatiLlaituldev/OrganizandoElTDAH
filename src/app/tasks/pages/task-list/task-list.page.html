@@ -1,10 +1,19 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+
+  <ion-toolbar color="primary" class="days-of-week-toolbar">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Mis Tareas</ion-title>
-    </ion-toolbar>
+    <div class="days-container">
+      <button *ngFor="let day of weekDays"
+              class="day-button"
+              [class.selected-day]="isDaySelected(day)"
+              (click)="selectDay(day)">
+        <span class="day-letter">{{ day.letter }}</span>
+        <span class="day-number">{{ day.dayOfMonth }}</span>
+      </button>
+    </div>
+  </ion-toolbar>
 
   <ion-toolbar color="primary">
     <ion-segment [(ngModel)]="currentSegment" (ionChange)="segmentChanged($event)" value="pendientes">
@@ -16,6 +25,7 @@
       </ion-segment-button>
     </ion-segment>
   </ion-toolbar>
+
 </ion-header>
 
 <ion-content [fullscreen]="true" class="task-list-content">
@@ -30,34 +40,37 @@
 
   <div *ngIf="!isLoading && !(tasks$ | async)?.length" class="empty-state">
     <ion-icon name="file-tray-stacked-outline" class="empty-icon"></ion-icon>
-    <p *ngIf="currentSegment === 'pendientes'">¡Todo al día! No tienes tareas pendientes.</p>
+    <p *ngIf="currentSegment === 'pendientes'">No tienes tareas pendientes.</p>
     <p *ngIf="currentSegment === 'completadas'">Aún no has completado ninguna tarea.</p>
     <ion-button fill="outline" (click)="abrirModalTarea()" class="add-first-task-button">
       <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-      Crear mi primera tarea
+      Crear una tarea
     </ion-button>
   </div>
 
   <ion-list *ngIf="(tasks$ | async)?.length" class="task-list">
     <ion-item-sliding *ngFor="let tarea of (tasks$ | async); trackBy: trackTareaById" #slidingItem>
       <ion-item (click)="abrirModalTarea(tarea)" lines="inset" detail="false"
-                [ngClass]="{'task-completada': tarea.completada, 'task-prioridad-alta': tarea.prioridad === 1, 'task-prioridad-media': tarea.prioridad === 2}">
+                [ngClass]="{
+                  'task-completada': tarea.completada,
+                  'task-prioridad-alta': tarea.prioridad === 1 && !tarea.completada,
+                  'task-prioridad-media': tarea.prioridad === 2 && !tarea.completada
+                }">
         <ion-checkbox slot="start" [checked]="tarea.completada" (ionChange)="toggleCompletada(tarea, $event)"
                       (click)="$event.stopPropagation();"></ion-checkbox>
-
         <ion-label>
           <h2>{{ tarea.titulo }}</h2>
           <p *ngIf="tarea.descripcion">{{ tarea.descripcion | slice:0:100 }}{{ tarea.descripcion && tarea.descripcion.length > 100 ? '...' : '' }}</p>
           <p *ngIf="tarea.fechaVencimiento" class="fecha-vencimiento">
             <ion-icon name="calendar-outline" class="fecha-icon"></ion-icon>
-            Vence: {{ tarea.fechaVencimiento?.toDate() | date: 'dd/MM/yy HH:mm' }}
-            </p>
+            Vence: {{ getDisplayDateForPipe(tarea.fechaVencimiento) | date: 'dd/MM/yy HH:mm' }}
+          </p>
         </ion-label>
-
         <div slot="end" class="prioridad-indicator" *ngIf="tarea.prioridad && !tarea.completada">
-          <ion-icon name="alert-circle" color="danger" *ngIf="tarea.prioridad === 1"></ion-icon> <ion-icon name="alert-circle" color="warning" *ngIf="tarea.prioridad === 2"></ion-icon> </div>
+          <ion-icon name="alert-circle" color="danger" *ngIf="tarea.prioridad === 1"></ion-icon>
+          <ion-icon name="alert-circle" color="warning" *ngIf="tarea.prioridad === 2"></ion-icon>
+        </div>
       </ion-item>
-
       <ion-item-options side="end">
         <ion-item-option color="light" (click)="abrirModalTarea(tarea); slidingItem.close()">
           <ion-icon slot="icon-only" name="create-outline"></ion-icon>
@@ -66,7 +79,6 @@
           <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
         </ion-item-option>
       </ion-item-options>
-
     </ion-item-sliding>
   </ion-list>
 
@@ -75,5 +87,4 @@
       <ion-icon name="add-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-
 </ion-content>

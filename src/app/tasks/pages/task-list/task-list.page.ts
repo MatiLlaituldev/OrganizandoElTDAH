@@ -6,12 +6,21 @@ import { Observable, Subscription, of } from 'rxjs';
 import { switchMap, catchError, tap, map, finalize } from 'rxjs/operators';
 
 import { Tarea } from '../../../models/tarea.model';
-import { TaskService } from '../../../services/task.service'; // Clase TaskService en tarea.service.ts
+import { TaskService } from '../../../services/task.service';
 import { AuthService } from '../../../services/auth.service';
 import { User } from '@firebase/auth';
 import { Timestamp } from 'firebase/firestore';
 
 import { TaskFormComponent } from '../../../components/shared-components/task-form/task-form.component';
+
+// Interface para la estructura de los días en la barra
+interface DayDisplay {
+  letter: string; // L, M, X, J, V, S, D
+  dayOfWeek: number; // 0 (Dom) - 6 (Sab)
+  dayOfMonth: number; // 1 - 31
+  isCurrentMonth: boolean; // Para posible estilo si el día es de mes anterior/siguiente en la vista semanal
+  fullDate: Date; // Objeto Date completo
+}
 
 @Component({
   selector: 'app-task-list',
@@ -26,8 +35,14 @@ export class TaskListPage implements OnInit, OnDestroy {
   private authSubscription: Subscription | undefined;
   private tasksRawSubscription: Subscription | undefined;
   isLoading: boolean = false;
-  currentSegment: string = 'pendientes';
   private loadingElement: HTMLIonLoadingElement | null = null;
+
+  // --- Propiedades para la barra de días ---
+  public weekDays: DayDisplay[] = []; // Array para mostrar los días de la semana
+  public selectedDayFullDate!: Date; // Día completo seleccionado por el usuario
+
+  // --- Propiedades para los segmentos Pendientes/Completadas ---
+  public currentSegment: string = 'pendientes'; // Segmento actual
 
   constructor(
     private modalCtrl: ModalController,
@@ -36,20 +51,49 @@ export class TaskListPage implements OnInit, OnDestroy {
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
     private loadingCtrl: LoadingController
-  ) {}
+  ) {
+    this.initializeWeekDays(); // Inicializar los días de la semana
+    // selectedDayFullDate se inicializa en initializeWeekDays al día de hoy
+  }
+
+  initializeWeekDays() {
+    this.weekDays = [];
+    const today = new Date();
+    this.selectedDayFullDate = new Date(today); // Día seleccionado inicialmente es hoy
+
+    // Encontrar el inicio de la semana actual (Lunes)
+    let current = new Date(today);
+    const dayOfWeek = current.getDay(); // 0 (Dom) - 6 (Sab)
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Si es Domingo (0), restar 6 días. Si es Lunes (1), diff es 0.
+    current.setDate(today.getDate() + diffToMonday);
+
+    const dayLetters = ['D', 'L', 'M', 'X', 'J', 'V', 'S']; // Domingo es 0
+
+    for (let i = 0; i < 7; i++) {
+      const dateForDay = new Date(current);
+      this.weekDays.push({
+        letter: dayLetters[dateForDay.getDay()],
+        dayOfWeek: dateForDay.getDay(),
+        dayOfMonth: dateForDay.getDate(),
+        isCurrentMonth: dateForDay.getMonth() === today.getMonth(),
+        fullDate: dateForDay,
+      });
+      current.setDate(current.getDate() + 1);
+    }
+    console.log('[TaskListPage] Week days initialized:', this.weekDays);
+  }
+
 
   ngOnInit() {
-    console.log('[TaskListPage] ngOnInit: Iniciando componente.');
+    console.log('[TaskListPage] ngOnInit.');
     this.authSubscription = this.authService.user$.subscribe(user => {
-      console.log('[TaskListPage] authService.user$ emitió:', user);
       if (user && user.uid) {
         if (!this.authUser || this.authUser.uid !== user.uid) {
           this.authUser = user;
-          console.log('[TaskListPage] Usuario autenticado (o cambiado):', user.uid, '. Llamando a subscribeToTasks.');
+          console.log('[TaskListPage] Usuario autenticado:', user.uid);
           this.subscribeToTasks(user.uid);
         }
       } else {
-        console.log('[TaskListPage] No hay usuario autenticado o UID es nulo.');
         this.authUser = null;
         this.tasks$ = of([]);
         this.isLoading = false;
@@ -65,19 +109,15 @@ export class TaskListPage implements OnInit, OnDestroy {
     console.log('[TaskListPage] ionViewWillEnter.');
     if (this.authUser && this.authUser.uid) {
       if (!this.tasksRawSubscription || this.tasksRawSubscription.closed) {
-        console.log('[TaskListPage] ionViewWillEnter - No hay suscripción activa a tareas o está cerrada. Resuscribiendo...');
         this.subscribeToTasks(this.authUser.uid);
       }
     }
   }
 
   async subscribeToTasks(userId: string) {
-    console.log(`[TaskListPage] subscribeToTasks: Iniciando para userId: ${userId}`);
-    if (this.isLoading) {
-      console.log('[TaskListPage] subscribeToTasks: Ya hay una carga en progreso, omitiendo nueva llamada.');
-      return;
-    }
-    await this.presentLoading('Cargando tareas...'); // Muestra el loading
+    console.log(`[TaskListPage] subscribeToTasks para userId: ${userId}, segmento: ${this.currentSegment}`);
+    if (this.isLoading) return;
+    await this.presentLoading('Cargando tareas...');
     this.isLoading = true;
 
     if (this.tasksRawSubscription && !this.tasksRawSubscription.closed) {
@@ -85,59 +125,32 @@ export class TaskListPage implements OnInit, OnDestroy {
     }
 
     this.tasksRawSubscription = this.taskService.getTasks(userId).pipe(
-      tap(rawTasks => {
-        console.log('[TaskListPage] taskService.getTasks emitió (datos crudos):', rawTasks);
-        if (!rawTasks) console.warn('[TaskListPage] taskService.getTasks emitió undefined/null como datos crudos.');
-      }),
-      map(tasks => {
-        if (!tasks) return [];
-        console.log('[TaskListPage] map: Aplicando filterAndSortTasks...');
-        const result = this.filterAndSortTasks(tasks);
-        console.log('[TaskListPage] map: Resultado de filterAndSortTasks:', result);
-        return result;
-      }),
-      tap(filteredTasks => { // <--- LÓGICA DE LOADING AQUÍ para cada emisión
-        console.log('[TaskListPage] tap (después de map): Tareas procesadas. isLoading = false, dismissLoading().', filteredTasks);
+      map(tasks => this.filterAndSortTasks(tasks || [])),
+      tap(() => {
         this.isLoading = false;
-        this.dismissLoading(); // Cierra el loading después de procesar la emisión
+        this.dismissLoading();
       }),
       catchError(error => {
-        console.error('[TaskListPage] catchError: Error al cargar tareas:', error);
+        console.error('[TaskListPage] Error al cargar tareas:', error);
         this.presentToast('Error al cargar las tareas.', 'danger');
-        this.isLoading = false; // Asegurar que isLoading se ponga a false en error
-        this.dismissLoading(); // Asegurar que se cierre el loading en error
+        this.isLoading = false;
+        this.dismissLoading();
         return of([]);
       }),
-      finalize(() => { // Finalize se ejecuta cuando el observable fuente completa o hay error, o desuscripción
-        console.log('[TaskListPage] finalize: El observable de tareas ha finalizado (o error/desuscripción).');
-        // Si por alguna razón isLoading sigue true, intentamos cerrarlo.
-        if (this.isLoading) {
-            console.warn('[TaskListPage] finalize: isLoading todavía era true. Forzando dismissLoading.');
-            this.isLoading = false;
-            this.dismissLoading();
-        }
+      finalize(() => {
+         if (this.isLoading) {
+           this.isLoading = false;
+           this.dismissLoading();
+         }
       })
-    ).subscribe({
-        next: filteredAndSortedTasks => {
-          console.log('[TaskListPage] subscribe.next: Asignando tareas a tasks$.');
-          this.tasks$ = of(filteredAndSortedTasks);
-        },
-        error: err => {
-            console.error('[TaskListPage] subscribe.error: Error no manejado por catchError:', err);
-            // isLoading y dismissLoading ya deberían haberse manejado en catchError o finalize
-        }
+    ).subscribe(filteredAndSortedTasks => {
+      this.tasks$ = of(filteredAndSortedTasks);
     });
   }
 
   filterAndSortTasks(tasks: Tarea[]): Tarea[] {
+    console.log(`[TaskListPage] filterAndSortTasks - Segmento: ${this.currentSegment}, Tareas recibidas: ${tasks.length}`);
     let filteredTasks: Tarea[];
-    console.log('[TaskListPage] filterAndSortTasks - Segmento actual:', this.currentSegment, 'Tareas recibidas:', tasks);
-    if (!tasks) return [];
-
-    // Log para cada tarea y su estado 'completada'
-    tasks.forEach((task, index) => {
-      console.log(`[TaskListPage] filterAndSortTasks - Tarea[${index}]: ${task.titulo}, Completada: ${task.completada}`);
-    });
 
     if (this.currentSegment === 'pendientes') {
       filteredTasks = tasks.filter(task => !task.completada);
@@ -145,35 +158,66 @@ export class TaskListPage implements OnInit, OnDestroy {
         const prioridadA = a.prioridad ?? 3;
         const prioridadB = b.prioridad ?? 3;
         if (prioridadA !== prioridadB) return prioridadA - prioridadB;
-        const timeA = a.fechaCreacion instanceof Timestamp ? a.fechaCreacion.toMillis() : Date.now();
-        const timeB = b.fechaCreacion instanceof Timestamp ? b.fechaCreacion.toMillis() : Date.now();
-        return timeA - timeB;
+        const timeA = a.fechaCreacion instanceof Timestamp ? a.fechaCreacion.toMillis() : (a.fechaCreacion ? new Date(a.fechaCreacion as any).getTime() : Date.now());
+        const timeB = b.fechaCreacion instanceof Timestamp ? b.fechaCreacion.toMillis() : (b.fechaCreacion ? new Date(b.fechaCreacion as any).getTime() : Date.now());
+        return timeA - timeB; // Más antiguas primero
       });
-    } else {
+    } else { // 'completadas'
       filteredTasks = tasks.filter(task => task.completada);
       filteredTasks.sort((a, b) => {
-        const timeA = a.fechaCompletada instanceof Timestamp ? a.fechaCompletada.toMillis() : 0;
-        const timeB = b.fechaCompletada instanceof Timestamp ? b.fechaCompletada.toMillis() : 0;
-        return timeB - timeA;
+        const timeA = a.fechaCompletada instanceof Timestamp ? a.fechaCompletada.toMillis() : (a.fechaCompletada ? new Date(a.fechaCompletada as any).getTime() : 0);
+        const timeB = b.fechaCompletada instanceof Timestamp ? b.fechaCompletada.toMillis() : (b.fechaCompletada ? new Date(b.fechaCompletada as any).getTime() : 0);
+        return timeB - timeA; // Más recientes primero
       });
     }
-    console.log('[TaskListPage] filterAndSortTasks - Tareas después de filtrar y ordenar:', filteredTasks);
+    console.log(`[TaskListPage] Tareas después de filtrar y ordenar (${this.currentSegment}): ${filteredTasks.length}`);
     return filteredTasks;
   }
 
-  segmentChanged(event: any) {
+  // Para resaltar el día seleccionado en la barra de días
+  isDaySelected(day: DayDisplay): boolean {
+    return this.selectedDayFullDate.getFullYear() === day.fullDate.getFullYear() &&
+           this.selectedDayFullDate.getMonth() === day.fullDate.getMonth() &&
+           this.selectedDayFullDate.getDate() === day.fullDate.getDate();
+  }
+
+  // Cuando el usuario selecciona un día en la barra
+  selectDay(day: DayDisplay): void {
+    this.selectedDayFullDate = new Date(day.fullDate);
+    console.log(`[TaskListPage] Día seleccionado: ${this.selectedDayFullDate.toDateString()}`);
+    // Por ahora, la selección de día es solo visual y no afecta el filtrado de tareas.
+    // Si quisiéramos que afecte, aquí se llamaría a subscribeToTasks o se modificaría un filtro.
+  }
+
+  // Cuando cambia el segmento (Pendientes/Completadas)
+  segmentChanged(event: any): void {
     this.currentSegment = event.detail.value;
-    console.log('[TaskListPage] segmentChanged a', this.currentSegment);
+    console.log('[TaskListPage] Segmento cambiado a', this.currentSegment);
     if (this.authUser?.uid) {
+      // Re-obtener y re-filtrar tareas según el nuevo segmento
       this.subscribeToTasks(this.authUser.uid);
     }
   }
 
+  public getDisplayDateForPipe(fechaVencimiento: any): Date | string | number | null {
+    if (!fechaVencimiento) return null;
+    if (fechaVencimiento instanceof Timestamp) return fechaVencimiento.toDate();
+    if (fechaVencimiento instanceof Date || typeof fechaVencimiento === 'string' || typeof fechaVencimiento === 'number') {
+      return fechaVencimiento;
+    }
+    try {
+      const d = new Date(fechaVencimiento);
+      if (!isNaN(d.getTime())) return d;
+    } catch (e) { /* silent */ }
+    return null;
+  }
+
   async presentLoading(message: string = 'Cargando...') {
+    // ... (código sin cambios)
     console.log(`[TaskListPage] presentLoading: Intentando mostrar loading con mensaje "${message}"`);
-    if (this.loadingElement) {
-      console.log('[TaskListPage] presentLoading: Ya existe un loadingElement, descartando el anterior.');
-      try { await this.loadingElement.dismiss(); } catch (e) {}
+    if (this.loadingElement && (await this.loadingCtrl.getTop()) === this.loadingElement) {
+      console.log('[TaskListPage] presentLoading: Ya existe un loadingElement activo, descartando el anterior.');
+      try { await this.loadingElement.dismiss(); } catch (e) { /* ignore */ }
       this.loadingElement = null;
     }
     this.loadingElement = await this.loadingCtrl.create({
@@ -187,31 +231,34 @@ export class TaskListPage implements OnInit, OnDestroy {
   }
 
   async dismissLoading() {
+    // ... (código sin cambios)
     console.log('[TaskListPage] dismissLoading: Intentando cerrar loading.');
-    if (this.loadingElement) {
+    if (this.loadingElement && (await this.loadingCtrl.getTop()) === this.loadingElement) {
       try {
         await this.loadingElement.dismiss();
-        console.log('[TaskListPage] dismissLoading: Loading cerrado.');
+        console.log('[TaskListPage] dismissLoading: Loading específico cerrado.');
       } catch (error) {
-        // Puede que ya se haya cerrado, no es crítico
+        console.warn('[TaskListPage] dismissLoading: Error al cerrar loadingElement específico:', error);
       } finally {
         this.loadingElement = null;
       }
-    } else {
-      // Intenta cerrar cualquier loading global si no hay una instancia específica
-      try {
+    } else if (!this.loadingElement) {
         const currentGlobalLoading = await this.loadingCtrl.getTop();
         if (currentGlobalLoading) {
-          await this.loadingCtrl.dismiss();
-          console.log('[TaskListPage] dismissLoading: Loading global cerrado.');
+            try {
+                await currentGlobalLoading.dismiss();
+                console.log('[TaskListPage] dismissLoading: Loading global (inesperado) cerrado.');
+            } catch(e) { console.warn('[TaskListPage] dismissLoading: Error al cerrar loading global:', e); }
         } else {
-          console.log('[TaskListPage] dismissLoading: No había loadingElement ni loading global para cerrar.');
+            console.log('[TaskListPage] dismissLoading: No había loadingElement ni loading global para cerrar.');
         }
-      } catch(e) { /* Silenciar */ }
+    } else {
+        console.log('[TaskListPage] dismissLoading: loadingElement existe pero no es el superior. No se cierra.');
     }
   }
 
   ngOnDestroy() {
+    // ... (código sin cambios)
     console.log('[TaskListPage] ngOnDestroy: Desuscribiendo y limpiando.');
     if (this.authSubscription && !this.authSubscription.closed) {
       this.authSubscription.unsubscribe();
@@ -222,10 +269,13 @@ export class TaskListPage implements OnInit, OnDestroy {
     this.dismissLoading();
   }
 
-  // MÉTODOS NO MODIFICADOS PERO NECESARIOS PARA EL TEMPLATE
   async abrirModalTarea(tarea?: Tarea) {
+    // ... (código sin cambios)
     const modal = await this.modalCtrl.create({
-      component: TaskFormComponent, componentProps: { tarea: tarea ? { ...tarea } : undefined },
+      component: TaskFormComponent,
+      componentProps: {
+        tarea: tarea ? { ...tarea } : undefined
+      },
     });
     await modal.present();
     const { data } = await modal.onDidDismiss();
@@ -233,53 +283,97 @@ export class TaskListPage implements OnInit, OnDestroy {
       this.presentToast(data.creada ? 'Tarea creada.' : 'Tarea actualizada.', 'success', 1500);
     }
   }
+
   async toggleCompletada(tarea: Tarea, event: Event) {
+    // ... (código sin cambios)
     event.stopPropagation();
-    if (!this.authUser?.uid || !tarea.id) return;
-    const nuevoEstado = !tarea.completada; const tareaId = tarea.id;
+    if (!this.authUser?.uid || !tarea.id) {
+      console.warn('[TaskListPage] toggleCompletada: No authUser or tarea.id');
+      return;
+    }
+    const nuevoEstado = !tarea.completada;
+    const tareaId = tarea.id;
     try {
       await this.taskService.actualizarEstadoCompletadaTask(this.authUser.uid, tareaId, nuevoEstado);
       this.presentToast(`Tarea marcada como ${nuevoEstado ? 'completada' : 'pendiente'}.`, 'success', 1500);
-    } catch (error) { this.presentToast('Error al actualizar la tarea.', 'danger'); }
+    } catch (error) {
+      console.error('[TaskListPage] Error al actualizar estado de tarea:', error);
+      this.presentToast('Error al actualizar la tarea.', 'danger');
+    }
   }
+
   async confirmarEliminar(tarea: Tarea, event: Event) {
+    // ... (código sin cambios)
     event.stopPropagation();
-    if (!this.authUser?.uid || !tarea.id) return;
+    if (!this.authUser?.uid || !tarea.id) {
+      console.warn('[TaskListPage] confirmarEliminar: No authUser or tarea.id');
+      return;
+    }
     const tareaId = tarea.id;
     const alert = await this.alertCtrl.create({
-      header: 'Confirmar Eliminación', message: `¿Estás seguro de que quieres eliminar la tarea "${tarea.titulo}"?`,
+      header: 'Confirmar Eliminación',
+      message: `¿Estás seguro de que quieres eliminar la tarea "${tarea.titulo}"?`,
       buttons: [
         { text: 'Cancelar', role: 'cancel', cssClass: 'secondary-button' },
-        { text: 'Eliminar', cssClass: 'danger-button',
+        {
+          text: 'Eliminar',
+          cssClass: 'danger-button',
           handler: async () => {
             try {
               await this.taskService.eliminarTask(this.authUser!.uid, tareaId);
               this.presentToast('Tarea eliminada exitosamente.', 'success', 1500);
-            } catch (error) { this.presentToast('Error al eliminar la tarea.', 'danger'); }
+            } catch (error) {
+              console.error('[TaskListPage] Error al eliminar tarea:', error);
+              this.presentToast('Error al eliminar la tarea.', 'danger');
+            }
           },
         },
-      ], cssClass: 'custom-alert'
+      ],
+      cssClass: 'custom-alert'
     });
     await alert.present();
   }
+
   async handleRefresh(event: any) {
-    console.log('[TaskListPage] handleRefresh');
+    // ... (código sin cambios)
+    console.log('[TaskListPage] handleRefresh disparado.');
     if (this.authUser?.uid) {
-      this.subscribeToTasks(this.authUser.uid).finally(() => { // finally no existe en promesas, se usa en pipe
+      try {
+        await this.subscribeToTasks(this.authUser.uid); // Asegúrate que subscribeToTasks es async o devuelve Promesa
+      } catch (error) {
+        console.error('[TaskListPage] Error durante handleRefresh:', error);
+      } finally {
         if (event && event.target && typeof event.target.complete === 'function') {
           event.target.complete();
+          console.log('[TaskListPage] Refresher completado y cerrado.');
         }
-        console.log('[TaskListPage] Refresh completado y refresher cerrado.');
-      });
+      }
     } else {
+      console.log('[TaskListPage] handleRefresh: No hay usuario autenticado.');
       if (event && event.target && typeof event.target.complete === 'function') {
         event.target.complete();
       }
     }
   }
-  trackTareaById(index: number, tarea: Tarea): string | undefined { return tarea.id; }
-  async presentToast(mensaje: string, color: 'success' | 'warning' | 'danger' | 'light' | 'dark' = 'dark', duracion: number = 2000) {
-    const toast = await this.toastCtrl.create({ message: mensaje, duration: duracion, color: color, position: 'bottom', cssClass: 'custom-toast' });
+
+  trackTareaById(index: number, tarea: Tarea): string | undefined {
+    // ... (código sin cambios)
+    return tarea.id;
+  }
+
+  async presentToast(
+    mensaje: string,
+    color: 'success' | 'warning' | 'danger' | 'light' | 'dark' = 'dark',
+    duracion: number = 2000
+  ) {
+    // ... (código sin cambios)
+    const toast = await this.toastCtrl.create({
+      message: mensaje,
+      duration: duracion,
+      color: color,
+      position: 'bottom',
+      cssClass: 'custom-toast'
+    });
     toast.present();
   }
 }

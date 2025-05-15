@@ -1,274 +1,259 @@
-// src/app/tasks/pages/task-list/task-list.page.scss
+/* ============================
+   📄 Estilos de la Página de Tareas (task-list.page.scss)
+============================ */
 
-// Variables de color (puedes centralizarlas en theme/variables.scss)
-// Estas variables permiten una fácil personalización de los colores de la página.
+/* Este archivo utiliza variables definidas en tu global.scss */
+
+// Variables específicas de esta página
 :host {
-  --ion-color-primary: #7F00FF;         // Morado principal
-  --ion-color-primary-contrast: #ffffff;
-  --ion-color-secondary: #6A0DAD;      // Morado más oscuro para acentos
-  --ion-color-tertiary: #FFC107;       // Amarillo/Dorado para el FAB y acentos importantes
-  --ion-color-tertiary-contrast: #000000;
-  --ion-color-light-bg: #F8F5FF;       // Fondo general de la página, muy claro
-  --ion-color-medium-grey: #86888f;    // Gris medio para texto secundario o iconos
-  --ion-color-dark-grey: #4b5563;      // Gris oscuro para texto principal
-  --ion-color-item-bg: #ffffff;        // Fondo de los items de la lista
-  --ion-color-item-border: #e0e0e0;    // Borde sutil para los items
-  --ion-color-success-custom: #2dd36f;   // Verde para completado
-  --ion-color-danger-custom: #eb445a;    // Rojo para prioridad alta o eliminar
-  --ion-color-warning-custom: #ffc409;   // Amarillo para prioridad media
+  --page-task-list-background-image: url('../../../../assets/images/C3.png'); /* Ajusta la ruta si es necesario */
 
-  --font-family-sans-serif: 'Inter', sans-serif; // Fuente principal
-  --list-item-border-radius: 12px;
-  --list-item-margin-vertical: 8px;
-  --list-item-margin-horizontal: 16px;
-  --list-item-padding: 16px;
+  // === Colores para la barra de días sobre fondo morado oscuro ===
+  --days-toolbar-text-color: var(--app-color-text-on-dark-transparent); /* Texto blanco semitransparente */
+  --days-toolbar-selected-bg: var(--app-card-background-primary);    /* Fondo CREMA para día seleccionado */
+  --days-toolbar-selected-text: var(--app-color-text);               /* Texto OSCURO para día seleccionado (sobre crema) */
+
+  // === Colores para los segmentos sobre fondo morado oscuro ===
+  --segment-button-text-color: var(--app-color-text-on-dark-transparent); /* Texto blanco semitransparente */
+  --segment-button-checked-text-color: var(--app-color-text-on-dark);       /* Texto blanco opaco para activo */
+  --segment-button-indicator-color: var(--app-card-background-primary);   /* Indicador CREMA */
+
+  --day-button-letter-size: 0.8em;
+  --day-button-number-size: 1em;
 }
 
-// Estilos del Encabezado
-ion-header {
-  ion-toolbar {
-    font-family: var(--font-family-sans-serif);
+/* 🌐 Contenido Principal con Fondo */
+.task-list-content {
+  --background: var(--page-task-list-background-image) no-repeat center 90% / 80% auto; /* Ajusta posición y tamaño */
+  position: relative;
+}
+
+/* 📅 Barra de Días de la Semana */
+.days-of-week-toolbar {
+  --background: var(--ion-color-primary); /* Fondo morado oscuro global */
+  --min-height: auto;
+  padding: 4px 0;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.1); /* Sombra sutil */
+  /* No se necesita borde inferior si la siguiente barra es del mismo color */
+
+  .days-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    padding: 0 4px;
   }
 
-  ion-title {
-    font-weight: 600; // Título un poco más grueso
-  }
+  .day-button {
+    background-color: transparent;
+    color: var(--days-toolbar-text-color); /* Texto blanco semitransparente */
+    border-radius: var(--app-border-radius-small); /* Radio de borde global */
+    width: auto;
+    min-width: 40px;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    padding: 4px 6px;
+    margin: 0 1px;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    cursor: pointer;
 
-  // Estilos para el ion-segment
-  ion-segment {
-    --background: var(--ion-color-primary); // Fondo del segmento igual al toolbar
-    border-radius: 0; // Quitar bordes redondeados si está pegado al toolbar
-
-    ion-segment-button {
-      --color: rgba(255, 255, 255, 0.7); // Color de los botones no seleccionados
-      --color-checked: var(--ion-color-primary-contrast); // Color del botón seleccionado
-      --indicator-color: var(--ion-color-tertiary); // Color del indicador del botón seleccionado
-      --indicator-height: 3px;
-      text-transform: capitalize; // Texto de los botones del segmento
+    .day-letter {
+      font-size: var(--day-button-letter-size);
       font-weight: 500;
-      letter-spacing: 0.5px;
-      min-width: auto; // Para que los botones se ajusten mejor
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .day-number {
+      font-size: var(--day-button-number-size);
+      font-weight: 600;
+      line-height: 1.1;
+    }
+
+    &:active {
+        background-color: rgba(255,255,255,0.1); /* Efecto de presión sobre fondo oscuro */
+    }
+  }
+
+  .day-button.selected-day {
+    background-color: var(--days-toolbar-selected-bg); /* Fondo CREMA */
+    color: var(--days-toolbar-selected-text); /* Texto OSCURO */
+    box-shadow: 0px 1px 4px rgba(0,0,0,0.15); /* Sombra para el botón crema */
+  }
+}
+
+/* 📊 Segmentos (Pendientes/Completadas) */
+ion-toolbar ion-segment {
+  --background: var(--ion-color-primary); /* Fondo morado oscuro global, IGUAL que la barra de días */
+  /* No se necesita borde superior si la barra anterior es del mismo color */
+  padding-top: 2px;
+  padding-bottom: 2px;
+
+  ion-segment-button {
+    --color: var(--segment-button-text-color); /* Texto blanco semitransparente */
+    --color-checked: var(--segment-button-checked-text-color); /* Texto blanco opaco */
+    --indicator-color: var(--segment-button-indicator-color); /* Indicador CREMA */
+    --indicator-height: 3px;
+    font-weight: 500;
+    text-transform: none;
+    font-size: 0.95em;
+    --ripple-color: var(--app-card-background-primary); /* Ripple crema */
+
+    &.segment-button-checked {
+      font-weight: 700;
     }
   }
 }
 
-// Estilos del Contenido Principal
-.task-list-content {
-  --background: var(--ion-color-light-bg); // Fondo claro para el contenido
-  font-family: var(--font-family-sans-serif);
-}
 
-// Estilos para el Refresher
-ion-refresher {
-  ion-refresher-content {
-    --color: var(--ion-color-primary); // Color del spinner del refresher
-  }
-}
-
-// Estilos para el Contenedor de Carga
+/* ⏳ Contenedor de Carga */
 .loading-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 70vh; // Ocupa una buena parte de la pantalla
-  color: var(--ion-color-medium-grey);
-
+  height: 50vh;
+  text-align: center;
+  color: var(--app-color-text-subtle);
   ion-spinner {
-    width: 40px;
-    height: 40px;
-    --color: var(--ion-color-primary); // Color del spinner
+    --color: var(--ion-color-primary);
+    width: 50px;
+    height: 50px;
+    margin-bottom: 15px;
   }
-
-  p {
-    margin-top: 16px;
-    font-size: 1em;
-  }
+  p { font-size: 1.1em; }
 }
 
-// Estilos para el Estado Vacío (cuando no hay tareas)
+/* 🤷‍♂️ Estado Vacío */
 .empty-state {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  height: 70vh; // Ocupa una buena parte de la pantalla
-  padding: 20px;
-  color: var(--ion-color-medium-grey);
-
+  padding: 40px 20px;
+  min-height: 60vh;
   .empty-icon {
-    font-size: 5em; // Icono grande
-    margin-bottom: 16px;
-    color: var(--ion-color-secondary); // Un color morado más sutil
-    opacity: 0.7;
+    font-size: 5rem;
+    color: var(--ion-color-secondary);
+    margin-bottom: 20px;
   }
-
   p {
     font-size: 1.1em;
-    margin-bottom: 24px;
-    line-height: 1.5;
+    color: var(--app-color-text-subtle);
+    margin-bottom: 25px;
+    max-width: 300px;
   }
-
   .add-first-task-button {
-    --border-color: var(--ion-color-primary);
     --color: var(--ion-color-primary);
-    --border-radius: var(--list-item-border-radius);
-    font-weight: 500;
-    height: 44px;
+    --border-color: var(--ion-color-primary);
+    --ripple-color: var(--ion-color-primary);
+    font-weight: 600;
+    text-transform: none;
+    --border-radius: var(--app-border-radius-medium);
+    ion-icon { margin-right: 8px; }
   }
 }
 
-// Estilos para la Lista de Tareas
+/* 📋 Lista de Tareas */
 .task-list {
-  background: transparent; // La lista no necesita su propio fondo
-  padding-top: var(--list-item-margin-vertical);
-  padding-bottom: 80px; // Espacio para el FAB
+  background: transparent;
+  padding: 8px 0;
 }
 
-// Estilos para cada Ítem de Tarea (ion-item dentro de ion-item-sliding)
-ion-item-sliding {
-  margin-bottom: var(--list-item-margin-vertical); // Espacio entre los items deslizables
-  border-radius: var(--list-item-border-radius); // Bordes redondeados para el contenedor deslizable
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); // Sombra sutil para cada item
-  margin-left: var(--list-item-margin-horizontal);
-  margin-right: var(--list-item-margin-horizontal);
+ion-item-sliding ion-item {
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  --background: var(--app-card-background-secondary);
+  margin: 8px 16px;
+  border-radius: var(--app-border-radius-medium);
+  box-shadow: var(--app-box-shadow-soft);
+  --detail-icon-color: var(--app-color-text-subtle);
 
-  ion-item {
-    --background: var(--ion-color-item-bg); // Fondo blanco para el item
-    --padding-start: var(--list-item-padding);
-    --inner-padding-end: var(--list-item-padding);
-    --border-radius: var(--list-item-border-radius); // Bordes redondeados para el item interno
-    --border-width: 0px; // Quitamos el borde por defecto, la sombra ya da separación
-    --detail-icon-color: var(--ion-color-medium-grey); // Color del icono de detalle (flecha)
-    --detail-icon-opacity: 0.8;
+  ion-checkbox {
+    --size: 22px;
+    --checkmark-color: var(--app-color-text-on-dark);
+    --background-checked: var(--ion-color-primary);
+    --border-color-checked: var(--ion-color-primary);
+    --border-color: var(--app-color-text-subtle);
+    margin-right: 16px;
+  }
 
-    ion-checkbox {
-      margin-right: 12px; // Espacio entre el checkbox y el label
-      --size: 22px; // Tamaño del checkbox
-      --border-radius: 6px;
-      --border-color: var(--ion-color-medium-grey);
-      --border-color-checked: var(--ion-color-primary);
-      --background-checked: var(--ion-color-primary);
-      --checkmark-color: var(--ion-color-primary-contrast);
+  ion-label {
+    h2 {
+      font-size: 1.15em;
+      font-weight: 600;
+      color: var(--app-color-text);
+      margin-bottom: 4px;
     }
-
-    ion-label {
-      h2 {
-        font-size: 1.1em;
-        font-weight: 600;
-        color: var(--ion-color-dark-grey);
-        margin-bottom: 4px; // Espacio entre título y descripción
-        white-space: normal; // Permite que el título ocupe múltiples líneas
-      }
-
-      p {
-        font-size: 0.9em;
-        color: var(--ion-color-medium-grey);
-        white-space: normal; // Permite que la descripción ocupe múltiples líneas
-        line-height: 1.4;
-      }
-
-      .fecha-vencimiento {
-        font-size: 0.8em;
-        color: var(--ion-color-secondary); // Un color distintivo para la fecha
-        margin-top: 6px;
-        display: flex;
-        align-items: center;
-
-        .fecha-icon {
-          margin-right: 4px;
-          font-size: 1em; // Icono un poco más pequeño
-        }
-      }
+    p {
+      font-size: 0.9em;
+      color: var(--app-color-text-subtle);
+      margin-bottom: 6px;
+      white-space: normal;
     }
-
-    // Indicador de Prioridad
-    .prioridad-indicator {
+    .fecha-vencimiento {
       display: flex;
       align-items: center;
-      margin-left: 8px; // Espacio del indicador respecto al texto
-
-      ion-icon {
-        font-size: 1.3em; // Tamaño de los iconos de alerta
+      font-size: 0.8em;
+      color: var(--app-color-text-subtle);
+      opacity: 0.9;
+      .fecha-icon {
+        margin-right: 5px;
+        font-size: 1.1em;
       }
     }
+  }
 
-    // Estilos para Tareas Completadas
-    &.task-completada {
-      ion-label h2, ion-label p {
-        text-decoration: line-through; // Tachar texto
-        color: var(--ion-color-medium-grey); // Color más tenue
-        opacity: 0.8;
-      }
-      // Podrías cambiar el fondo o el color del checkbox también
-      ion-checkbox {
-        --border-color-checked: var(--ion-color-medium-grey);
-        --background-checked: var(--ion-color-medium-grey);
-      }
+  &.task-completada {
+    --background: rgba(230, 230, 230, 0.7);
+    ion-label h2, ion-label p {
+      text-decoration: line-through;
+      color: var(--app-color-text-completed);
     }
-
-    // Estilos para Prioridades (solo visual, la lógica de ordenamiento está en el TS)
-    &.task-prioridad-alta:not(.task-completada) {
-      // Podrías añadir un borde izquierdo de color o algo similar
-      // border-left: 4px solid var(--ion-color-danger-custom);
-    }
-    &.task-prioridad-media:not(.task-completada) {
-      // border-left: 4px solid var(--ion-color-warning-custom);
-    }
+    .prioridad-indicator { display: none; }
   }
 }
 
-// Estilos para las Opciones de Swipe (Editar, Eliminar)
+.prioridad-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  ion-icon { font-size: 1.5em; }
+}
+
+/* 🔧 Opciones al deslizar el item */
 ion-item-options {
   ion-item-option {
-    border-radius: 0 var(--list-item-border-radius) var(--list-item-border-radius) 0; // Redondear solo las esquinas externas
-    // Si solo hay una opción, o para la primera/última
-    &:first-child {
-      // border-radius: 0 var(--list-item-border-radius) var(--list-item-border-radius) 0;
-    }
-    &:last-child {
-      // border-radius: 0 var(--list-item-border-radius) var(--list-item-border-radius) 0;
-    }
-
-    ion-icon {
-      font-size: 1.6em; // Iconos un poco más grandes en las opciones
-    }
+    font-size: 0.9em;
+    text-transform: none;
+    &:first-of-type { border-top-left-radius: 0px; border-bottom-left-radius: 0px; border-top-right-radius: var(--app-border-radius-medium); border-bottom-right-radius: var(--app-border-radius-medium); }
+    &:last-of-type { border-top-left-radius: 0px; border-bottom-left-radius: 0px; border-top-right-radius: var(--app-border-radius-medium); border-bottom-right-radius: var(--app-border-radius-medium); }
   }
-  // Color específico para el botón de eliminar si no se usa el color="danger" directamente
-  // ion-item-option[color="danger"] {
-  //   --background: var(--ion-color-danger-custom);
-  // }
-}
-
-
-// Estilos para el Botón Flotante de Acción (FAB)
-ion-fab {
-  ion-fab-button {
-    --background: var(--ion-color-tertiary); // Amarillo/Dorado para el FAB
-    --background-activated: #FFD54F; // Un poco más oscuro al presionar
-    --color: var(--ion-color-tertiary-contrast); // Texto/Icono negro para contraste
-    --box-shadow: 0 6px 12px rgba(0,0,0,0.2); // Sombra más pronunciada
-
-    ion-icon {
-      font-size: 1.8em; // Icono grande en el FAB
-    }
+  ion-item-option[color="light"] {
+    --background: #f0f0f0;
+    --color: var(--app-color-text);
   }
 }
 
-// Clases personalizadas para botones de alerta (opcional, si quieres un estilo más específico)
-.custom-alert {
-  .danger-button {
-    color: var(--ion-color-danger-custom); // Rojo para el botón de eliminar en la alerta
-  }
-  .secondary-button {
-    color: var(--ion-color-medium-grey);
-  }
+/* ➕ Botón Flotante (FAB) */
+ion-fab-button[color="tertiary"] {
+  --background: var(--ion-color-tertiary);
+  --background-activated: var(--ion-color-tertiary-shade);
+  --background-hover: var(--ion-color-tertiary-tint);
+  --color: var(--ion-color-tertiary-contrast);
+  --box-shadow: var(--app-box-shadow-strong);
+  ion-icon { font-size: 1.8em; }
 }
 
-// Clase para toasts personalizados (opcional)
-.custom-toast {
-  // Aquí puedes añadir estilos globales para tus toasts si es necesario
-  // Por ejemplo, cambiar la fuente o el radio del borde.
-  // --border-radius: 10px;
+/* 🔄 Refresher */
+ion-refresher ion-refresher-content {
+  --color: var(--ion-color-primary);
+  --icon-color: var(--ion-color-primary);
+  --text-color: var(--ion-color-primary);
 }

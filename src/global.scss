@@ -18,84 +18,210 @@
 /* ========================================
  * 🎨 Paleta de Colores Fijos
  * ======================================== */
-:root {
-  --color-primary: #4da6ff;         /* Azul Claro */
-  --color-secondary: #98d982;       /* Verde Suave */
-  --color-warning: #ffeb99;         /* Amarillo Claro */
-  --color-danger: #ff6b6b;          /* Rojo Claro */
-  --color-background: #f8f3e9;      /* Crema */
-  --color-text-dark: #333333;       /* Negro Suave */
-  --color-text-light: #888888;      /* Gris Claro */
-}
+
 /* ============================
    🌐 Fuente Global
 ============================ */
 body, ion-content {
   font-family: 'Nunito', sans-serif;
-  color: #4a4a4a;
+  color: #1d1c1c;
   background-color: #fafafa;
 }
+/* ============================
+   🌐 Estilos Globales de la Aplicación (global.scss)
+============================ */
+
+/* Este archivo debe ser importado en tu proyecto Angular para que los estilos
+  se apliquen globalmente. Usualmente, esto se configura en angular.json
+  o se importa en el styles.scss principal.
+*/
+
+/* 🎨 Variables CSS Globales --------------------------------------------- */
+:root {
+
+  /* === Paleta de Colores Principal (Basada en tus morados) === */
+  --ion-color-primary: #6a4acb; /* Morado principal oscuro */
+  --ion-color-primary-rgb: 106,74,203;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255,255,255;
+  --ion-color-primary-shade: #5d41b3; /* Un poco más oscuro para efectos */
+  --ion-color-primary-tint: #795ce0; /* Un poco más claro para efectos */
+
+  --ion-color-secondary: #b79dff; /* Morado claro (sin la transparencia de #b79dffb7 para el color base) */
+  --ion-color-secondary-rgb: 183,157,255;
+  --ion-color-secondary-contrast: #000000; /* Texto oscuro sobre este morado claro para mejor contraste */
+  --ion-color-secondary-shade: #a18ae0;
+  --ion-color-secondary-tint: #bea5ff;
+
+  --ion-color-tertiary: #8e71ff; /* Otro tono de morado */
+  --ion-color-tertiary-rgb: 142,113,255;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-shade: #7d63e0;
+  --ion-color-tertiary-tint: #997fff;
+
+  /* === Colores de Texto de la Aplicación === */
+  --app-color-text: #4a4a4a; /* Gris oscuro para texto principal */
+  --app-color-text-rgb: 74,74,74;
+  --app-color-text-subtle: #7a7a7a; /* Gris más suave para descripciones o texto secundario */
+  --app-color-text-completed: #9a9a9a; /* Para texto de tareas completadas */
+  --app-color-text-on-dark: #ffffff; /* Texto blanco para usar sobre fondos oscuros (como --ion-color-primary) */
+  --app-color-text-on-dark-transparent: rgba(255, 255, 255, 0.75); /* Texto blanco semitransparente */
+
+  /* === Colores de Fondo y Elementos de UI === */
+  --app-background-gradient-start: #b79dffb7; /* Inicio del gradiente de bienvenida */
+  --app-background-gradient-end: #d9cfff27; /* Fin del gradiente de bienvenida */
+
+  --app-card-background-primary: #ffeaa7; /* Amarillo pastel para tarjetas principales (ej. bienvenida) */
+  --app-card-background-secondary: rgba(255, 234, 167, 0.85); /* Mismo amarillo con transparencia (ej. items de tarea) */
+
+  --app-toolbar-light-background: #f5f5f5; /* Fondo gris muy claro para barras de herramientas */
+  --app-toolbar-light-border: #e0e0e0; /* Borde sutil para barras claras */
+
+  /* === Radios de Borde Comunes === */
+  --app-border-radius-small: 8px;   /* Para elementos pequeños como botones de día */
+  --app-border-radius-medium: 12px;  /* Para items de lista, botones más grandes */
+  --app-border-radius-large: 20px;   /* Para tarjetas principales */
+
+  /* === Sombras === */
+  --app-box-shadow-soft: 0px 3px 10px rgba(0, 0, 0, 0.08); /* Sombra suave para items */
+  --app-box-shadow-medium: 0px 5px 15px rgba(0, 0, 0, 0.1); /* Sombra para cards */
+  --app-box-shadow-strong: 0px 4px 10px rgba(106, 74, 203, 0.4); /* Sombra con color para botones destacados */
+
+}
+
+
+/* 🧼 Estilos Base y Resets ---------------------------------------------- */
+
+/* Opcional: Si quieres que todas las ion-content tengan fondo transparente por defecto.
+  Si no, elimina o comenta esta regla y aplícala solo en las páginas que lo necesiten.
+*/
+/*
+ion-content {
+  --background: none;
+}
+*/
+
+/*
+  Podrías definir una fuente global para la aplicación aquí si no quieres
+  usar la fuente por defecto de Ionic/Material Design/iOS.
+*/
+/*
+body, ion-app {
+  font-family: 'TuFuenteFavorita', sans-serif;
+}
+*/
+
+
+/* 💅 Estilos para Componentes de Ionic UI Personalizados ---------------- */
+/* Estos estilos se aplicarán a los componentes de Ionic cuando uses las clases CSS correspondientes. */
+
+/* Loading Personalizado */
+.custom-loading {
+  /* Ejemplo: Cambiar color del spinner (si no toma el color primario por defecto) */
+  // --spinner-color: var(--ion-color-primary);
+
+  /* Ejemplo: Cambiar color del texto */
+  // .loading-wrapper .loading-content {
+  //   color: var(--app-color-text);
+  // }
+}
+
+/* Alert Personalizado */
+.custom-alert {
+  /* Ejemplo: Fondo y borde redondeado para el alert */
+  // .alert-wrapper {
+  //   background-color: #fff; // O var(--app-card-background-primary) si prefieres el amarillo
+  //   border-radius: var(--app-border-radius-large);
+  // }
+
+  // .alert-title {
+  //   color: var(--app-color-text);
+  //   font-weight: 600;
+  // }
+
+  // .alert-message, .alert-input-group {
+  //   color: var(--app-color-text-subtle);
+  // }
+
+  /* Estilos para botones específicos dentro del alert si usas clases */
+  // .alert-button.secondary-button {
+  //   color: var(--app-color-text-subtle);
+  //   font-weight: 500;
+  // }
+
+  // .alert-button.danger-button {
+  //   color: var(--ion-color-danger);
+  //   font-weight: 600;
+  // }
+}
+
+/* Toast Personalizado */
+.custom-toast {
+  /* Ejemplo: Borde redondeado para el toast */
+  // .toast-wrapper {
+  //   border-radius: var(--app-border-radius-medium);
+  // }
+
+  /* Ejemplo: Estilos específicos para toasts de éxito/error si añades clases */
+  // &.toast-success .toast-message {
+  //   color: var(--ion-color-success-contrast); // Necesitarías definir --ion-color-success
+  // }
+  // &.toast-danger .toast-message {
+  //   color: var(--ion-color-danger-contrast); // Necesitarías definir --ion-color-danger-contrast
+  // }
+}
+
+
+/* 🛠️ Clases de Utilidad (Opcional) ------------------------------------- */
+/* Puedes añadir clases de utilidad si las necesitas frecuentemente.
+  Por ejemplo:
+*/
+/*
+.text-primary {
+  color: var(--ion-color-primary);
+}
+
+.background-primary {
+  background-color: var(--ion-color-primary);
+  color: var(--ion-color-primary-contrast); // Para asegurar legibilidad del texto
+}
+
+.box-shadow-soft {
+  box-shadow: var(--app-box-shadow-soft);
+}
+*/
+
+/* Consideraciones Adicionales:
+  - Este archivo `global.scss` establece una base. Los estilos específicos de cada
+    página o componente deben ir en sus respectivos archivos `.scss`.
+  - Si decides usar una fuente personalizada, asegúrate de importarla correctamente
+    (ej. con @font-face) y definirla en el body o ion-app.
+  - Revisa los contrastes de color para asegurar la accesibilidad.
+*/
+
 
 
 /* ========================================
  * 🌐 Estilos Generales
  * ======================================== */
-body {
-  background-color: var(--color-background) !important;
-  color: var(--color-text-dark);
-  font-family: 'Arial', sans-serif;
-}
 
-ion-header {
-  --background: var(--color-background);
-  --color: var(--color-text-dark);
-}
 
-ion-content {
-  --background: var(--color-background);
-}
+
+
+
 
 /* ========================================
  * 🔘 Estilos para Botones
  * ======================================== */
-ion-button {
-  --background: var(--color-primary);
-  --border-radius: 10px;
-}
 
-ion-button.success {
-  --background: var(--color-secondary);
-}
-
-ion-button.warning {
-  --background: var(--color-warning);
-}
-
-ion-button.danger {
-  --background: var(--color-danger);
-}
 
 /* ========================================
  * 📝 Estilos para Inputs
  * ======================================== */
-ion-item {
-  --border-color: var(--color-text-light);
-}
 
-ion-input {
-  --placeholder-color: var(--color-text-light);
-  --color: var(--color-text-dark);
-}
 
-ion-label {
-  --color: var(--color-text-dark);
-}
 
 /* ========================================
  * 📌 Estilos para Tabs
  * ======================================== */
-ion-tab-bar {
-  --background: var(--color-background);
-  --color-selected: var(--color-primary);
-  --color: var(--color-text-light);
-}
+
