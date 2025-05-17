@@ -10,31 +10,31 @@ export class AuthService {
   user$: Observable<User | null>;
 
   constructor(private auth: Auth) {
-    // 🔥 El observable que escucha el estado del usuario actual
+    // El observable que escucha el estado del usuario actual
     this.user$ = user(this.auth);
   }
 
-  // ✅ Iniciar sesión
+  // Iniciar sesión
   login(email: string, password: string) {
     return signInWithEmailAndPassword(this.auth, email, password);
   }
 
-  // ✅ Crear usuario
+  //  Crear usuario
   register(email: string, password: string) {
     return createUserWithEmailAndPassword(this.auth, email, password);
   }
 
-  // ✅ Cerrar sesión
+  //  Cerrar sesión
   logout() {
     return signOut(this.auth);
   }
 
-  // ✅ Usuario actual
+  //  Usuario actual
   getCurrentUser() {
     return this.auth.currentUser;
   }
 
-  // ✅ Recuperar Contraseña (🔥 Agregado)
+  //  Recuperar Contraseña
   resetPassword(email: string) {
     return sendPasswordResetEmail(this.auth, email);
   }

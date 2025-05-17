@@ -22,6 +22,10 @@ const routes: Routes = [
   {
     path: '**',
     redirectTo: 'welcome'
+  },
+  {
+    path: 'wellbeing',
+    loadChildren: () => import('./wellbeing/wellbeing.module').then( m => m.WellbeingPageModule)
   }
 ];
 
