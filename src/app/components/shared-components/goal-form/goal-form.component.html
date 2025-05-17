@@ -1,0 +1,72 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>{{ modalTitle }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarModal()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="goalForm" (ngSubmit)="guardarMeta()">
+
+    <div class="input-wrapper">
+      <ion-item class="custom-ion-item" lines="none">
+        <ion-label position="floating">Título de la Meta <ion-text color="danger">*</ion-text></ion-label>
+        <ion-input type="text" formControlName="titulo" required></ion-input>
+      </ion-item>
+      <div *ngIf="goalForm.get('titulo')?.invalid && (goalForm.get('titulo')?.dirty || goalForm.get('titulo')?.touched)"
+           class="error-message">
+        <div *ngIf="goalForm.get('titulo')?.errors?.['required']">
+          El título es requerido.
+        </div>
+        <div *ngIf="goalForm.get('titulo')?.errors?.['minlength']">
+          El título debe tener al menos 3 caracteres.
+        </div>
+      </div>
+    </div>
+
+    <div class="input-wrapper">
+      <ion-item class="custom-ion-item" lines="none">
+        <ion-label position="floating">Descripción (Opcional)</ion-label>
+        <ion-textarea formControlName="descripcion" autoGrow="true" rows="3"></ion-textarea>
+      </ion-item>
+    </div>
+
+    <div class="input-wrapper">
+      <ion-item lines="none" class="custom-ion-item item-datetime">
+        <ion-label position="stacked">Fecha Límite (Opcional)</ion-label>
+        <ion-datetime-button datetime="fechaLimitePicker"></ion-datetime-button>
+      </ion-item>
+      <ion-button fill="clear" size="small" (click)="limpiarFechaLimite()" *ngIf="goalForm.get('fechaLimite')?.value" class="clear-date-button">
+          <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+          Limpiar Fecha
+      </ion-button>
+    </div>
+
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime
+          id="fechaLimitePicker"
+          formControlName="fechaLimite"
+          presentation="date"
+          showDefaultButtons="true"
+          doneText="Hecho"
+          cancelText="Cancelar"
+          [min]="minDate">
+          <span slot="title">Selecciona Fecha Límite</span>
+        </ion-datetime>
+      </ng-template>
+    </ion-modal>
+
+    <div class="input-wrapper">
+      <ion-button expand="block" type="submit" [disabled]="goalForm.invalid" color="primary" class="submit-button">
+        <ion-icon slot="start" name="save-outline"></ion-icon>
+        {{ botonGuardarTexto }}
+      </ion-button>
+    </div>
+
+  </form>
+</ion-content>
