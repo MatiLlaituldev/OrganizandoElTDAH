@@ -7,20 +7,25 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { TaskFormComponent } from './task-form/task-form.component';
 import { HabitoFormComponent } from './habito-form/habito-form.component';
+import { GoalFormComponent } from './goal-form/goal-form.component';
 
 @NgModule({
   declarations: [
     TaskFormComponent,
-    HabitoFormComponent
+    HabitoFormComponent,
+    GoalFormComponent
+
   ],
   imports: [
     CommonModule,
     IonicModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+
   ],
   exports: [
     TaskFormComponent,
-    HabitoFormComponent
+    HabitoFormComponent,
+    GoalFormComponent
 
   ]
 })

@@ -1,0 +1,99 @@
+// src/app/goals/pages/goal-list/goal-list.page.scss
+
+:host {
+  --page-background: var(--ion-color-light-shade, #f4f5f8); // Un fondo claro
+  --card-background: #ffffff;
+  --card-shadow: rgba(0, 0, 0, 0.08);
+}
+
+ion-content.goal-list-content {
+  --background: var(--page-background);
+}
+
+.loading-container, .empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 60vh; // Ocupa una buena parte de la pantalla
+  text-align: center;
+  color: var(--ion-color-medium-shade);
+
+  ion-spinner {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 15px;
+    --color: var(--ion-color-primary);
+  }
+  .empty-icon {
+    font-size: 4rem; // Icono grande
+    color: var(--ion-color-primary-tint);
+    margin-bottom: 20px;
+  }
+  p {
+    font-size: 1.1em;
+    color: var(--ion-color-step-600, #666666);
+  }
+  .add-first-button {
+    margin-top: 20px;
+    --color: var(--ion-color-primary);
+    --border-color: var(--ion-color-primary);
+    --border-radius: 20px;
+  }
+}
+
+ion-list.goal-list {
+  background: transparent; // La lista no necesita su propio fondo
+  padding-top: 8px;
+}
+
+ion-item-sliding ion-item {
+  --background: var(--card-background);
+  margin: 8px 16px;
+  border-radius: 12px; // Bordes redondeados para los items
+  box-shadow: 0 2px 5px var(--card-shadow);
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+
+  ion-label h2 {
+    font-weight: 600;
+    color: var(--ion-color-dark-shade);
+  }
+
+  ion-label p {
+    font-size: 0.9em;
+    color: var(--ion-color-step-700, #555555);
+  }
+
+  .fecha-limite, .fecha-alcanzada {
+    font-size: 0.8em;
+    color: var(--ion-color-medium-shade);
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+    ion-icon {
+      margin-right: 6px;
+      font-size: 1.1em;
+    }
+  }
+
+  &.meta-alcanzada {
+    ion-label h2, ion-label p:not(.fecha-alcanzada) {
+      text-decoration: line-through;
+      color: var(--ion-color-medium-tint);
+    }
+    ion-label .fecha-alcanzada ion-icon {
+        color: var(--ion-color-success);
+    }
+  }
+}
+
+ion-item-options ion-item-option {
+  // Estilos para las opciones de swipe si es necesario
+}
+
+ion-fab-button[color="tertiary"] {
+  // Estilos para tu FAB
+  --background: var(--ion-color-tertiary, #FFC107);
+  --color: var(--ion-color-tertiary-contrast, #000000);
+}
