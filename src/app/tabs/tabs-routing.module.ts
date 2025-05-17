@@ -4,7 +4,7 @@ import { TabsPage } from './tabs.page';
 
 const routes: Routes = [
   {
-    path: '',
+    path: '', // Esta es la ruta base para las pestañas, usualmente accedida como '/tabs' desde app-routing
     component: TabsPage,
     children: [
       {
@@ -15,6 +15,12 @@ const routes: Routes = [
         path: 'habits',
         loadChildren: () => import('../habits/pages/habit-list/habit-list.module').then(m => m.HabitListPageModule)
       },
+      // --- Nueva Ruta para Bienestar ---
+      {
+        path: 'wellbeing', // Este 'path' debe coincidir con el atributo 'tab' del ion-tab-button que añadirás
+        loadChildren: () => import('../wellbeing/wellbeing.module').then(m => m.WellbeingPageModule) // Asegúrate que la ruta a tu nuevo módulo sea correcta
+      },
+      // --- Fin Nueva Ruta ---
       {
         path: 'goals',
         loadChildren: () => import('../goals/pages/goal-list/goal-list.module').then(m => m.GoalListPageModule)
@@ -24,8 +30,8 @@ const routes: Routes = [
         loadChildren: () => import('../profile/pages/profile/profile.module').then(m => m.ProfilePageModule)
       },
       {
-        path: '',
-        redirectTo: '/tabs/tasks',
+        path: '', // Si el usuario navega a '/tabs' sin una sub-ruta específica
+        redirectTo: '/tabs/tasks', // Redirige a la pestaña de tareas por defecto
         pathMatch: 'full'
       }
     ]
