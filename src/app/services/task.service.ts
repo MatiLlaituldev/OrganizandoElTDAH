@@ -17,8 +17,6 @@ import {
   docData
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-// Importa los modelos Tarea y Subtarea desde el archivo correcto.
-// Asumiendo que tu archivo de modelo se llama 'tarea.model.ts' y contiene ambas interfaces.
 import { Tarea, Subtarea } from '../models/tarea.model';
 
 
