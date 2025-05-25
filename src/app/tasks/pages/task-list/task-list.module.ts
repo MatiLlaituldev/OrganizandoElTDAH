@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { TaskListPageRoutingModule } from './task-list-routing.module';
 
 import { TaskListPage } from './task-list.page';
-import { SharedComponentsModule } from '../../../components/shared-components/shared-components.module'; // Asegúrate de que la ruta sea correcta
+import { SharedComponentsModule } from '../../../components/shared-components/shared-components.module';
 
 @NgModule({
   imports: [
