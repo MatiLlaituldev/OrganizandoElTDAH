@@ -1,28 +1,35 @@
-// src/app/components/task-form/task-form.component.ts
-
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
-import { Tarea } from '../../../models/tarea.model'; // El modelo sigue siendo Tarea
+import { Tarea } from '../../../models/tarea.model';
 import { AuthService } from '../../../services/auth.service';
-// Importa TaskService y asegúrate que la ruta sea correcta
-import { TaskService } from '../../../services/task.service'; // Asumiendo que el archivo se llama tarea.service.ts pero la clase es TaskService
+import { TaskService } from '../../../services/task.service';
 import { Timestamp } from 'firebase/firestore';
+
+// --- PASO 1: IMPORTAR MODELO Y SERVICIO DE ETIQUETAS ---
+import { Etiqueta } from '../../../models/etiqueta.model';
+import { EtiquetaService } from '../../../services/etiqueta.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-task-form',
   templateUrl: './task-form.component.html',
   styleUrls: ['./task-form.component.scss'],
-  standalone: false,
+  standalone: false // Asegúrate de que este componente no es standalone
 })
 export class TaskFormComponent implements OnInit {
 
-  @Input() tarea?: Tarea; // El modelo de datos de entrada sigue siendo Tarea
+  @Input() tarea?: Tarea;
 
   tareaForm!: FormGroup;
   esEdicion: boolean = false;
   minDate: string;
 
+  // --- PASO 2: AÑADIR PROPIEDADES PARA ETIQUETAS ---
+  etiquetas$!: Observable<Etiqueta[]>;
+  compareWith = (o1: any, o2: any) => {
+    return o1 && o2 ? o1.id === o2.id : o1 === o2;
+  };
 
   get modalTitle(): string {
     return this.esEdicion ? 'Editar Tarea' : 'Nueva Tarea';
@@ -37,19 +44,24 @@ export class TaskFormComponent implements OnInit {
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
     private authService: AuthService,
-    private taskService: TaskService // Inyecta TaskService y usa el alias taskService
+    private taskService: TaskService,
+    private etiquetaService: EtiquetaService // --- PASO 3: INYECTAR SERVICIO ---
   ) {
     this.minDate = new Date().toISOString().split('T')[0];
   }
 
   ngOnInit() {
     this.esEdicion = !!this.tarea && !!this.tarea.id;
+    // --- PASO 4: CARGAR ETIQUETAS ---
+    this.etiquetas$ = this.etiquetaService.getEtiquetas();
 
     this.tareaForm = this.fb.group({
       titulo: ['', [Validators.required, Validators.minLength(3)]],
       descripcion: [''],
       fechaVencimiento: [null],
       prioridad: [3],
+      // --- PASO 5: AÑADIR CAMPO AL FORMULARIO ---
+      etiquetas: [[]],
     });
 
     if (this.esEdicion && this.tarea) {
@@ -65,6 +77,8 @@ export class TaskFormComponent implements OnInit {
         descripcion: this.tarea.descripcion || '',
         fechaVencimiento: fechaVencimientoISO,
         prioridad: this.tarea.prioridad || 3,
+        // --- PASO 6: 'PARCHEAR' VALOR DE ETIQUETAS ---
+        etiquetas: this.tarea.etiquetas || [],
       });
     }
   }
@@ -85,7 +99,6 @@ export class TaskFormComponent implements OnInit {
     }
 
     const formValues = this.tareaForm.value;
-    // Asumiendo que getCurrentUser() en AuthService devuelve una Promesa o es async
     const currentUser = await this.authService.getCurrentUser();
     const userId = currentUser?.uid;
 
@@ -94,27 +107,26 @@ export class TaskFormComponent implements OnInit {
       return;
     }
 
-    const tareaData: Partial<Tarea> = { // El objeto de datos sigue siendo de tipo Tarea
+    const tareaData: Partial<Tarea> = {
       titulo: formValues.titulo,
       descripcion: formValues.descripcion || null,
       prioridad: formValues.prioridad,
       fechaVencimiento: formValues.fechaVencimiento
         ? Timestamp.fromDate(new Date(formValues.fechaVencimiento))
         : null,
+      // --- PASO 7: INCLUIR ETIQUETAS EN LOS DATOS A GUARDAR ---
+      etiquetas: formValues.etiquetas || []
     };
 
     try {
       this.presentToast('Guardando...', 'light', 1500);
 
       if (this.esEdicion && this.tarea?.id) {
-        // Llama al método actualizarTask de taskService
         await this.taskService.actualizarTask(userId, this.tarea.id, tareaData);
         this.presentToast('Tarea actualizada exitosamente.', 'success');
-        // Devuelve la tarea actualizada (combinando la original con los nuevos datos)
         this.cerrarModal({ actualizada: true, id: this.tarea.id, tarea: { ...this.tarea, ...tareaData } });
       } else {
-        // Llama al método agregarTask de taskService
-        const nuevaTareaParaGuardar: Tarea = { // El objeto completo es de tipo Tarea
+        const nuevaTareaParaGuardar: Tarea = {
           ...tareaData,
           fechaCreacion: Timestamp.now(),
           completada: false,
@@ -122,7 +134,6 @@ export class TaskFormComponent implements OnInit {
 
         const docRef = await this.taskService.agregarTask(userId, nuevaTareaParaGuardar);
         this.presentToast('Tarea creada exitosamente.', 'success');
-        // Devuelve la tarea creada con su nuevo ID
         this.cerrarModal({ creada: true, tarea: { ...nuevaTareaParaGuardar, id: docRef.id } });
       }
     } catch (error) {
@@ -131,10 +142,8 @@ export class TaskFormComponent implements OnInit {
     }
   }
 
-  // Helper para mostrar mensajes Toast
   async presentToast(
     mensaje: string,
-    // CORRECCIÓN: Se añade 'dark' a los tipos permitidos y se mantiene como valor por defecto.
     color: 'success' | 'warning' | 'danger' | 'light' | 'dark' = 'dark',
     duracion: number = 2500
   ) {

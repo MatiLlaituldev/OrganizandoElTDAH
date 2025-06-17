@@ -8,6 +8,10 @@ export interface Subtarea {
   orden?: number;
 }
 
+/**
+ * Interfaz que representa una Tarea con datos de etiquetas desnormalizados para
+ * lecturas eficientes.
+ */
 export interface Tarea {
   id?: string;
   titulo: string;
@@ -17,6 +21,15 @@ export interface Tarea {
   completada: boolean;
   fechaCompletada?: Timestamp | null;
   prioridad?: number;
-  etiquetas?: string[];
   recordatoriosConfigurados?: Timestamp[];
+  userId: string;
+
+  // --- CAMPO DE ETIQUETAS MEJORADO ---
+  // Guardamos un array de objetos de etiqueta. Esto nos permite mostrar
+  // el nombre y el color en la UI sin hacer consultas adicionales a la BD.
+  etiquetas?: {
+    id: string;
+    nombre: string;
+    color: string;
+  }[];
 }
