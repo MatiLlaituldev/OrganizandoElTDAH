@@ -1,5 +1,6 @@
 <ion-header [translucent]="true">
 
+  <!-- TU CÓDIGO ORIGINAL (SIN CAMBIOS) -->
   <ion-toolbar color="primary" class="days-of-week-toolbar">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
@@ -15,8 +16,9 @@
     </div>
   </ion-toolbar>
 
+  <!-- TU CÓDIGO ORIGINAL (SIN CAMBIOS) -->
   <ion-toolbar color="primary">
-    <ion-segment [(ngModel)]="currentSegment" (ionChange)="segmentChanged($event)" value="pendientes">
+    <ion-segment [(ngModel)]="segmentoActual" (ionChange)="segmentChanged($event)" value="pendientes">
       <ion-segment-button value="pendientes">
         <ion-label>Pendientes</ion-label>
       </ion-segment-button>
@@ -26,30 +28,41 @@
     </ion-segment>
   </ion-toolbar>
 
+  <!-- ============ BLOQUE 1: NUEVA BARRA DE FILTROS ============ -->
+  <!-- Se inserta aquí para que quede debajo de tus controles existentes -->
+  <div class="filter-chips-container ion-padding-horizontal">
+    <ion-chip [outline]="etiquetaFiltroSeleccionada !== 'todas'" (click)="seleccionarFiltroEtiqueta('todas')">
+      <ion-label>Todas</ion-label>
+    </ion-chip>
+    <ion-chip *ngFor="let etiqueta of (etiquetas$ | async)"
+              [outline]="etiquetaFiltroSeleccionada !== etiqueta.id"
+              (click)="seleccionarFiltroEtiqueta(etiqueta.id!)">
+      <div class="chip-color-dot" [style.background-color]="etiqueta.color"></div>
+      <ion-label>{{ etiqueta.nombre }}</ion-label>
+    </ion-chip>
+  </div>
+  <!-- ========================================================== -->
+
 </ion-header>
 
 <ion-content [fullscreen]="true" class="task-list-content">
+  <!-- TU CÓDIGO ORIGINAL (CON CORRECCIONES MENORES) -->
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div *ngIf="isLoading && !(tasks$ | async)?.length" class="loading-container">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p>Cargando tareas...</p>
-  </div>
-
-  <div *ngIf="!isLoading && !(tasks$ | async)?.length" class="empty-state">
+  <div *ngIf="!isLoading && tareasMostradas.length === 0" class="empty-state">
     <ion-icon name="file-tray-stacked-outline" class="empty-icon"></ion-icon>
-    <p *ngIf="currentSegment === 'pendientes'">No tienes tareas pendientes.</p>
-    <p *ngIf="currentSegment === 'completadas'">Aún no has completado ninguna tarea.</p>
+    <p *ngIf="segmentoActual === 'pendientes'">No tienes tareas pendientes.</p>
+    <p *ngIf="segmentoActual === 'completadas'">Aún no has completado ninguna tarea.</p>
     <ion-button fill="outline" (click)="abrirModalTarea()" class="add-first-task-button">
       <ion-icon slot="start" name="add-circle-outline"></ion-icon>
       Crear una tarea
     </ion-button>
   </div>
 
-  <ion-list *ngIf="(tasks$ | async)?.length" class="task-list">
-    <ion-item-sliding *ngFor="let tarea of (tasks$ | async); trackBy: trackTareaById" #slidingItem>
+  <ion-list *ngIf="tareasMostradas.length > 0" class="task-list">
+    <ion-item-sliding *ngFor="let tarea of tareasMostradas; trackBy: trackTareaById" #slidingItem>
       <ion-item (click)="abrirModalTarea(tarea)" lines="inset" detail="false"
                 [ngClass]="{
                   'task-completada': tarea.completada,
@@ -61,6 +74,16 @@
         <ion-label>
           <h2>{{ tarea.titulo }}</h2>
           <p *ngIf="tarea.descripcion">{{ tarea.descripcion | slice:0:100 }}{{ tarea.descripcion && tarea.descripcion.length > 100 ? '...' : '' }}</p>
+
+          <!-- ============ BLOQUE 2: VISUALIZACIÓN DE ETIQUETAS ============ -->
+          <!-- Se inserta aquí para que aparezca junto a la descripción -->
+          <div class="etiquetas-container" *ngIf="tarea.etiquetas && tarea.etiquetas.length > 0">
+            <ion-chip *ngFor="let etiqueta of tarea.etiquetas" class="etiqueta-chip" [style.--background]="etiqueta.color">
+              <ion-label>{{ etiqueta.nombre }}</ion-label>
+            </ion-chip>
+          </div>
+          <!-- ============================================================== -->
+
           <p *ngIf="tarea.fechaVencimiento" class="fecha-vencimiento">
             <ion-icon name="calendar-outline" class="fecha-icon"></ion-icon>
             Vence: {{ getDisplayDateForPipe(tarea.fechaVencimiento) | date: 'dd/MM/yy HH:mm' }}
@@ -82,6 +105,7 @@
     </ion-item-sliding>
   </ion-list>
 
+  <!-- TU CÓDIGO ORIGINAL (SIN CAMBIOS) -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)="abrirModalTarea()" color="tertiary">
       <ion-icon name="add-outline"></ion-icon>

@@ -1,0 +1,34 @@
+.color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.color-chip {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid var(--ion-color-step-200, #cccccc);
+  transition: transform 0.2s ease-in-out;
+
+  ion-icon {
+    font-size: 24px;
+    color: white;
+    --ion-color-base: white !important;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+ion-label.ion-padding-top {
+    display: block;
+    font-weight: 500;
+    color: var(--ion-color-medium);
+}

@@ -1,29 +1,42 @@
-<ion-header [translucent]="true" class="ion-no-border">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-menu-button color="light"></ion-menu-button>
-    </ion-buttons>
-    <ion-title color="light">Mi Perfil</ion-title>
-    </ion-toolbar>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Perfil</ion-title>
+  </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="profile-content-simplified">
-  <div class="profile-header-simplified">
-    <div class="avatar-section-simplified">
-      <img [src]="userData?.photoURL || 'https://placehold.co/100x100/E6E0FF/7F00FF?text=Perfil&font=Inter'"
-           alt="Avatar del Usuario"
-           class="user-avatar-simplified"
-           onerror="this.onerror=null;this.src='https://placehold.co/100x100/E6E0FF/7F00FF?text=Perfil&font=Inter';"/>
-      </div>
-    <h2 class="user-name-simplified">{{ userData?.displayName || 'Nombre de Usuario' }}</h2>
-    <p class="user-email-simplified">{{ userData?.email || 'email@ejemplo.com' }}</p>
-    </div>
+<ion-content>
+  <!-- Información del Usuario -->
+  <div class="ion-padding" *ngIf="userData">
+    <ion-avatar>
+      <img [src]="userData.photoURL" alt="Foto de perfil" />
+    </ion-avatar>
+    <h3>{{ userData.displayName }}</h3>
+    <p>{{ userData.email }}</p>
+  </div>
 
-  <div class="profile-card-simplified">
-    <ion-button expand="block" (click)="presentLogoutConfirm()" color="primary" class="logout-button-simplified">
-      <ion-icon slot="start" name="log-out-outline"></ion-icon>
-      Cerrar Sesión
-    </ion-button>
-    </div>
+  <ion-list>
+    <!-- Opción para Editar Perfil -->
+    <ion-item button detail>
+      <ion-icon name="person-circle-outline" slot="start"></ion-icon>
+      <ion-label>Editar Perfil</ion-label>
+    </ion-item>
 
+    <!-- --- PASO 2: AÑADIR ESTE ITEM PARA GESTIONAR ETIQUETAS --- -->
+    <ion-item button detail [routerLink]="['/tabs/gestion-etiquetas']">
+      <ion-icon name="pricetags-outline" slot="start"></ion-icon>
+      <ion-label>Gestionar Etiquetas</ion-label>
+    </ion-item>
+    <!-- -------------------------------------------------------- -->
+
+    <!-- Opción de Configuración -->
+    <ion-item button detail>
+      <ion-icon name="settings-outline" slot="start"></ion-icon>
+      <ion-label>Configuración</ion-label>
+    </ion-item>
+  </ion-list>
+
+  <!-- Botón para Cerrar Sesión -->
+  <ion-button expand="full" color="danger" (click)="presentLogoutConfirm()">
+    Cerrar Sesión
+  </ion-button>
 </ion-content>
