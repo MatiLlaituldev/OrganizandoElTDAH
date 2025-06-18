@@ -1,6 +1,6 @@
 <ion-header [translucent]="true">
 
-  <!-- TU CÓDIGO ORIGINAL (SIN CAMBIOS) -->
+  <!-- TU CÓDIGO ORIGINAL - Barra de Días -->
   <ion-toolbar color="primary" class="days-of-week-toolbar">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
@@ -16,7 +16,7 @@
     </div>
   </ion-toolbar>
 
-  <!-- TU CÓDIGO ORIGINAL (SIN CAMBIOS) -->
+  <!-- TU CÓDIGO ORIGINAL - Segmentos Pendientes/Completadas -->
   <ion-toolbar color="primary">
     <ion-segment [(ngModel)]="segmentoActual" (ionChange)="segmentChanged($event)" value="pendientes">
       <ion-segment-button value="pendientes">
@@ -28,25 +28,35 @@
     </ion-segment>
   </ion-toolbar>
 
-  <!-- ============ BLOQUE 1: NUEVA BARRA DE FILTROS ============ -->
-  <!-- Se inserta aquí para que quede debajo de tus controles existentes -->
-  <div class="filter-chips-container ion-padding-horizontal">
-    <ion-chip [outline]="etiquetaFiltroSeleccionada !== 'todas'" (click)="seleccionarFiltroEtiqueta('todas')">
-      <ion-label>Todas</ion-label>
-    </ion-chip>
-    <ion-chip *ngFor="let etiqueta of (etiquetas$ | async)"
-              [outline]="etiquetaFiltroSeleccionada !== etiqueta.id"
-              (click)="seleccionarFiltroEtiqueta(etiqueta.id!)">
-      <div class="chip-color-dot" [style.background-color]="etiqueta.color"></div>
-      <ion-label>{{ etiqueta.nombre }}</ion-label>
-    </ion-chip>
+  <!-- ============ DISEÑO DE FILTROS MEJORADO ============ -->
+  <div class="filter-chips-container ion-padding-horizontal" #filterContainer>
+    <ng-container *ngIf="etiquetas$ | async as etiquetas">
+      <!-- Botón "Todas" -->
+      <ion-chip [outline]="etiquetaFiltroSeleccionada !== 'todas'" (click)="seleccionarFiltroEtiqueta('todas', $event)">
+        <ion-label>Todas</ion-label>
+      </ion-chip>
+
+      <!-- Chips de Etiquetas Existentes -->
+      <ion-chip *ngFor="let etiqueta of etiquetas"
+                [outline]="etiquetaFiltroSeleccionada !== etiqueta.id"
+                (click)="seleccionarFiltroEtiqueta(etiqueta.id!, $event)">
+        <div class="chip-color-dot" [style.background-color]="etiqueta.color"></div>
+        <ion-label>{{ etiqueta.nombre }}</ion-label>
+      </ion-chip>
+
+      <!-- Botón para añadir etiquetas si no hay ninguna -->
+      <ion-chip *ngIf="etiquetas.length === 0" class="add-tag-chip" routerLink="/tabs/gestion-etiquetas">
+        <ion-icon name="add-outline" class="add-tag-icon"></ion-icon>
+        <ion-label>Crear etiqueta</ion-label>
+      </ion-chip>
+    </ng-container>
   </div>
   <!-- ========================================================== -->
 
 </ion-header>
 
 <ion-content [fullscreen]="true" class="task-list-content">
-  <!-- TU CÓDIGO ORIGINAL (CON CORRECCIONES MENORES) -->
+  <!-- TU CÓDIGO ORIGINAL - Refresher, Estado Vacío, etc. -->
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -75,14 +85,12 @@
           <h2>{{ tarea.titulo }}</h2>
           <p *ngIf="tarea.descripcion">{{ tarea.descripcion | slice:0:100 }}{{ tarea.descripcion && tarea.descripcion.length > 100 ? '...' : '' }}</p>
 
-          <!-- ============ BLOQUE 2: VISUALIZACIÓN DE ETIQUETAS ============ -->
-          <!-- Se inserta aquí para que aparezca junto a la descripción -->
+          <!-- INSERCIÓN PARA MOSTRAR ETIQUETAS EN LA TAREA -->
           <div class="etiquetas-container" *ngIf="tarea.etiquetas && tarea.etiquetas.length > 0">
             <ion-chip *ngFor="let etiqueta of tarea.etiquetas" class="etiqueta-chip" [style.--background]="etiqueta.color">
               <ion-label>{{ etiqueta.nombre }}</ion-label>
             </ion-chip>
           </div>
-          <!-- ============================================================== -->
 
           <p *ngIf="tarea.fechaVencimiento" class="fecha-vencimiento">
             <ion-icon name="calendar-outline" class="fecha-icon"></ion-icon>
@@ -105,7 +113,7 @@
     </ion-item-sliding>
   </ion-list>
 
-  <!-- TU CÓDIGO ORIGINAL (SIN CAMBIOS) -->
+  <!-- TU CÓDIGO ORIGINAL - Botón FAB -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)="abrirModalTarea()" color="tertiary">
       <ion-icon name="add-outline"></ion-icon>

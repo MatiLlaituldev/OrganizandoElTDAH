@@ -6,7 +6,6 @@ import { AuthService } from '../../../services/auth.service';
 import { TaskService } from '../../../services/task.service';
 import { Timestamp } from 'firebase/firestore';
 
-// --- PASO 1: IMPORTAR MODELO Y SERVICIO DE ETIQUETAS ---
 import { Etiqueta } from '../../../models/etiqueta.model';
 import { EtiquetaService } from '../../../services/etiqueta.service';
 import { Observable } from 'rxjs';
@@ -15,29 +14,19 @@ import { Observable } from 'rxjs';
   selector: 'app-task-form',
   templateUrl: './task-form.component.html',
   styleUrls: ['./task-form.component.scss'],
-  standalone: false // Asegúrate de que este componente no es standalone
+  standalone: false
 })
 export class TaskFormComponent implements OnInit {
 
   @Input() tarea?: Tarea;
-
   tareaForm!: FormGroup;
   esEdicion: boolean = false;
   minDate: string;
-
-  // --- PASO 2: AÑADIR PROPIEDADES PARA ETIQUETAS ---
   etiquetas$!: Observable<Etiqueta[]>;
-  compareWith = (o1: any, o2: any) => {
-    return o1 && o2 ? o1.id === o2.id : o1 === o2;
-  };
+  compareWith = (o1: any, o2: any) => o1 && o2 ? o1.id === o2.id : o1 === o2;
 
-  get modalTitle(): string {
-    return this.esEdicion ? 'Editar Tarea' : 'Nueva Tarea';
-  }
-
-  get botonGuardarTexto(): string {
-    return this.esEdicion ? 'Actualizar Tarea' : 'Guardar Tarea';
-  }
+  get modalTitle(): string { return this.esEdicion ? 'Editar Tarea' : 'Nueva Tarea'; }
+  get botonGuardarTexto(): string { return this.esEdicion ? 'Actualizar Tarea' : 'Guardar Tarea'; }
 
   constructor(
     private fb: FormBuilder,
@@ -45,23 +34,22 @@ export class TaskFormComponent implements OnInit {
     private toastCtrl: ToastController,
     private authService: AuthService,
     private taskService: TaskService,
-    private etiquetaService: EtiquetaService // --- PASO 3: INYECTAR SERVICIO ---
+    private etiquetaService: EtiquetaService
   ) {
     this.minDate = new Date().toISOString().split('T')[0];
   }
 
   ngOnInit() {
     this.esEdicion = !!this.tarea && !!this.tarea.id;
-    // --- PASO 4: CARGAR ETIQUETAS ---
     this.etiquetas$ = this.etiquetaService.getEtiquetas();
 
     this.tareaForm = this.fb.group({
       titulo: ['', [Validators.required, Validators.minLength(3)]],
       descripcion: [''],
       fechaVencimiento: [null],
-      prioridad: [3],
-      // --- PASO 5: AÑADIR CAMPO AL FORMULARIO ---
+      prioridad: [2], // Prioridad media por defecto
       etiquetas: [[]],
+      recurrencia: ['unica', Validators.required]
     });
 
     if (this.esEdicion && this.tarea) {
@@ -71,25 +59,13 @@ export class TaskFormComponent implements OnInit {
       } else if (typeof this.tarea.fechaVencimiento === 'string') {
         fechaVencimientoISO = this.tarea.fechaVencimiento;
       }
-
-      this.tareaForm.patchValue({
-        titulo: this.tarea.titulo,
-        descripcion: this.tarea.descripcion || '',
-        fechaVencimiento: fechaVencimientoISO,
-        prioridad: this.tarea.prioridad || 3,
-        // --- PASO 6: 'PARCHEAR' VALOR DE ETIQUETAS ---
-        etiquetas: this.tarea.etiquetas || [],
-      });
+      this.tareaForm.patchValue({ ...this.tarea, fechaVencimiento: fechaVencimientoISO });
     }
   }
 
-  async cerrarModal(data?: any) {
-    await this.modalCtrl.dismiss(data);
-  }
+  async cerrarModal(data?: any) { await this.modalCtrl.dismiss(data); }
 
-  limpiarFechaVencimiento() {
-    this.tareaForm.get('fechaVencimiento')?.setValue(null);
-  }
+  limpiarFechaVencimiento() { this.tareaForm.get('fechaVencimiento')?.setValue(null); }
 
   async guardarTarea() {
     if (this.tareaForm.invalid) {
@@ -100,9 +76,7 @@ export class TaskFormComponent implements OnInit {
 
     const formValues = this.tareaForm.value;
     const currentUser = await this.authService.getCurrentUser();
-    const userId = currentUser?.uid;
-
-    if (!userId) {
+    if (!currentUser) {
       this.presentToast('Error: No se pudo identificar al usuario.', 'danger');
       return;
     }
@@ -111,18 +85,15 @@ export class TaskFormComponent implements OnInit {
       titulo: formValues.titulo,
       descripcion: formValues.descripcion || null,
       prioridad: formValues.prioridad,
-      fechaVencimiento: formValues.fechaVencimiento
-        ? Timestamp.fromDate(new Date(formValues.fechaVencimiento))
-        : null,
-      // --- PASO 7: INCLUIR ETIQUETAS EN LOS DATOS A GUARDAR ---
-      etiquetas: formValues.etiquetas || []
+      etiquetas: formValues.etiquetas || [],
+      recurrencia: formValues.recurrencia,
+      fechaVencimiento: formValues.fechaVencimiento ? Timestamp.fromDate(new Date(formValues.fechaVencimiento)) : null,
     };
 
     try {
       this.presentToast('Guardando...', 'light', 1500);
-
       if (this.esEdicion && this.tarea?.id) {
-        await this.taskService.actualizarTask(userId, this.tarea.id, tareaData);
+        await this.taskService.actualizarTask(currentUser.uid, this.tarea.id, tareaData);
         this.presentToast('Tarea actualizada exitosamente.', 'success');
         this.cerrarModal({ actualizada: true, id: this.tarea.id, tarea: { ...this.tarea, ...tareaData } });
       } else {
@@ -131,8 +102,7 @@ export class TaskFormComponent implements OnInit {
           fechaCreacion: Timestamp.now(),
           completada: false,
         } as Tarea;
-
-        const docRef = await this.taskService.agregarTask(userId, nuevaTareaParaGuardar);
+        const docRef = await this.taskService.agregarTask(currentUser.uid, nuevaTareaParaGuardar);
         this.presentToast('Tarea creada exitosamente.', 'success');
         this.cerrarModal({ creada: true, tarea: { ...nuevaTareaParaGuardar, id: docRef.id } });
       }
@@ -142,11 +112,8 @@ export class TaskFormComponent implements OnInit {
     }
   }
 
-  async presentToast(
-    mensaje: string,
-    color: 'success' | 'warning' | 'danger' | 'light' | 'dark' = 'dark',
-    duracion: number = 2500
-  ) {
+  // FIX: Se añade 'dark' a los tipos permitidos para que coincida con el valor por defecto.
+  async presentToast(mensaje: string, color: 'success' | 'warning' | 'danger' | 'light' | 'dark' = 'dark', duracion: number = 2500) {
     const toast = await this.toastCtrl.create({
       message: mensaje,
       duration: duracion,

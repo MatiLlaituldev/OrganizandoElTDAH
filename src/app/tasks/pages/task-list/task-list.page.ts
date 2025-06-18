@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { ModalController, LoadingController, ToastController, AlertController } from '@ionic/angular';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, of, BehaviorSubject } from 'rxjs';
 import { Tarea } from 'src/app/models/tarea.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { TaskService } from 'src/app/services/task.service';
@@ -10,8 +10,9 @@ import { Etiqueta } from 'src/app/models/etiqueta.model';
 import { EtiquetaService } from 'src/app/services/etiqueta.service';
 import { User } from 'firebase/auth';
 import { Timestamp } from 'firebase/firestore';
+import { RegistroTarea } from 'src/app/models/registro-tarea.model';
+import { switchMap, tap } from 'rxjs/operators';
 
-// Definición del tipo para los días de la semana
 interface Day {
   date: Date;
   letter: string;
@@ -22,34 +23,31 @@ interface Day {
   selector: 'app-task-list',
   templateUrl: './task-list.page.html',
   styleUrls: ['./task-list.page.scss'],
-  standalone: false // Asegúrate de que este componente no es standalone
+  standalone: false,
 })
 export class TaskListPage implements OnInit, OnDestroy {
 
-  // --- Propiedades para Tareas ---
-  todasLasTareasDelSegmento: Tarea[] = [];
+  // --- Propiedades de Datos ---
+  todasLasTareas: Tarea[] = [];
   tareasMostradas: Tarea[] = [];
-  segmentoActual: 'pendientes' | 'completadas' = 'pendientes';
-
-  // --- Propiedades para Etiquetas y Filtros ---
+  registrosDelDia: RegistroTarea[] = [];
   etiquetas$!: Observable<Etiqueta[]>;
+
+  // --- Propiedades de Estado de la UI ---
+  segmentoActual: 'pendientes' | 'completadas' = 'pendientes';
   etiquetaFiltroSeleccionada: string = 'todas';
-
-  // --- Propiedades que faltaban (UI y calendario) ---
   weekDays: Day[] = [];
-  selectedDate: Date = new Date();
-  isLoading: boolean = false;
-
-  // --- Subscripciones y otros ---
+  selectedDate$ = new BehaviorSubject<Date>(new Date());
+  isLoading: boolean = true;
   private subscriptions = new Subscription();
-  public loading: HTMLIonLoadingElement | null = null;
+
+  @ViewChild('filterContainer') filterContainer!: ElementRef;
 
   constructor(
     private authService: AuthService,
     private taskService: TaskService,
     private etiquetaService: EtiquetaService,
     private modalCtrl: ModalController,
-    private loadingCtrl: LoadingController,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController
   ) {}
@@ -58,111 +56,184 @@ export class TaskListPage implements OnInit, OnDestroy {
     this.initializeWeekDays();
     this.etiquetas$ = this.etiquetaService.getEtiquetas();
 
-    const userSub = this.authService.user$.subscribe(user => {
+    const userSub = this.authService.user$.pipe(
+      tap(() => this.isLoading = true),
+      switchMap(user => user ? of(user) : of(null))
+    ).subscribe(user => {
       if (user) {
-        this.subscribeToTasks(user);
+        const tasksSub = this.taskService.getTasks(user.uid).subscribe(tareas => {
+          this.todasLasTareas = tareas;
+          this.aplicarFiltros();
+        });
+        this.subscriptions.add(tasksSub);
+
+        const dateSub = this.selectedDate$.pipe(
+          switchMap(date => this.taskService.getRegistrosPorDia(user.uid, this.formatDate(date)))
+        ).subscribe(registros => {
+          this.registrosDelDia = registros;
+          this.aplicarFiltros();
+          this.isLoading = false;
+        });
+        this.subscriptions.add(dateSub);
       } else {
-        this.todasLasTareasDelSegmento = [];
-        this.tareasMostradas = [];
+        this.todasLasTareas = [];
+        this.registrosDelDia = [];
+        this.aplicarFiltros();
+        this.isLoading = false;
       }
     });
     this.subscriptions.add(userSub);
   }
 
-  ionViewWillEnter() {}
-
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
 
-  subscribeToTasks(user: User) {
-    this.isLoading = true;
-    const taskSub = this.taskService.getTasks(user.uid)
-      .subscribe({
-        next: (tareasDesdeFirebase) => {
-          if (this.segmentoActual === 'pendientes') {
-            this.todasLasTareasDelSegmento = tareasDesdeFirebase.filter(t => !t.completada);
-          } else {
-            this.todasLasTareasDelSegmento = tareasDesdeFirebase.filter(t => t.completada);
-          }
-          this.aplicarFiltroDeEtiqueta();
-          this.isLoading = false;
-        },
-        error: (err) => {
-          console.error("Error al obtener tareas:", err);
-          this.presentToast('Error al cargar las tareas.', 'danger');
-          this.isLoading = false;
-        }
-      });
-    this.subscriptions.add(taskSub);
-  }
+  // --- LÓGICA DE FILTRADO Y ORDENAMIENTO (CORREGIDA) ---
+  aplicarFiltros() {
+    // 1. Filtrar por día y segmento
+    let tareasDelDia = this.todasLasTareas.filter(t => this.esTareaDelDiaSeleccionado(t));
+    let tareasPorSegmento = tareasDelDia.filter(t => {
+      const completadaHoy = this.estaCompletadaHoy(t);
+      return this.segmentoActual === 'pendientes' ? !completadaHoy : completadaHoy;
+    });
 
-  async segmentChanged(event: any) {
-    this.segmentoActual = event.detail.value;
-    this.etiquetaFiltroSeleccionada = 'todas';
-    const user = await this.authService.getCurrentUser();
-    if(user) {
-      this.subscribeToTasks(user);
-    }
-  }
-
-  // FIX: Cambiar nombre del método para que coincida con el HTML
-  seleccionarFiltroEtiqueta(idDeEtiqueta: string) {
-    this.etiquetaFiltroSeleccionada = idDeEtiqueta;
-    this.aplicarFiltroDeEtiqueta();
-  }
-
-  aplicarFiltroDeEtiqueta() {
+    // 2. Filtrar por etiqueta
+    let tareasFiltradas;
     if (this.etiquetaFiltroSeleccionada === 'todas') {
-      this.tareasMostradas = [...this.todasLasTareasDelSegmento];
+      tareasFiltradas = tareasPorSegmento;
     } else {
-      this.tareasMostradas = this.todasLasTareasDelSegmento.filter(tarea =>
+      tareasFiltradas = tareasPorSegmento.filter(tarea =>
         tarea.etiquetas?.some(etiqueta => etiqueta.id === this.etiquetaFiltroSeleccionada)
       );
     }
+
+    // 3. ORDENAR el resultado final
+    tareasFiltradas.sort((a, b) => {
+      // Primero, ordenar por prioridad (mayor a menor)
+      const prioridadA = a.prioridad || 0;
+      const prioridadB = b.prioridad || 0;
+      if (prioridadA !== prioridadB) {
+        return prioridadB - prioridadA;
+      }
+      // Si la prioridad es la misma, ordenar por fecha de creación (más nueva primero)
+      const fechaA = a.fechaCreacion.toMillis();
+      const fechaB = b.fechaCreacion.toMillis();
+      return fechaB - fechaA;
+    });
+
+    this.tareasMostradas = tareasFiltradas;
+  }
+
+  // --- MÉTODOS DE LÓGICA DE TAREAS ---
+  esTareaDelDiaSeleccionado(tarea: Tarea): boolean {
+    if (tarea.recurrencia === 'diaria') return true;
+    const diaSeleccionado = new Date(this.selectedDate$.value);
+    diaSeleccionado.setHours(0, 0, 0, 0);
+
+    const fechaCreacion = this.getDisplayDateForPipe(tarea.fechaCreacion);
+    if (fechaCreacion) fechaCreacion.setHours(0, 0, 0, 0);
+
+    const fechaVencimiento = this.getDisplayDateForPipe(tarea.fechaVencimiento);
+    if (fechaVencimiento) fechaVencimiento.setHours(23, 59, 59, 999);
+
+    if (!fechaVencimiento && fechaCreacion) {
+      return fechaCreacion.getTime() === diaSeleccionado.getTime();
+    } else if (fechaCreacion && fechaVencimiento) {
+      return diaSeleccionado >= fechaCreacion && diaSeleccionado <= fechaVencimiento;
+    }
+    return false;
+  }
+
+  estaCompletadaHoy(tarea: Tarea): boolean {
+    if (tarea.recurrencia === 'diaria') {
+      return this.registrosDelDia.some(r => r.tareaId === tarea.id && r.completada);
+    }
+    return tarea.completada;
+  }
+
+  async toggleCompletada(tarea: Tarea, event: any) {
+    const completada = event.detail.checked;
+    const currentUser = await this.authService.getCurrentUser();
+    if (!currentUser || !tarea.id) return;
+    if (tarea.recurrencia === 'diaria') {
+      const fechaFormato = this.formatDate(this.selectedDate$.value);
+      this.taskService.registrarEstadoTareaDiaria(currentUser.uid, tarea.id, fechaFormato, completada);
+    } else {
+      this.taskService.actualizarTask(currentUser.uid, tarea.id, { completada });
+    }
+  }
+
+  esVencida(tarea: Tarea): boolean {
+    if (this.estaCompletadaHoy(tarea) || !tarea.fechaVencimiento) return false;
+    const ahora = new Date();
+    const fechaVencimiento = this.getDisplayDateForPipe(tarea.fechaVencimiento);
+    return fechaVencimiento ? fechaVencimiento < ahora : false;
+  }
+
+  // --- MÉTODOS DE UI QUE ACTIVAN CAMBIOS ---
+  async segmentChanged(event: any) {
+    this.segmentoActual = event.detail.value;
+    this.aplicarFiltros();
+  }
+
+  seleccionarFiltroEtiqueta(idDeEtiqueta: string, event?: MouseEvent) {
+    this.etiquetaFiltroSeleccionada = idDeEtiqueta;
+    this.aplicarFiltros();
+    if (event) {
+      const clickedChip = event.currentTarget as HTMLElement;
+      clickedChip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }
+
+  selectDay(day: Day) {
+    this.isLoading = true;
+    this.selectedDate$.next(day.date);
+  }
+
+  // --- MÉTODOS AUXILIARES ---
+  formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 
   initializeWeekDays() {
     this.weekDays = [];
     const today = new Date();
     for (let i = 0; i < 7; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        this.weekDays.push({
-            date: date,
-            letter: date.toLocaleDateString('es-ES', { weekday: 'narrow' }),
-            dayOfMonth: date.getDate()
-        });
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      this.weekDays.push({
+        date: date,
+        letter: date.toLocaleDateString('es-ES', { weekday: 'narrow' }).toUpperCase(),
+        dayOfMonth: date.getDate()
+      });
     }
   }
 
   isDaySelected(day: Day): boolean {
-    return day.date.toDateString() === this.selectedDate.toDateString();
-  }
-
-  selectDay(day: Day) {
-      this.selectedDate = day.date;
+    return day.date.toDateString() === this.selectedDate$.value.toDateString();
   }
 
   async handleRefresh(event: any) {
-    const user = await this.authService.getCurrentUser();
-    if(user) {
-      this.subscribeToTasks(user);
-    }
+    // La lógica reactiva ya actualiza los datos, aquí solo completamos el refresher
     setTimeout(() => {
       event.target.complete();
     }, 500);
   }
 
-  trackTareaById(index: number, tarea: Tarea): string {
-    return tarea.id!;
-  }
+  trackTareaById(index: number, tarea: Tarea): string { return tarea.id!; }
 
   getDisplayDateForPipe(fecha: any): Date | null {
-    if (fecha instanceof Timestamp) {
-      return fecha.toDate();
-    }
+    if (fecha instanceof Timestamp) return fecha.toDate();
     return null;
+  }
+
+  async abrirModalTarea(tarea?: Tarea) {
+    const modal = await this.modalCtrl.create({
+      component: TaskFormComponent,
+      componentProps: { tarea: tarea }
+    });
+    await modal.present();
   }
 
   async confirmarEliminar(tarea: Tarea, event: MouseEvent) {
@@ -178,30 +249,13 @@ export class TaskListPage implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  async abrirModalTarea(tarea?: Tarea) {
-    const modal = await this.modalCtrl.create({
-      component: TaskFormComponent,
-      componentProps: { tarea: tarea }
-    });
-    await modal.present();
-  }
-
-  async toggleCompletada(tarea: Tarea, event: any) {
-    const completada = event.detail.checked;
+  async eliminarTarea(tarea: Tarea) {
     const currentUser = await this.authService.getCurrentUser();
     if (currentUser && tarea.id) {
-      this.taskService.actualizarTask(currentUser.uid, tarea.id, { completada })
-        .catch(err => this.presentToast('Error al actualizar la tarea.', 'danger'));
+      this.taskService.eliminarTask(currentUser.uid, tarea.id)
+        .then(() => this.presentToast('Tarea eliminada.', 'success'))
+        .catch(err => this.presentToast('Error al eliminar la tarea.', 'danger'));
     }
-  }
-
-  async eliminarTarea(tarea: Tarea) {
-     const currentUser = await this.authService.getCurrentUser();
-     if(currentUser && tarea.id){
-       this.taskService.eliminarTask(currentUser.uid, tarea.id)
-       .then(() => this.presentToast('Tarea eliminada.', 'success'))
-       .catch(err => this.presentToast('Error al eliminar la tarea.', 'danger'))
-     }
   }
 
   async presentToast(mensaje: string, color: 'success' | 'danger') {
@@ -209,7 +263,7 @@ export class TaskListPage implements OnInit, OnDestroy {
       message: mensaje,
       duration: 2500,
       position: 'bottom',
-      color: color
+      color: color,
     });
     await toast.present();
   }

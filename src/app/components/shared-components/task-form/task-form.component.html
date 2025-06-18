@@ -22,16 +22,31 @@
       <ion-textarea formControlName="descripcion" [autoGrow]="true"></ion-textarea>
     </ion-item>
 
-    <ion-item>
+    <!-- ======== NUEVO SELECTOR DE RECURRENCIA ======== -->
+    <ion-item lines="none">
+      <ion-label>Tipo de Tarea</ion-label>
+    </ion-item>
+    <ion-segment formControlName="recurrencia">
+      <ion-segment-button value="unica">
+        <ion-label>Única</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="diaria">
+        <ion-label>Diaria</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+    <!-- ============================================= -->
+
+   <ion-item>
       <ion-label>Prioridad</ion-label>
       <ion-select formControlName="prioridad" interface="popover">
-        <ion-select-option [value]="3">Alta</ion-select-option>
-        <ion-select-option [value]="2">Media</ion-select-option>
+        <!-- El orden visual ahora es más natural -->
         <ion-select-option [value]="1">Baja</ion-select-option>
+        <ion-select-option [value]="2">Media</ion-select-option>
+        <ion-select-option [value]="3">Alta</ion-select-option>
       </ion-select>
     </ion-item>
-
-    <ion-item>
+    <!-- La fecha de vencimiento se deshabilita si la tarea es diaria -->
+    <ion-item [disabled]="tareaForm.get('recurrencia')?.value === 'diaria'">
       <ion-label>Fecha de Vencimiento</ion-label>
       <ion-input type="date" formControlName="fechaVencimiento" [min]="minDate"></ion-input>
       <ion-button fill="clear" (click)="limpiarFechaVencimiento()" slot="end" aria-label="Limpiar fecha">
@@ -39,23 +54,14 @@
       </ion-button>
     </ion-item>
 
-    <!-- ======== AQUÍ SE INSERTA EL SELECTOR DE ETIQUETAS ======== -->
     <ion-item>
       <ion-label>Etiquetas</ion-label>
-      <ion-select
-        formControlName="etiquetas"
-        [multiple]="true"
-        placeholder="Seleccionar etiquetas"
-        okText="Aceptar"
-        cancelText="Cancelar"
-        [compareWith]="compareWith">
-        <!-- Esto lee la lista de etiquetas del .ts y crea las opciones -->
+      <ion-select formControlName="etiquetas" [multiple]="true" placeholder="Seleccionar" [compareWith]="compareWith">
         <ion-select-option *ngFor="let etiqueta of etiquetas$ | async" [value]="{id: etiqueta.id, nombre: etiqueta.nombre, color: etiqueta.color}">
           {{ etiqueta.nombre }}
         </ion-select-option>
       </ion-select>
     </ion-item>
-    <!-- ========================================================== -->
 
     <ion-button class="ion-margin-top" type="submit" expand="block" [disabled]="tareaForm.invalid">
       {{ botonGuardarTexto }}
