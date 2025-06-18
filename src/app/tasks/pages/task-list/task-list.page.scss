@@ -241,7 +241,7 @@ ion-item-options {
   }
 }
 
-/* ➕ Botón Flotante (FAB) */
+
 ion-fab-button[color="tertiary"] {
   --background: var(--ion-color-tertiary);
   --background-activated: var(--ion-color-tertiary-shade);
@@ -256,4 +256,76 @@ ion-refresher ion-refresher-content {
   --color: var(--ion-color-primary);
   --icon-color: var(--ion-color-primary);
   --text-color: var(--ion-color-primary);
+}
+/*
+  Estilos ADICIONALES para la página de lista de tareas.
+  Añadir al final de tu archivo SCSS existente.
+*/
+
+// --- Contenedor de Filtros de Etiquetas (CORREGIDO) ---
+.filter-chips-container {
+  display: flex;
+  flex-wrap: nowrap; // CORRECCIÓN CLAVE: Evita que los filtros se apilen.
+  overflow-x: auto;  // Permite el deslizamiento horizontal.
+  gap: 8px;
+  // Se ajusta el padding para que se alinee con el resto del contenido.
+  padding: 8px 16px;
+  // Se elimina el color de fondo para que se integre con el fondo del contenido.
+  background: var(--ion-color-light, #f4f5f8);
+
+  // Oculta la barra de scroll para un look más limpio
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none; // Para Firefox
+}
+
+// --- Estilo de los Chips de Filtro (CORREGIDO) ---
+.filter-chips-container ion-chip {
+  flex-shrink: 0; // Evita que los chips se encojan.
+  transition: all 0.2s ease-in-out;
+  height: 36px;
+  border-radius: 18px; // Un radio más suave.
+  font-weight: 500;
+
+  // Estilo para el chip NO seleccionado (con borde)
+  &[outline="true"] {
+    --background: var(--ion-background-color, #ffffff);
+    --border-color: var(--ion-color-step-400, #cccccc);
+    --color: var(--ion-text-color, #000000);
+  }
+
+  // Estilo para el chip SELECCIONADO (sólido)
+  &[outline="false"] {
+    --background: var(--ion-color-tertiary);
+    --color: var(--ion-color-tertiary-contrast, #000000);
+    --border-color: transparent;
+    transform: translateY(-2px); // Efecto sutil de "pop"
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  .chip-color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+}
+
+// --- Estilos para las Etiquetas DENTRO de cada Tarea (Tu código) ---
+.etiquetas-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.etiqueta-chip {
+  --color: #ffffff;
+  height: 22px;
+  font-size: 12px;
+  border-radius: 6px;
+  margin: 0;
+  padding-left: 8px;
+  padding-right: 8px;
 }

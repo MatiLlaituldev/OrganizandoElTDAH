@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, FieldValue } from 'firebase/firestore';
 
 export interface Subtarea {
   id?: string;
@@ -17,6 +17,14 @@ export interface Tarea {
   completada: boolean;
   fechaCompletada?: Timestamp | null;
   prioridad?: number;
-  etiquetas?: string[];
   recordatoriosConfigurados?: Timestamp[];
+  userId: string;
+  etiquetas?: {
+    id: string;
+    nombre: string;
+    color: string;
+  }[];
+
+  // --- CAMPO CLAVE PARA ESTA FUNCIONALIDAD ---
+  recurrencia?: 'unica' | 'diaria'; // Puede ser 'semanal', etc. en el futuro
 }
