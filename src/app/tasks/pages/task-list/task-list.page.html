@@ -1,6 +1,5 @@
 <ion-header [translucent]="true">
 
-  <!-- TU CÓDIGO ORIGINAL - Barra de Días -->
   <ion-toolbar color="primary" class="days-of-week-toolbar">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
@@ -16,7 +15,6 @@
     </div>
   </ion-toolbar>
 
-  <!-- TU CÓDIGO ORIGINAL - Segmentos Pendientes/Completadas -->
   <ion-toolbar color="primary">
     <ion-segment [(ngModel)]="segmentoActual" (ionChange)="segmentChanged($event)" value="pendientes">
       <ion-segment-button value="pendientes">
@@ -28,7 +26,6 @@
     </ion-segment>
   </ion-toolbar>
 
-  <!-- TU CÓDIGO ORIGINAL - Barra de Filtros -->
   <div class="filter-chips-container ion-padding-horizontal" #filterContainer>
     <ng-container *ngIf="etiquetas$ | async as etiquetas">
       <ion-chip [outline]="etiquetaFiltroSeleccionada !== 'todas'" (click)="seleccionarFiltroEtiqueta('todas', $event)">
@@ -50,7 +47,6 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="task-list-content">
-  <!-- TU CÓDIGO ORIGINAL - Refresher y Estado Vacío -->
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -65,62 +61,78 @@
     </ion-button>
   </div>
 
-  <ion-list *ngIf="tareasMostradas.length > 0" class="task-list">
-    <ion-item-sliding *ngFor="let tarea of tareasMostradas; trackBy: trackTareaById" #slidingItem>
-      <!-- MODIFICACIÓN: Se actualiza el ngClass para la nueva lógica de prioridad -->
-      <ion-item (click)="abrirModalTarea(tarea)" lines="inset" detail="false"
-                [ngClass]="{
-                  'task-completada': tarea.completada,
-                  'task-prioridad-alta': tarea.prioridad === 3 && !tarea.completada,
-                  'task-prioridad-media': tarea.prioridad === 2 && !tarea.completada,
-                  'task-prioridad-baja': tarea.prioridad === 1 && !tarea.completada
-                }">
-        <ion-checkbox slot="start" [checked]="estaCompletadaHoy(tarea)" (ionChange)="toggleCompletada(tarea, $event)"
-                      (click)="$event.stopPropagation();"></ion-checkbox>
-        <ion-label>
-          <h2>{{ tarea.titulo }}</h2>
-          <p *ngIf="tarea.descripcion">{{ tarea.descripcion | slice:0:100 }}{{ tarea.descripcion && tarea.descripcion.length > 100 ? '...' : '' }}</p>
 
-          <div class="etiquetas-container" *ngIf="tarea.etiquetas && tarea.etiquetas.length > 0">
-            <ion-chip *ngFor="let etiqueta of tarea.etiquetas" class="etiqueta-chip" [style.--background]="etiqueta.color">
-              <ion-label>{{ etiqueta.nombre }}</ion-label>
-            </ion-chip>
+  <ion-list *ngIf="tareasMostradas.length > 0" class="task-list">
+    <ion-accordion-group>
+      <ion-item-sliding *ngFor="let tarea of tareasMostradas; trackBy: trackTareaById" #slidingItem>
+
+        <ion-item-options side="end">
+          <ion-item-option color="light" (click)="abrirModalTarea(tarea); slidingItem.close()">
+            <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+          </ion-item-option>
+          <ion-item-option color="danger" (click)="confirmarEliminar(tarea, $event); slidingItem.close()">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+
+        <ion-accordion [toggleIcon]="(tarea.subtareas && tarea.subtareas.length > 0) ? 'chevron-down' : ''" toggleIconSlot="end">
+
+          <ion-item slot="header" lines="inset" [ngClass]="{ 'task-completada': estaCompletadaHoy(tarea) }">
+            <ion-checkbox
+              slot="start"
+              [checked]="estaCompletadaHoy(tarea)"
+              (ionChange)="toggleCompletada(tarea, $event)"
+              (click)="$event.stopPropagation()">
+            </ion-checkbox>
+            <ion-label>
+              <h2>{{ tarea.titulo }}</h2>
+              <p *ngIf="tarea.descripcion">{{ tarea.descripcion | slice:0:100 }}{{ tarea.descripcion && tarea.descripcion.length > 100 ? '...' : '' }}</p>
+
+              <ion-progress-bar
+                *ngIf="tarea.subtareas && tarea.subtareas.length > 0"
+                [value]="calcularProgreso(tarea)"
+                class="ion-margin-top"
+                color="tertiary">
+              </ion-progress-bar>
+
+              <div class="etiquetas-container" *ngIf="tarea.etiquetas && tarea.etiquetas.length > 0">
+                 <ion-chip *ngFor="let etiqueta of tarea.etiquetas" class="etiqueta-chip" [style.--background]="etiqueta.color">
+                   <ion-label>{{ etiqueta.nombre }}</ion-label>
+                 </ion-chip>
+               </div>
+
+              <p *ngIf="esVencida(tarea)" class="fecha-vencimiento overdue-text">
+                <ion-icon name="warning-outline" class="fecha-icon"></ion-icon>
+                ¡Esta tarea ha vencido!
+              </p>
+              <p *ngIf="tarea.recurrencia !== 'diaria' && tarea.fechaVencimiento && !esVencida(tarea)" class="fecha-vencimiento">
+                <ion-icon name="calendar-outline" class="fecha-icon"></ion-icon>
+                Vence: {{ getDisplayDateForPipe(tarea.fechaVencimiento) | date: 'dd/MM/yy HH:mm' }}
+              </p>
+            </ion-label>
+          </ion-item>
+
+          <div class="ion-padding" slot="content">
+            <ion-list *ngIf="tarea.subtareas && tarea.subtareas.length > 0">
+              <ion-item *ngFor="let subtarea of tarea.subtareas" lines="none">
+                <ion-checkbox
+                  slot="start"
+                  [checked]="estaSubtareaCompletada(subtarea, tarea.registro)"
+                  (ionChange)="toggleSubtareaCompletada(tarea, subtarea, $event)">
+                </ion-checkbox>
+                <ion-label>{{ subtarea.titulo }}</ion-label>
+              </ion-item>
+            </ion-list>
+            <div *ngIf="!tarea.subtareas || tarea.subtareas.length === 0">
+              <p class="ion-text-center ion-padding-top">Esta tarea no tiene subtareas definidas.</p>
+            </div>
           </div>
 
-          <p *ngIf="esVencida(tarea)" class="fecha-vencimiento overdue-text">
-            <ion-icon name="warning-outline" class="fecha-icon"></ion-icon>
-            ¡Esta tarea ha vencido!
-          </p>
-          <p *ngIf="tarea.fechaVencimiento" class="fecha-vencimiento">
-            <ion-icon name="calendar-outline" class="fecha-icon"></ion-icon>
-            Vence: {{ getDisplayDateForPipe(tarea.fechaVencimiento) | date: 'dd/MM/yy HH:mm' }}
-          </p>
-        </ion-label>
+        </ion-accordion>
 
-        <!-- ======== INDICADOR DE PRIORIDAD "SEMÁFORO" CORREGIDO ======== -->
-        <div slot="end" class="prioridad-indicator" *ngIf="tarea.prioridad && !tarea.completada">
-          <!-- Verde para Baja (1) -->
-          <ion-icon name="ellipse" color="success" *ngIf="tarea.prioridad === 1"></ion-icon>
-          <!-- Amarillo para Media (2) -->
-          <ion-icon name="ellipse" color="warning" *ngIf="tarea.prioridad === 2"></ion-icon>
-          <!-- Rojo para Alta (3) -->
-          <ion-icon name="ellipse" color="danger" *ngIf="tarea.prioridad === 3"></ion-icon>
-        </div>
-        <!-- ========================================================== -->
-
-      </ion-item>
-      <ion-item-options side="end">
-        <ion-item-option color="light" (click)="abrirModalTarea(tarea); slidingItem.close()">
-          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
-        </ion-item-option>
-        <ion-item-option color="danger" (click)="confirmarEliminar(tarea, $event); slidingItem.close()">
-          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-        </ion-item-option>
-      </ion-item-options>
-    </ion-item-sliding>
+      </ion-item-sliding>
+    </ion-accordion-group>
   </ion-list>
-
-  <!-- TU CÓDIGO ORIGINAL - Botón FAB -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)="abrirModalTarea()" color="tertiary">
       <ion-icon name="add-outline"></ion-icon>

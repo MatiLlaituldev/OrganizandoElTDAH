@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray} from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
-import { Tarea } from '../../../models/tarea.model';
+import { Tarea, Subtarea } from '../../../models/tarea.model'; // Asegúrate de importar Subtarea
 import { AuthService } from '../../../services/auth.service';
 import { TaskService } from '../../../services/task.service';
 import { Timestamp } from 'firebase/firestore';
@@ -39,6 +39,37 @@ export class TaskFormComponent implements OnInit {
     this.minDate = new Date().toISOString().split('T')[0];
   }
 
+  // --- AÑADIDO ---
+  // Métodos para gestionar el FormArray de subtareas.
+
+  // Getter para acceder fácilmente al FormArray desde el HTML
+  get subtareas(): FormArray {
+    return this.tareaForm.get('subtareas') as FormArray;
+  }
+
+  // Crea un FormGroup para una subtarea (nueva o existente)
+  createSubtaskFormGroup(subtask?: Subtarea): FormGroup {
+    return this.fb.group({
+      id: [subtask?.id || new Date().getTime().toString()],
+      titulo: [subtask?.titulo || '', Validators.required]
+    });
+  }
+
+  // Añade una nueva subtarea vacía al FormArray
+  addSubtask() {
+    const lastSubtask = this.subtareas.at(this.subtareas.length - 1);
+    if (this.subtareas.length === 0 || lastSubtask.valid) {
+      this.subtareas.push(this.createSubtaskFormGroup());
+    }
+  }
+
+  // Elimina una subtarea del FormArray por su índice
+  removeSubtask(index: number) {
+    this.subtareas.removeAt(index);
+  }
+
+  // --- MODIFICADO ---
+  // Se actualiza ngOnInit para incluir el FormArray de subtareas.
   ngOnInit() {
     this.esEdicion = !!this.tarea && !!this.tarea.id;
     this.etiquetas$ = this.etiquetaService.getEtiquetas();
@@ -47,9 +78,11 @@ export class TaskFormComponent implements OnInit {
       titulo: ['', [Validators.required, Validators.minLength(3)]],
       descripcion: [''],
       fechaVencimiento: [null],
-      prioridad: [2], // Prioridad media por defecto
+      prioridad: [2],
       etiquetas: [[]],
-      recurrencia: ['unica', Validators.required]
+      recurrencia: ['unica', Validators.required],
+      // Se añade el FormArray para las subtareas.
+      subtareas: this.fb.array(this.tarea?.subtareas?.map(sub => this.createSubtaskFormGroup(sub)) || [])
     });
 
     if (this.esEdicion && this.tarea) {
@@ -67,6 +100,8 @@ export class TaskFormComponent implements OnInit {
 
   limpiarFechaVencimiento() { this.tareaForm.get('fechaVencimiento')?.setValue(null); }
 
+  // --- MODIFICADO ---
+  // Se actualiza guardarTarea para incluir las subtareas en el objeto que se guarda.
   async guardarTarea() {
     if (this.tareaForm.invalid) {
       this.presentToast('Por favor, completa los campos requeridos.', 'warning');
@@ -88,6 +123,8 @@ export class TaskFormComponent implements OnInit {
       etiquetas: formValues.etiquetas || [],
       recurrencia: formValues.recurrencia,
       fechaVencimiento: formValues.fechaVencimiento ? Timestamp.fromDate(new Date(formValues.fechaVencimiento)) : null,
+      // Se añaden las subtareas, filtrando las que estén vacías.
+      subtareas: formValues.subtareas?.filter((s: any) => s.titulo) || []
     };
 
     try {
@@ -112,7 +149,6 @@ export class TaskFormComponent implements OnInit {
     }
   }
 
-  // FIX: Se añade 'dark' a los tipos permitidos para que coincida con el valor por defecto.
   async presentToast(mensaje: string, color: 'success' | 'warning' | 'danger' | 'light' | 'dark' = 'dark', duracion: number = 2500) {
     const toast = await this.toastCtrl.create({
       message: mensaje,

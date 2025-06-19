@@ -1,13 +1,5 @@
 import { Timestamp, FieldValue } from 'firebase/firestore';
 
-export interface Subtarea {
-  id?: string;
-  titulo: string;
-  completada: boolean;
-  fechaCreacion?: Timestamp;
-  orden?: number;
-}
-
 export interface Tarea {
   id?: string;
   titulo: string;
@@ -24,7 +16,13 @@ export interface Tarea {
     nombre: string;
     color: string;
   }[];
-
-  // --- CAMPO CLAVE PARA ESTA FUNCIONALIDAD ---
-  recurrencia?: 'unica' | 'diaria'; // Puede ser 'semanal', etc. en el futuro
+  recurrencia?: 'unica' | 'diaria'; // <-- CAMPO CLAVE QUE USAREMOS
+  subtareas?: Subtarea[];
+}
+export interface Subtarea {
+    id?: string;
+    titulo: string;
+    // 'completada' se elimina de la plantilla.
+    fechaCreacion?: import('firebase/firestore').Timestamp;
+    orden?: number;
 }
