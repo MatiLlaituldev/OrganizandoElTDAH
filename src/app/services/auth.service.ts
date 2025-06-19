@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Auth, user, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from '@angular/fire/auth';
 import { User } from 'firebase/auth';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -30,8 +31,12 @@ export class AuthService {
   }
 
   //  Usuario actual
-  getCurrentUser() {
-    return this.auth.currentUser;
+  async getCurrentUser(): Promise<User | null> {
+    const current = this.auth.currentUser;
+    if (current) {
+      return current;
+    }
+    return firstValueFrom(this.user$.pipe(take(1)));
   }
 
   //  Recuperar Contraseña
