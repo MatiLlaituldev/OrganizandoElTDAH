@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { ModalController, LoadingController, ToastController, AlertController } from '@ionic/angular';
+import { ModalController, ToastController, AlertController } from '@ionic/angular';
 import { Observable, Subscription, of, BehaviorSubject } from 'rxjs';
-import { Tarea } from 'src/app/models/tarea.model';
+import { Tarea, Subtarea } from 'src/app/models/tarea.model'; // Subtarea importada
 import { AuthService } from 'src/app/services/auth.service';
 import { TaskService } from 'src/app/services/task.service';
 import { TaskFormComponent } from 'src/app/components/shared-components/task-form/task-form.component';
@@ -12,6 +12,12 @@ import { User } from 'firebase/auth';
 import { Timestamp } from 'firebase/firestore';
 import { RegistroTarea } from 'src/app/models/registro-tarea.model';
 import { switchMap, tap } from 'rxjs/operators';
+
+// --- AÑADIDO ---
+// ViewModel que combina la Tarea con su Registro del día para facilitar su uso en la vista.
+export interface TareaViewModel extends Tarea {
+  registro?: RegistroTarea;
+}
 
 interface Day {
   date: Date;
@@ -29,7 +35,7 @@ export class TaskListPage implements OnInit, OnDestroy {
 
   // --- Propiedades de Datos ---
   todasLasTareas: Tarea[] = [];
-  tareasMostradas: Tarea[] = [];
+  tareasMostradas: TareaViewModel[] = []; // <-- MODIFICADO para usar el ViewModel
   registrosDelDia: RegistroTarea[] = [];
   etiquetas$!: Observable<Etiqueta[]>;
 
@@ -89,16 +95,23 @@ export class TaskListPage implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  // --- LÓGICA DE FILTRADO Y ORDENAMIENTO (CORREGIDA) ---
+  // --- REEMPLAZADO ---
+  // Lógica de filtrado actualizada para trabajar con TareaViewModel.
   aplicarFiltros() {
-    // 1. Filtrar por día y segmento
-    let tareasDelDia = this.todasLasTareas.filter(t => this.esTareaDelDiaSeleccionado(t));
+    // 1. Transformar Tareas a TareaViewModels, combinando con su registro diario
+    const tareasConRegistro: TareaViewModel[] = this.todasLasTareas.map(tarea => ({
+      ...tarea,
+      registro: this.getRegistroParaTarea(tarea)
+    }));
+
+    // 2. Filtrar por día y segmento
+    let tareasDelDia = tareasConRegistro.filter(t => this.esTareaDelDiaSeleccionado(t));
     let tareasPorSegmento = tareasDelDia.filter(t => {
       const completadaHoy = this.estaCompletadaHoy(t);
       return this.segmentoActual === 'pendientes' ? !completadaHoy : completadaHoy;
     });
 
-    // 2. Filtrar por etiqueta
+    // 3. Filtrar por etiqueta
     let tareasFiltradas;
     if (this.etiquetaFiltroSeleccionada === 'todas') {
       tareasFiltradas = tareasPorSegmento;
@@ -108,15 +121,13 @@ export class TaskListPage implements OnInit, OnDestroy {
       );
     }
 
-    // 3. ORDENAR el resultado final
+    // 4. ORDENAR el resultado final
     tareasFiltradas.sort((a, b) => {
-      // Primero, ordenar por prioridad (mayor a menor)
       const prioridadA = a.prioridad || 0;
       const prioridadB = b.prioridad || 0;
       if (prioridadA !== prioridadB) {
         return prioridadB - prioridadA;
       }
-      // Si la prioridad es la misma, ordenar por fecha de creación (más nueva primero)
       const fechaA = a.fechaCreacion.toMillis();
       const fechaB = b.fechaCreacion.toMillis();
       return fechaB - fechaA;
@@ -145,9 +156,10 @@ export class TaskListPage implements OnInit, OnDestroy {
     return false;
   }
 
-  estaCompletadaHoy(tarea: Tarea): boolean {
+  // --- MODIFICADO --- para usar TareaViewModel
+  estaCompletadaHoy(tarea: TareaViewModel): boolean {
     if (tarea.recurrencia === 'diaria') {
-      return this.registrosDelDia.some(r => r.tareaId === tarea.id && r.completada);
+      return !!tarea.registro?.completada;
     }
     return tarea.completada;
   }
@@ -164,14 +176,26 @@ export class TaskListPage implements OnInit, OnDestroy {
     }
   }
 
-  esVencida(tarea: Tarea): boolean {
+  // --- AÑADIDO ---
+  // Método para gestionar el click en el checkbox de una subtarea.
+  async toggleSubtareaCompletada(tarea: TareaViewModel, subtarea: Subtarea, event: any) {
+    const completada = event.detail.checked;
+    const currentUser = await this.authService.getCurrentUser();
+    if (!currentUser || !tarea.id || !subtarea.id) return;
+
+    const fechaFormato = this.formatDate(this.selectedDate$.value);
+    this.taskService.registrarEstadoSubtarea(currentUser.uid, tarea.id, subtarea, completada, fechaFormato);
+    // La vista se actualizará automáticamente gracias a la suscripción a los registros.
+  }
+
+  esVencida(tarea: TareaViewModel): boolean {
     if (this.estaCompletadaHoy(tarea) || !tarea.fechaVencimiento) return false;
     const ahora = new Date();
     const fechaVencimiento = this.getDisplayDateForPipe(tarea.fechaVencimiento);
     return fechaVencimiento ? fechaVencimiento < ahora : false;
   }
 
-  // --- MÉTODOS DE UI QUE ACTIVAN CAMBIOS ---
+  // --- MÉTODOS DE UI QUE ACTIVAN CAMBIOS (Sin cambios) ---
   async segmentChanged(event: any) {
     this.segmentoActual = event.detail.value;
     this.aplicarFiltros();
@@ -192,6 +216,30 @@ export class TaskListPage implements OnInit, OnDestroy {
   }
 
   // --- MÉTODOS AUXILIARES ---
+
+  // --- AÑADIDOS ---
+  getRegistroParaTarea(tarea: Tarea): RegistroTarea | undefined {
+    if (!tarea.id) return undefined;
+    return this.registrosDelDia.find(r => r.tareaId === tarea.id);
+  }
+
+  estaSubtareaCompletada(subtarea: Subtarea, registro: RegistroTarea | undefined): boolean {
+    if (!registro || !registro.estadoSubtareas || !subtarea.id) {
+      return false;
+    }
+    return !!registro.estadoSubtareas[subtarea.id];
+  }
+
+  calcularProgreso(tarea: TareaViewModel): number {
+    if (!tarea.subtareas || tarea.subtareas.length === 0) {
+      return 0;
+    }
+    const completadas = tarea.subtareas.filter(st => this.estaSubtareaCompletada(st, tarea.registro)).length;
+    return completadas / tarea.subtareas.length;
+  }
+  // --- FIN DE AÑADIDOS ---
+
+
   formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
   }
@@ -215,13 +263,12 @@ export class TaskListPage implements OnInit, OnDestroy {
   }
 
   async handleRefresh(event: any) {
-    // La lógica reactiva ya actualiza los datos, aquí solo completamos el refresher
     setTimeout(() => {
       event.target.complete();
     }, 500);
   }
 
-  trackTareaById(index: number, tarea: Tarea): string { return tarea.id!; }
+  trackTareaById(index: number, tarea: TareaViewModel): string { return tarea.id!; }
 
   getDisplayDateForPipe(fecha: any): Date | null {
     if (fecha instanceof Timestamp) return fecha.toDate();

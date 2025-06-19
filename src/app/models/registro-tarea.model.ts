@@ -1,13 +1,20 @@
 import { Timestamp } from 'firebase/firestore';
 
 /**
- * Representa el registro de estado de una tarea recurrente en una fecha específica.
- * Por ejemplo, si una tarea diaria se completó hoy.
+ * Representa el registro de estado de una tarea (y sus subtareas) en una fecha específica.
  */
 export interface RegistroTarea {
-  id?: string;            // ID del documento de registro
-  tareaId: string;        // ID de la tarea a la que se refiere este registro
-  fecha: string;          // Fecha del registro en formato YYYY-MM-DD para consultas fáciles
-  completada: boolean;    // Estado de la tarea en esa fecha
-  timestamp: Timestamp;   // Fecha y hora exactas del registro
+  // --- CAMPOS ORIGINALES (SE MANTIENEN INTACTOS) ---
+  id?: string;
+  tareaId: string;
+  fecha: string; // Se mantiene string 'YYYY-MM-DD'
+  completada: boolean;
+  timestamp: Timestamp; // Se mantiene el timestamp original
+
+  // --- CAMPO AÑADIDO PARA CONSISTENCIA Y SEGURIDAD ---
+ // Alineado con el resto de tus modelos
+
+  // --- NUEVA FUNCIONALIDAD (AÑADIDO DE FORMA SEGURA) ---
+  // Opcional para no romper documentos existentes.
+  estadoSubtareas?: { [subtareaId: string]: boolean };
 }

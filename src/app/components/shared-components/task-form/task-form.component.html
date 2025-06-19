@@ -22,7 +22,6 @@
       <ion-textarea formControlName="descripcion" [autoGrow]="true"></ion-textarea>
     </ion-item>
 
-    <!-- ======== NUEVO SELECTOR DE RECURRENCIA ======== -->
     <ion-item lines="none">
       <ion-label>Tipo de Tarea</ion-label>
     </ion-item>
@@ -34,18 +33,40 @@
         <ion-label>Diaria</ion-label>
       </ion-segment-button>
     </ion-segment>
-    <!-- ============================================= -->
 
-   <ion-item>
+    <ion-item-divider class="ion-margin-top">
+      <ion-label>
+        Subtareas
+      </ion-label>
+    </ion-item-divider>
+
+    <div formArrayName="subtareas">
+      <ion-item *ngFor="let subtask of subtareas.controls; let i = index" [formGroupName]="i">
+        <ion-input
+          labelPlacement="floating"
+          [label]="'Subtarea ' + (i + 1)"
+          formControlName="titulo"
+          placeholder="Describe la subtarea">
+        </ion-input>
+        <ion-button (click)="removeSubtask(i)" fill="clear" color="danger" slot="end">
+          <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </div>
+
+    <ion-button (click)="addSubtask()" expand="block" fill="outline" class="ion-margin-top">
+      <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+      Añadir Subtarea
+    </ion-button>
+    <ion-item class="ion-margin-top">
       <ion-label>Prioridad</ion-label>
       <ion-select formControlName="prioridad" interface="popover">
-        <!-- El orden visual ahora es más natural -->
         <ion-select-option [value]="1">Baja</ion-select-option>
         <ion-select-option [value]="2">Media</ion-select-option>
         <ion-select-option [value]="3">Alta</ion-select-option>
       </ion-select>
     </ion-item>
-    <!-- La fecha de vencimiento se deshabilita si la tarea es diaria -->
+
     <ion-item [disabled]="tareaForm.get('recurrencia')?.value === 'diaria'">
       <ion-label>Fecha de Vencimiento</ion-label>
       <ion-input type="date" formControlName="fechaVencimiento" [min]="minDate"></ion-input>
