@@ -5,17 +5,17 @@
 :host {
   --ion-color-primary: #7F00FF;         // Morado principal
   --ion-color-primary-contrast: #ffffff;
-  --ion-color-secondary: #6A0DAD;      // Morado más oscuro para labels y acentos
-  --ion-color-tertiary: #FFC107;       // Amarillo/Dorado para botones de acción principales
+  --ion-color-secondary: #6A0DAD;       // Morado más oscuro para labels y acentos
+  --ion-color-tertiary: #FFC107;         // Amarillo/Dorado para botones de acción principales
   --ion-color-tertiary-contrast: #000000;
 
   --modal-content-background: #F8F5FF; // Fondo del contenido del modal (ligero tinte morado)
-  --modal-item-background: #FFFFFF;    // Fondo blanco para los ion-item/inputs
+  --modal-item-background: #FFFFFF;     // Fondo blanco para los ion-item/inputs
 
-  --ion-color-placeholder: #86888f;    // Color para el label cuando actúa como placeholder
+  --ion-color-placeholder: #86888f;     // Color para el label cuando actúa como placeholder
   --ion-color-medium-grey: var(--ion-color-placeholder);
   --ion-border-radius: 12px;
-  --ion-text-color-input: #333333;     // Color del texto que el usuario escribe
+  --ion-text-color-input: #333333;      // Color del texto que el usuario escribe
   --ion-border-color-input: #E0E0E0;   // Borde sutil para los items
   --font-family-sans-serif: 'Inter', sans-serif; // Fuente principal
 }
@@ -38,8 +38,6 @@ ion-header {
 }
 
 // Estilos para el contenido del modal
-// Usar el selector del componente ('app-habito-form' o el que hayas definido)
-// o :host para asegurar que los estilos se apliquen correctamente.
 :host ion-content {
   --background: var(--modal-content-background);
   font-family: var(--font-family-sans-serif);
@@ -51,63 +49,59 @@ ion-header {
 
 // Estilos para el contenedor de cada input y su mensaje de error
 .input-wrapper {
-  margin-bottom: 20px; // Espacio uniforme entre los campos del formulario
-  padding-left: 16px;  // Margen lateral para que no pegue a los bordes del modal
+  margin-bottom: 20px;
+  padding-left: 16px;
   padding-right: 16px;
 }
 
 // Estilos personalizados para ion-item dentro del formulario
 .custom-ion-item {
-  --background: var(--modal-item-background); // Fondo blanco
-  --padding-start: 16px; // Padding interno del item
+  --background: var(--modal-item-background);
+  --padding-start: 16px;
   --inner-padding-end: 16px;
-  --border-radius: var(--ion-border-radius); // Bordes redondeados
-  --border-color: var(--ion-border-color-input); // Borde sutil
-  --highlight-color-focused: var(--ion-color-primary); // Color del borde cuando el input está enfocado
-  // Quitar márgenes laterales del item si .input-wrapper ya los maneja
+  --border-radius: var(--ion-border-radius);
+  --border-color: var(--ion-border-color-input);
+  --highlight-color-focused: var(--ion-color-primary);
   margin-left: 0;
   margin-right: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); // Sombra ligera
-  overflow: visible; // Para que el label flotante no se corte
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: visible;
 
   ion-label[position="floating"] {
-    color: var(--ion-color-placeholder); // Color inicial del label (como placeholder)
+    color: var(--ion-color-placeholder);
     font-weight: normal;
   }
 
   ion-label[position="floating"].label-floating {
-    color: var(--ion-color-secondary); // Color del label cuando flota
+    color: var(--ion-color-secondary);
     font-weight: 500;
   }
 
-  // Estilos para los inputs, textareas y selects
   ion-input,
   ion-textarea,
   ion-select {
-    --color: var(--ion-text-color-input); // Color del texto escrito por el usuario
-    --placeholder-opacity: 0;             // Ocultar placeholder nativo
-    --placeholder-color: transparent;     // Doble seguridad para ocultar placeholder nativo
-    --padding-top: 20px;                  // Espacio para el label flotante
+    --color: var(--ion-text-color-input);
+    --placeholder-opacity: 0;
+    --placeholder-color: transparent;
+    --padding-top: 20px;
     --padding-bottom: 10px;
     font-size: 1em;
-    background: transparent; // Asegurar que el input no tenga fondo propio
+    background: transparent;
   }
 
   ion-textarea {
-    min-height: 60px; // Altura mínima para descripción
+    min-height: 60px;
   }
 
   ion-select {
-    width: 100%; // Para que el select ocupe el ancho disponible
-    --placeholder-color: var(--ion-color-placeholder); // Color para el placeholder del select
+    width: 100%;
+    --placeholder-color: var(--ion-color-placeholder);
   }
 
-  // Input de tipo color
   .color-picker-input {
-    min-height: 40px; // Altura para el input de color
-    padding-top: 8px !important; // Ajustar padding para el input de color
+    min-height: 40px;
+    padding-top: 8px !important;
     padding-bottom: 8px !important;
-    // Quitar el padding-start por defecto de ion-input para que el color picker quede mejor
     --padding-start: 0px;
   }
 }
@@ -116,13 +110,13 @@ ion-header {
 .icon-preview {
   display: flex;
   align-items: center;
-  padding-left: 20px; // Alineado con el texto de error
+  padding-left: 20px;
   padding-top: 6px;
   font-size: 0.9em;
   color: var(--ion-color-medium-grey);
 
   ion-icon {
-    font-size: 1.8em; // Tamaño del icono de vista previa
+    font-size: 1.8em;
     margin-right: 8px;
   }
 }
@@ -132,9 +126,9 @@ ion-header {
     --border-width: 0;
     --inner-border-width: 0;
     box-shadow: none;
-    margin-bottom: 0px !important; // Ajustar si es necesario
+    margin-bottom: 0px !important;
     padding-bottom: 4px;
-    --background: var(--modal-item-background); // Asegurar fondo del item
+    --background: var(--modal-item-background);
 }
 
 ion-datetime-button {
@@ -147,20 +141,16 @@ ion-datetime-button {
   margin-top: 8px;
 }
 
-// Estilos para el modal del selector de fecha/hora (si es presentado por este componente)
-:host ion-modal ion-datetime { // O app-habito-form ion-modal ion-datetime
+// Estilos para el modal del selector de fecha/hora
+:host ion-modal ion-datetime {
     --background: #ffffff;
-    // Puedes personalizar los botones "Hecho" y "Cancelar" aquí si es necesario
-    // &::part(confirm-button), &::part(cancel-button) {
-    //   color: var(--ion-color-primary);
-    // }
 }
 
 // Mensajes de error
 .error-message {
-  color: var(--ion-color-danger, #eb445a); // Fallback a un rojo estándar si no está definido
+  color: var(--ion-color-danger, #eb445a);
   font-size: 0.8em;
-  padding-left: 4px; // Menos padding si .input-wrapper ya tiene
+  padding-left: 4px;
   padding-top: 4px;
 }
 
@@ -168,7 +158,6 @@ ion-datetime-button {
 .clear-date-button {
   color: var(--ion-color-medium-grey);
   font-size: 0.85em;
-  // margin-left: 0; // Si .input-wrapper maneja el padding
   text-transform: none;
   --padding-start: 0;
   --ripple-color: transparent;
@@ -182,14 +171,87 @@ ion-datetime-button {
 // Botón de envío principal
 .submit-button {
   --border-radius: var(--ion-border-radius);
-  --box-shadow: 0 4px 10px rgba(127, 0, 255, 0.25); // Sombra con el color primario del :host
+  --box-shadow: 0 4px 10px rgba(127, 0, 255, 0.25);
   font-weight: 600;
   height: 48px;
   margin-top: 24px;
-  // Los márgenes laterales ya están en .input-wrapper, o puedes ponerlos aquí si no usas .input-wrapper
-  // margin-left: 16px;
-  // margin-right: 16px;
   text-transform: capitalize;
-  --background: var(--ion-color-primary); // Usar el primario definido en :host
+  --background: var(--ion-color-primary);
   --color: var(--ion-color-primary-contrast);
+}
+
+
+/* --- ESTILOS PARA NUEVOS SELECTORES VISUALES --- */
+/* (AÑADIDO PARA LA NUEVA FUNCIONALIDAD) */
+
+.selector-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 16px 16px 16px;
+}
+
+.color-swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--ion-color-step-200, #cccccc);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.2s ease-in-out;
+
+  ion-icon {
+    color: white;
+    font-size: 24px;
+    --ion-color-base: #fff !important; // For checkmark color
+  }
+
+  &.selected {
+    border-color: var(--ion-color-primary);
+    transform: scale(1.1);
+  }
+}
+
+.icon-swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--ion-color-light);
+  transition: all 0.2s ease-in-out;
+
+  ion-icon {
+    font-size: 28px;
+    color: var(--ion-color-medium);
+  }
+
+  &.selected {
+    border-color: var(--ion-color-primary);
+    background-color: var(--ion-color-primary);
+
+    ion-icon {
+      color: var(--ion-color-primary-contrast);
+    }
+  }
+}
+
+// Estilos para el contenedor de chips de días de la semana
+.chip-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 0; // Padding vertical para dar espacio
+    justify-content: space-around; // Distribuye los chips
+}
+
+// Ajuste para el item de los chips para que no tenga tanto padding
+ion-item.item-chips {
+  --inner-padding-bottom: 8px;
+  --inner-padding-top: 8px;
 }

@@ -6,11 +6,21 @@ export interface Habito {
   descripcion?: string;
   icono?: string;
   color?: string;
-  frecuenciaTipo: 'diaria' | 'semanal' | 'diasEspecificos' | string;
-  frecuenciaValor?: number[] | string[];
-  horaPreferida?: string;
-  recordatoriosActivos?: boolean;
   fechaInicio: Timestamp;
+  frecuencia: 'diaria' | 'dias_especificos';
+  diasEspecificos?: number[];
+  recordatorios: {
+    id: string;
+    hora: string;
+    activo: boolean;
+  }[];
+  conteoCompletados?: number;
   rachaActual?: number;
   mejorRacha?: number;
+
+  /**
+   * Guarda el ID de la meta. Ahora puede ser string o null.
+   * null representa explícitamente que no está asociado a ninguna meta.
+   */
+  metaId?: string | null; // <--- ÚNICO CAMBIO AQUÍ
 }
