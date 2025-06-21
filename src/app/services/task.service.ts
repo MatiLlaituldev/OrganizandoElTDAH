@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionData, doc, addDoc, updateDoc, deleteDoc, query, where, Timestamp, getDocs } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Firestore, collection, collectionData, doc, addDoc, updateDoc, deleteDoc, query, where, Timestamp, getDocs, orderBy, DocumentReference } from '@angular/fire/firestore';
+import { Observable,of } from 'rxjs';
 import { Tarea, Subtarea } from '../models/tarea.model'; // Se añade Subtarea a la importación
 import { RegistroTarea } from '../models/registro-tarea.model';
 
@@ -13,25 +13,58 @@ export class TaskService {
   constructor() { }
 
   // --- MÉTODOS EXISTENTES (SIN CAMBIOS) ---
-  getTasks(userId: string): Observable<Tarea[]> {
-    const tasksRef = collection(this.firestore, `usuarios/${userId}/tareas`);
-    return collectionData(tasksRef, { idField: 'id' }) as Observable<Tarea[]>;
+getTasks(userId: string): Observable<Tarea[]> {
+  if (!userId) return of([]);
+  const tareasCollectionRef = collection(this.firestore, `usuarios/${userId}/tareas`);
+
+  const q = query(
+    tareasCollectionRef,
+    where('eliminada', '!=', true), // <-- AÑADE ESTA LÍNEA
+    orderBy('eliminada'), // Ordenar por eliminada para que funcione el where
+    orderBy('fechaCreacion', 'desc')
+  );
+
+  return collectionData(q, { idField: 'id' }) as Observable<Tarea[]>;
+}
+
+async agregarTask(userId: string, tareaData: Partial<Tarea>): Promise<DocumentReference> {
+  if (!userId) {
+    return Promise.reject(new Error('User ID es requerido.'));
   }
 
-  agregarTask(userId: string, tarea: Tarea) {
-    const tasksRef = collection(this.firestore, `usuarios/${userId}/tareas`);
-    return addDoc(tasksRef, tarea);
-  }
+  // El servicio construye el objeto Tarea completo y confiable
+  const nuevaTarea: Omit<Tarea, 'id'> = {
+    titulo: tareaData.titulo!, // El título es obligatorio
+    descripcion: tareaData.descripcion || '',
+    prioridad: tareaData.prioridad || 1, // Prioridad media por defecto
+    etiquetas: tareaData.etiquetas || [],
+    subtareas: tareaData.subtareas || [],
+    metaId: tareaData.metaId || null,
+
+    // --- El servicio asigna los valores por defecto ---
+    userId: userId,
+    fechaCreacion: Timestamp.now(),
+    completada: false,
+    eliminada: false, // <-- ¡Aquí se establece el estado inicial!
+  };
+
+  const tasksRef = collection(this.firestore, `usuarios/${userId}/tareas`);
+  return addDoc(tasksRef, nuevaTarea as any);
+}
 
   actualizarTask(userId: string, taskId: string, data: Partial<Tarea>) {
     const taskDocRef = doc(this.firestore, `usuarios/${userId}/tareas/${taskId}`);
     return updateDoc(taskDocRef, data);
   }
 
-  eliminarTask(userId: string, taskId: string) {
-    const taskDocRef = doc(this.firestore, `usuarios/${userId}/tareas/${taskId}`);
-    return deleteDoc(taskDocRef);
-  }
+async eliminarTask(userId: string, tareaId: string): Promise<void> {
+  const tareaDocRef = doc(this.firestore, `usuarios/${userId}/tareas/${tareaId}`);
+
+  // En lugar de borrar, actualizamos el campo 'eliminada' a true
+  return updateDoc(tareaDocRef, {
+    eliminada: true
+  });
+}
 
   getRegistrosPorDia(userId: string, fecha: string): Observable<RegistroTarea[]> {
     const registrosRef = collection(this.firestore, `usuarios/${userId}/registrosTareas`);

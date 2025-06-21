@@ -78,12 +78,20 @@
         <ion-accordion [toggleIcon]="(tarea.subtareas && tarea.subtareas.length > 0) ? 'chevron-down' : ''" toggleIconSlot="end">
 
           <ion-item slot="header" lines="inset" [ngClass]="{ 'task-completada': estaCompletadaHoy(tarea) }">
+
+            <div slot="start"
+                 *ngIf="tarea.prioridad && tarea.prioridad > 0"
+                 class="priority-indicator"
+                 [ngClass]="getPriorityClass(tarea.prioridad)">
+            </div>
+
             <ion-checkbox
               slot="start"
               [checked]="estaCompletadaHoy(tarea)"
               (ionChange)="toggleCompletada(tarea, $event)"
               (click)="$event.stopPropagation()">
             </ion-checkbox>
+
             <ion-label>
               <h2>{{ tarea.titulo }}</h2>
               <p *ngIf="tarea.descripcion">{{ tarea.descripcion | slice:0:100 }}{{ tarea.descripcion && tarea.descripcion.length > 100 ? '...' : '' }}</p>
@@ -96,10 +104,10 @@
               </ion-progress-bar>
 
               <div class="etiquetas-container" *ngIf="tarea.etiquetas && tarea.etiquetas.length > 0">
-                 <ion-chip *ngFor="let etiqueta of tarea.etiquetas" class="etiqueta-chip" [style.--background]="etiqueta.color">
-                   <ion-label>{{ etiqueta.nombre }}</ion-label>
-                 </ion-chip>
-               </div>
+                  <ion-chip *ngFor="let etiqueta of tarea.etiquetas" class="etiqueta-chip" [style.--background]="etiqueta.color">
+                    <ion-label>{{ etiqueta.nombre }}</ion-label>
+                  </ion-chip>
+                </div>
 
               <p *ngIf="esVencida(tarea)" class="fecha-vencimiento overdue-text">
                 <ion-icon name="warning-outline" class="fecha-icon"></ion-icon>
