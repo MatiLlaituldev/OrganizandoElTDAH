@@ -1,33 +1,38 @@
-// src/app/components/habito-form/habito-form.component.ts
-
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
-import { Habito } from 'src/app/models/habito.model'; // Ajusta la ruta a tu modelo Habito (MVP)
+import { Habito } from 'src/app/models/habito.model';
 import { AuthService } from 'src/app/services/auth.service';
-import { HabitoService } from 'src/app/services/habito.service'; // Ajusta la ruta (lo crearemos después)
+import { HabitoService } from 'src/app/services/habito.service';
 import { Timestamp } from 'firebase/firestore';
 
 @Component({
-  selector: 'app-habito-form', // Asegúrate que coincida con el selector usado
+  selector: 'app-habito-form',
   templateUrl: './habito-form.component.html',
   styleUrls: ['./habito-form.component.scss'],
-  standalone: false,
-
+  standalone: false // Si estás usando Angular con módulos, asegúrate de que este componente esté declarado en un módulo
 })
 export class HabitoFormComponent implements OnInit {
-
-  @Input() habito?: Habito; // Para pasar un hábito existente al editar
+  @Input() habito?: Habito;
 
   habitoForm!: FormGroup;
   esEdicion: boolean = false;
 
-  // Título del modal dinámico
+  // --- NUEVO: Listas para los selectores visuales ---
+  colores = [
+    '#FF6B6B', '#FFD166', '#06D6A0', '#118AB2', '#073B4C',
+    '#F78C6B', '#FF8CC6', '#8338EC', '#3A86FF', '#6A040F'
+  ];
+  iconos = [
+    'book', 'barbell', 'leaf', 'water', 'walk', 'bed', 'heart',
+    'cash', 'musical-notes', 'code-slash', 'brush', 'construct'
+  ];
+  // --- FIN DE LO NUEVO ---
+
   get modalTitle(): string {
     return this.esEdicion ? 'Editar Hábito' : 'Nuevo Hábito';
   }
 
-  // Texto del botón de guardar dinámico
   get botonGuardarTexto(): string {
     return this.esEdicion ? 'Actualizar Hábito' : 'Guardar Hábito';
   }
@@ -37,7 +42,7 @@ export class HabitoFormComponent implements OnInit {
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
     private authService: AuthService,
-    private habitoService: HabitoService // Servicio para interactuar con Firestore (lo crearemos)
+    private habitoService: HabitoService
   ) {}
 
   ngOnInit() {
@@ -46,11 +51,11 @@ export class HabitoFormComponent implements OnInit {
     this.habitoForm = this.fb.group({
       titulo: ['', [Validators.required, Validators.minLength(3)]],
       descripcion: [''],
-      frecuenciaTipo: ['diaria', Validators.required], // Valor por defecto 'diaria'
-      // frecuenciaValor: [[]], // Para MVP, este campo no se usa activamente en el form, pero podría inicializarse
-      icono: [''], // ej: 'flame-outline'
-      color: ['#7F00FF'], // Un color por defecto (morado primario)
-      horaPreferida: [null], // Se manejará como string ISO HH:mm
+      frecuenciaTipo: ['diaria', Validators.required],
+      // Valores por defecto para los nuevos selectores visuales
+      icono: [this.iconos[0]],
+      color: [this.colores[0]],
+      horaPreferida: [null],
     });
 
     if (this.esEdicion && this.habito) {
@@ -58,25 +63,21 @@ export class HabitoFormComponent implements OnInit {
         titulo: this.habito.titulo,
         descripcion: this.habito.descripcion || '',
         frecuenciaTipo: this.habito.frecuenciaTipo || 'diaria',
-        // frecuenciaValor: this.habito.frecuenciaValor || [],
-        icono: this.habito.icono || '',
-        color: this.habito.color || '#7F00FF',
-        horaPreferida: this.habito.horaPreferida || null, // El ion-datetime para time espera un string ISO
+        icono: this.habito.icono || this.iconos[0],
+        color: this.habito.color || this.colores[0],
+        horaPreferida: this.habito.horaPreferida || null,
       });
     }
   }
 
-  // Cerrar el modal
   async cerrarModal(data?: any) {
     await this.modalCtrl.dismiss(data);
   }
 
-  // Limpiar el campo de hora preferida
   limpiarHoraPreferida() {
     this.habitoForm.get('horaPreferida')?.setValue(null);
   }
 
-  // Guardar o actualizar el hábito
   async guardarHabito() {
     if (this.habitoForm.invalid) {
       this.presentToast('Por favor, completa los campos requeridos.', 'warning');
@@ -85,7 +86,7 @@ export class HabitoFormComponent implements OnInit {
     }
 
     const formValues = this.habitoForm.value;
-    const currentUser = await this.authService.getCurrentUser(); // Asume que getCurrentUser es async o devuelve Promise
+    const currentUser = await this.authService.getCurrentUser();
     const userId = currentUser?.uid;
 
     if (!userId) {
@@ -93,34 +94,31 @@ export class HabitoFormComponent implements OnInit {
       return;
     }
 
-    // Prepara el objeto Habito
+    // La estructura de datos que se envía al servicio es la MISMA que en tu código original
     const habitoData: Partial<Habito> = {
       titulo: formValues.titulo,
-      descripcion: formValues.descripcion || null,
+      descripcion: formValues.descripcion || '',
       frecuenciaTipo: formValues.frecuenciaTipo,
-      // frecuenciaValor: formValues.frecuenciaValor, // Si se implementa en el futuro
-      icono: formValues.icono || null,
-      color: formValues.color || null,
-      horaPreferida: formValues.horaPreferida || null, // Guardar null si no se seleccionó
+      icono: formValues.icono,
+      color: formValues.color,
+      horaPreferida: formValues.horaPreferida || null,
     };
 
     try {
-      this.presentToast('Guardando hábito...', 'light', 1500);
+      this.presentToast('Guardando...', 'light', 1500);
 
       if (this.esEdicion && this.habito?.id) {
-        // --- Lógica de Actualización ---
         await this.habitoService.actualizarHabito(userId, this.habito.id, habitoData);
         this.presentToast('Hábito actualizado exitosamente.', 'success');
         this.cerrarModal({ actualizado: true, id: this.habito.id, habito: { ...this.habito, ...habitoData } });
       } else {
-        // --- Lógica de Creación ---
         const nuevoHabitoData: Habito = {
           ...habitoData,
-          fechaInicio: Timestamp.now(), // Fecha de inicio es ahora
-          rachaActual: 0,               // Iniciar racha en 0
-          mejorRacha: 0,                // Iniciar mejor racha en 0
-          recordatoriosActivos: false,    // Por defecto, sin recordatorios activos para MVP
-        } as Habito; // Asegurar el tipo
+          fechaInicio: Timestamp.now(),
+          rachaActual: 0,
+          mejorRacha: 0,
+          recordatoriosActivos: false,
+        } as Habito;
 
         const docRef = await this.habitoService.agregarHabito(userId, nuevoHabitoData);
         this.presentToast('Hábito creado exitosamente.', 'success');
@@ -132,7 +130,6 @@ export class HabitoFormComponent implements OnInit {
     }
   }
 
-  // Helper para mostrar mensajes Toast
   async presentToast(
     mensaje: string,
     color: 'success' | 'warning' | 'danger' | 'light' | 'dark' = 'dark',
