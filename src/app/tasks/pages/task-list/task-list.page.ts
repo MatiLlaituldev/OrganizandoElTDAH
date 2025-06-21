@@ -314,4 +314,12 @@ export class TaskListPage implements OnInit, OnDestroy {
     });
     await toast.present();
   }
+  getPriorityClass(prioridad?: number): string {
+    switch (prioridad) {
+      case 3: return 'priority-high';
+      case 2: return 'priority-medium';
+      case 1: return 'priority-low';
+      default: return '';
+    }
+  }
 }

@@ -193,3 +193,62 @@ ion-datetime-button {
   --background: var(--ion-color-primary); // Usar el primario definido en :host
   --color: var(--ion-color-primary-contrast);
 }
+// --- ESTILOS PARA NUEVOS SELECTORES VISUALES ---
+
+.selector-label {
+  font-size: 0.9em;
+  color: var(--ion-color-medium);
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.selector-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.color-swatch {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--ion-color-step-200, #cccccc);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.2s ease-in-out;
+  ion-icon {
+    color: white;
+    font-size: 26px;
+  }
+  &.selected {
+    border-color: var(--ion-color-primary);
+    transform: scale(1.1);
+  }
+}
+
+.icon-swatch {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--ion-color-step-150, #f0f0f0);
+  transition: all 0.2s ease-in-out;
+  ion-icon {
+    font-size: 28px;
+    color: var(--ion-color-step-600, #666666);
+  }
+  &.selected {
+    border-color: var(--ion-color-primary);
+    background-color: var(--ion-color-primary);
+    ion-icon {
+      color: var(--ion-color-primary-contrast, #ffffff);
+    }
+  }
+}

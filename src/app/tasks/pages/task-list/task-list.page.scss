@@ -329,3 +329,31 @@ ion-refresher ion-refresher-content {
   padding-left: 8px;
   padding-right: 8px;
 }
+// Estilos para el indicador de prioridad de la tarea
+.priority-indicator {
+  width: 5px;
+  height: 25px; // Puedes ajustar la altura
+  border-radius: 3px;
+  margin-right: 10px; // Espacio entre el indicador y el checkbox
+}
+
+.priority-high {
+  background-color: var(--ion-color-danger); // Rojo
+}
+
+.priority-medium {
+  background-color: var(--ion-color-warning); // Amarillo
+}
+
+.priority-low {
+  background-color: var(--ion-color-success); // Verde
+}
+.priority-indicator {
+  width: 6px;
+  height: 32px;
+  border-radius: 3px;
+  margin-right: 12px;
+}
+.priority-high { background-color: var(--ion-color-danger); }
+.priority-medium { background-color: var(--ion-color-warning); }
+.priority-low { background-color: var(--ion-color-success); }

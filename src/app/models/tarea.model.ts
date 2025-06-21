@@ -18,6 +18,8 @@ export interface Tarea {
   }[];
   recurrencia?: 'unica' | 'diaria'; // <-- CAMPO CLAVE QUE USAREMOS
   subtareas?: Subtarea[];
+   eliminada?: boolean;
+    metaId?: string | null;
 }
 export interface Subtarea {
     id?: string;
