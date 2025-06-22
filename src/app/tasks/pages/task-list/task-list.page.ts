@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { ModalController, ToastController, AlertController } from '@ionic/angular';
 import { Observable, Subscription, of, BehaviorSubject } from 'rxjs';
-import { Tarea, Subtarea } from 'src/app/models/tarea.model'; // Subtarea importada
+import { Tarea, Subtarea } from 'src/app/models/tarea.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { TaskService } from 'src/app/services/task.service';
 import { TaskFormComponent } from 'src/app/components/shared-components/task-form/task-form.component';
@@ -14,6 +14,9 @@ import { RegistroTarea } from 'src/app/models/registro-tarea.model';
 import { switchMap, tap } from 'rxjs/operators';
 
 // --- AÑADIDO ---
+import { Meta } from 'src/app/models/meta.model';
+import { GoalService } from 'src/app/services/goal.service';
+
 // ViewModel que combina la Tarea con su Registro del día para facilitar su uso en la vista.
 export interface TareaViewModel extends Tarea {
   registro?: RegistroTarea;
@@ -35,9 +38,10 @@ export class TaskListPage implements OnInit, OnDestroy {
 
   // --- Propiedades de Datos ---
   todasLasTareas: Tarea[] = [];
-  tareasMostradas: TareaViewModel[] = []; // <-- MODIFICADO para usar el ViewModel
+  tareasMostradas: TareaViewModel[] = [];
   registrosDelDia: RegistroTarea[] = [];
   etiquetas$!: Observable<Etiqueta[]>;
+  metas$!: Observable<Meta[]>; // <--- NUEVO
 
   // --- Propiedades de Estado de la UI ---
   segmentoActual: 'pendientes' | 'completadas' = 'pendientes';
@@ -55,16 +59,26 @@ export class TaskListPage implements OnInit, OnDestroy {
     private etiquetaService: EtiquetaService,
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private goalService: GoalService // <--- NUEVO
   ) {}
 
   ngOnInit() {
     this.initializeWeekDays();
     this.etiquetas$ = this.etiquetaService.getEtiquetas();
 
+    // --- NUEVO: Cargar metas del usuario ---
     const userSub = this.authService.user$.pipe(
       tap(() => this.isLoading = true),
-      switchMap(user => user ? of(user) : of(null))
+      switchMap(user => {
+        if (user) {
+          this.metas$ = this.goalService.getMetas(user.uid); // <--- NUEVO
+          return of(user);
+        } else {
+          this.metas$ = of([]); // <--- NUEVO
+          return of(null);
+        }
+      })
     ).subscribe(user => {
       if (user) {
         const tasksSub = this.taskService.getTasks(user.uid).subscribe(tareas => {
@@ -96,22 +110,18 @@ export class TaskListPage implements OnInit, OnDestroy {
   }
 
   // --- REEMPLAZADO ---
-  // Lógica de filtrado actualizada para trabajar con TareaViewModel.
   aplicarFiltros() {
-    // 1. Transformar Tareas a TareaViewModels, combinando con su registro diario
     const tareasConRegistro: TareaViewModel[] = this.todasLasTareas.map(tarea => ({
       ...tarea,
       registro: this.getRegistroParaTarea(tarea)
     }));
 
-    // 2. Filtrar por día y segmento
     let tareasDelDia = tareasConRegistro.filter(t => this.esTareaDelDiaSeleccionado(t));
     let tareasPorSegmento = tareasDelDia.filter(t => {
       const completadaHoy = this.estaCompletadaHoy(t);
       return this.segmentoActual === 'pendientes' ? !completadaHoy : completadaHoy;
     });
 
-    // 3. Filtrar por etiqueta
     let tareasFiltradas;
     if (this.etiquetaFiltroSeleccionada === 'todas') {
       tareasFiltradas = tareasPorSegmento;
@@ -121,7 +131,6 @@ export class TaskListPage implements OnInit, OnDestroy {
       );
     }
 
-    // 4. ORDENAR el resultado final
     tareasFiltradas.sort((a, b) => {
       const prioridadA = a.prioridad || 0;
       const prioridadB = b.prioridad || 0;
@@ -136,7 +145,6 @@ export class TaskListPage implements OnInit, OnDestroy {
     this.tareasMostradas = tareasFiltradas;
   }
 
-  // --- MÉTODOS DE LÓGICA DE TAREAS ---
   esTareaDelDiaSeleccionado(tarea: Tarea): boolean {
     if (tarea.recurrencia === 'diaria') return true;
     const diaSeleccionado = new Date(this.selectedDate$.value);
@@ -156,7 +164,6 @@ export class TaskListPage implements OnInit, OnDestroy {
     return false;
   }
 
-  // --- MODIFICADO --- para usar TareaViewModel
   estaCompletadaHoy(tarea: TareaViewModel): boolean {
     if (tarea.recurrencia === 'diaria') {
       return !!tarea.registro?.completada;
@@ -176,8 +183,6 @@ export class TaskListPage implements OnInit, OnDestroy {
     }
   }
 
-  // --- AÑADIDO ---
-  // Método para gestionar el click en el checkbox de una subtarea.
   async toggleSubtareaCompletada(tarea: TareaViewModel, subtarea: Subtarea, event: any) {
     const completada = event.detail.checked;
     const currentUser = await this.authService.getCurrentUser();
@@ -185,7 +190,6 @@ export class TaskListPage implements OnInit, OnDestroy {
 
     const fechaFormato = this.formatDate(this.selectedDate$.value);
     this.taskService.registrarEstadoSubtarea(currentUser.uid, tarea.id, subtarea, completada, fechaFormato);
-    // La vista se actualizará automáticamente gracias a la suscripción a los registros.
   }
 
   esVencida(tarea: TareaViewModel): boolean {
@@ -195,7 +199,6 @@ export class TaskListPage implements OnInit, OnDestroy {
     return fechaVencimiento ? fechaVencimiento < ahora : false;
   }
 
-  // --- MÉTODOS DE UI QUE ACTIVAN CAMBIOS (Sin cambios) ---
   async segmentChanged(event: any) {
     this.segmentoActual = event.detail.value;
     this.aplicarFiltros();
@@ -215,9 +218,6 @@ export class TaskListPage implements OnInit, OnDestroy {
     this.selectedDate$.next(day.date);
   }
 
-  // --- MÉTODOS AUXILIARES ---
-
-  // --- AÑADIDOS ---
   getRegistroParaTarea(tarea: Tarea): RegistroTarea | undefined {
     if (!tarea.id) return undefined;
     return this.registrosDelDia.find(r => r.tareaId === tarea.id);
@@ -237,8 +237,6 @@ export class TaskListPage implements OnInit, OnDestroy {
     const completadas = tarea.subtareas.filter(st => this.estaSubtareaCompletada(st, tarea.registro)).length;
     return completadas / tarea.subtareas.length;
   }
-  // --- FIN DE AÑADIDOS ---
-
 
   formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
@@ -322,4 +320,9 @@ export class TaskListPage implements OnInit, OnDestroy {
       default: return '';
     }
   }
+  getMetaTitulo(metaId: string | null | undefined, metas: Meta[] | null | undefined): string | null {
+  if (!metaId || !metas) return null;
+  const meta = metas.find(m => m.id === metaId);
+  return meta ? meta.titulo : null;
+}
 }
