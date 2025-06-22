@@ -11,4 +11,5 @@ export interface Meta {
   fechaLimite?: Timestamp | null;
   fechaAlcanzada?: Timestamp | null;
   estado: EstadoMeta;
+  color?: string;
 }

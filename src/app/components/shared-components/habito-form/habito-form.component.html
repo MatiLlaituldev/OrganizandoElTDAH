@@ -62,7 +62,7 @@
         <ion-select formControlName="frecuenciaTipo" interface="popover" placeholder="Seleccionar">
           <ion-select-option value="diaria">Diaria</ion-select-option>
           <ion-select-option value="semanal">Semanal</ion-select-option>
-          </ion-select>
+        </ion-select>
       </ion-item>
     </div>
 
@@ -90,10 +90,22 @@
        </ion-modal>
     </div>
 
+    <!-- Selector de Meta asociada -->
+    <div class="input-wrapper">
+      <ion-item class="custom-ion-item">
+        <ion-label position="floating">Meta asociada</ion-label>
+        <ion-select formControlName="metaId" placeholder="Sin meta">
+          <ion-select-option [value]="null">Sin meta</ion-select-option>
+          <ion-select-option *ngFor="let meta of metas$ | async" [value]="meta.id">
+            {{ meta.titulo }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </div>
+
     <ion-button expand="block" type="submit" [disabled]="habitoForm.invalid" color="primary" class="submit-button ion-margin-top">
       <ion-icon slot="start" name="save-outline"></ion-icon>
       {{ esEdicion ? 'Actualizar Hábito' : 'Guardar Hábito' }}
     </ion-button>
 
   </form>
-</ion-content>

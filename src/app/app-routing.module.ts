@@ -19,7 +19,11 @@ const routes: Routes = [
     path: 'tabs',
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule),
     canActivate: [AuthGuard] // Proteger TODA la sección de pestañas. Solo usuarios logueados entran aquí.
+  },  {
+    path: 'goal-detail',
+    loadChildren: () => import('./goals/pages/goal-detail/goal-detail.module').then( m => m.GoalDetailPageModule)
   }
+
 ];
 
 @NgModule({
