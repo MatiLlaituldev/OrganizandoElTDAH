@@ -4,6 +4,10 @@ import { ModalController, ToastController, LoadingController } from '@ionic/angu
 import { Meta } from '../../../models/meta.model';
 import { AuthService } from '../../../services/auth.service';
 import { GoalService } from '../../../services/goal.service';
+import { TaskService } from '../../../services/task.service';
+import { HabitoService } from '../../../services/habito.service';
+import { Tarea } from '../../../models/tarea.model';
+import { Habito } from '../../../models/habito.model';
 import { Timestamp } from 'firebase/firestore';
 import { User } from '@firebase/auth';
 
@@ -22,12 +26,8 @@ export class GoalFormComponent implements OnInit {
   minDate: string;
   loadingElement: HTMLIonLoadingElement | null = null;
 
-  get modalTitle(): string {
-    return this.esEdicion ? 'Editar Meta' : 'Nueva Meta';
-  }
-  get botonGuardarTexto(): string {
-    return this.esEdicion ? 'Actualizar' : 'Guardar';
-  }
+  tareas: Tarea[] = [];
+  habitos: Habito[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -35,6 +35,8 @@ export class GoalFormComponent implements OnInit {
     private toastCtrl: ToastController,
     private authService: AuthService,
     private goalService: GoalService,
+    private taskService: TaskService,
+    private habitoService: HabitoService,
     private loadingCtrl: LoadingController
   ) {
     const today = new Date();
@@ -42,7 +44,14 @@ export class GoalFormComponent implements OnInit {
     this.minDate = today.toISOString().split('T')[0];
   }
 
-  ngOnInit() {
+  get modalTitle(): string {
+    return this.esEdicion ? 'Editar Meta' : 'Nueva Meta';
+  }
+  get botonGuardarTexto(): string {
+    return this.esEdicion ? 'Actualizar' : 'Guardar';
+  }
+
+  async ngOnInit() {
     this.esEdicion = !!this.meta;
     this.goalForm = this.fb.group({
       titulo: [this.meta?.titulo || '', [Validators.required, Validators.maxLength(60)]],
@@ -55,6 +64,19 @@ export class GoalFormComponent implements OnInit {
           : ''
       ]
     });
+
+    // Cargar tareas y hábitos asociados si es edición
+    if (this.esEdicion && this.meta?.id) {
+      const user = await this.authService.getCurrentUser();
+      if (user?.uid) {
+        this.taskService.getTasks(user.uid).subscribe(tareas => {
+          this.tareas = (tareas || []).filter(t => t.metaId === this.meta?.id);
+        });
+        this.habitoService.getHabitos(user.uid).subscribe(habitos => {
+          this.habitos = (habitos || []).filter(h => h.metaId === this.meta?.id);
+        });
+      }
+    }
   }
 
   async cerrarModal(data?: any) {
@@ -109,6 +131,34 @@ export class GoalFormComponent implements OnInit {
     } finally {
       await this.dismissLoading();
     }
+  }
+
+  // Métodos para tareas
+  crearTarea() {
+    // Aquí deberías abrir un modal o formulario para crear una tarea asociada a esta meta
+    this.presentToast('Funcionalidad para crear tarea no implementada.', 'warning');
+  }
+  editarTarea(tarea: Tarea) {
+    // Aquí deberías abrir un modal o formulario para editar la tarea
+    this.presentToast('Funcionalidad para editar tarea no implementada.', 'warning');
+  }
+  eliminarTarea(tarea: Tarea) {
+    // Aquí deberías llamar al servicio para eliminar la tarea
+    this.presentToast('Funcionalidad para eliminar tarea no implementada.', 'warning');
+  }
+
+  // Métodos para hábitos
+  crearHabito() {
+    // Aquí deberías abrir un modal o formulario para crear un hábito asociado a esta meta
+    this.presentToast('Funcionalidad para crear hábito no implementada.', 'warning');
+  }
+  editarHabito(habito: Habito) {
+    // Aquí deberías abrir un modal o formulario para editar el hábito
+    this.presentToast('Funcionalidad para editar hábito no implementada.', 'warning');
+  }
+  eliminarHabito(habito: Habito) {
+    // Aquí deberías llamar al servicio para eliminar el hábito
+    this.presentToast('Funcionalidad para eliminar hábito no implementada.', 'warning');
   }
 
   async presentToast(message: string, color: 'success' | 'warning' | 'danger' = 'success') {

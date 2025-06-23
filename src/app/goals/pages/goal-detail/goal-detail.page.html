@@ -12,21 +12,21 @@
     <div class="meta-header" [style.background]="meta.color || '#f0f0f0'">
       <h1>{{ meta.titulo }}</h1>
       <p>{{ meta.descripcion }}</p>
-      <ion-chip color="success" *ngIf="meta.estado === 'alcanzada'">
+      <ion-chip *ngIf="meta.estado === 'alcanzada'" color="success">
         <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
         Alcanzada
       </ion-chip>
-      <ion-chip color="warning" *ngIf="meta.estado === 'enProgreso'">
+      <ion-chip *ngIf="meta.estado === 'enProgreso'" color="warning">
         <ion-icon name="trending-up-outline" slot="start"></ion-icon>
         En progreso
       </ion-chip>
-      <ion-chip color="medium" *ngIf="meta.estado === 'cancelada'">
+      <ion-chip *ngIf="meta.estado === 'cancelada'" color="medium">
         <ion-icon name="close-circle-outline" slot="start"></ion-icon>
         Cancelada
       </ion-chip>
     </div>
 
-    <ion-list>
+    <ion-list lines="none" class="meta-info-list">
       <ion-item>
         <ion-label>
           <strong>Fecha de creación:</strong>
@@ -51,8 +51,14 @@
     <ng-container *ngIf="tareas$ | async as tareas">
       <ng-container *ngIf="habitos$ | async as habitos">
         <div class="meta-progress-section ion-padding">
+          <ion-label class="meta-progress-label">
+            <ion-icon name="stats-chart-outline" color="success"></ion-icon>
+            Progreso total
+          </ion-label>
           <ion-progress-bar [value]="getProgresoMeta(tareas, habitos)" color="success"></ion-progress-bar>
-          <p>Progreso: {{ (getProgresoMeta(tareas, habitos) * 100) | number:'1.0-0' }}%</p>
+          <p class="meta-progress-text">
+            {{ (getProgresoMeta(tareas, habitos) * 100) | number:'1.0-0' }}%
+          </p>
         </div>
       </ng-container>
     </ng-container>
@@ -60,9 +66,12 @@
     <!-- Sección de tareas asociadas -->
     <div class="meta-tasks-section ion-padding">
       <h2>Tareas asociadas</h2>
-      <ion-list *ngIf="tareas$ | async as tareas">
+      <ion-list lines="inset" *ngIf="tareas$ | async as tareas">
         <ion-item *ngFor="let tarea of tareas">
-          {{ tarea.titulo }}
+          <ion-label>
+            <h3>{{ tarea.titulo }}</h3>
+            <p>{{ tarea.descripcion }}</p>
+          </ion-label>
           <ion-button fill="clear" slot="end" color="medium" (click)="abrirModalTarea(tarea)">
             <ion-icon name="create-outline"></ion-icon>
           </ion-button>
@@ -75,6 +84,7 @@
         </ion-item>
       </ion-list>
       <ion-button expand="block" color="primary" fill="outline" (click)="abrirModalTarea()">
+        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
         Asociar o crear tarea
       </ion-button>
     </div>
@@ -82,16 +92,17 @@
     <!-- Sección de hábitos asociados -->
     <div class="meta-habits-section ion-padding">
       <h2>Hábitos asociados</h2>
-      <ion-list *ngIf="habitos$ | async as habitos">
+      <ion-list lines="inset" *ngIf="habitos$ | async as habitos">
         <ion-item *ngFor="let habito of habitos">
-          <div class="ion-text-start" style="width: 100%;">
-            <div>{{ habito.titulo }}</div>
+          <ion-label>
+            <h3>{{ habito.titulo }}</h3>
+            <p>{{ habito.descripcion }}</p>
             <ion-progress-bar [value]="getProgresoHabito(habito)" color="tertiary"></ion-progress-bar>
             <small>
               Progreso: {{ (getProgresoHabito(habito) * 100) | number:'1.0-0' }}%
               ({{ habito.rachaActual || 0 }}/{{ habito.metaRacha || 21 }} días)
             </small>
-          </div>
+          </ion-label>
           <ion-button fill="clear" slot="end" color="medium" (click)="abrirModalHabito(habito)">
             <ion-icon name="create-outline"></ion-icon>
           </ion-button>
@@ -104,6 +115,7 @@
         </ion-item>
       </ion-list>
       <ion-button expand="block" color="secondary" fill="outline" (click)="abrirModalHabito()">
+        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
         Asociar o crear hábito
       </ion-button>
     </div>
