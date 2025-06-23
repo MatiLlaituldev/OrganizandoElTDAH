@@ -86,14 +86,14 @@ export class TaskFormComponent implements OnInit {
       prioridad: [2],
       etiquetas: [[]],
       recurrencia: ['unica', Validators.required],
-      metaId: [this.tarea?.metaId || null], // <--- NUEVO
+      metaId: [this.tarea?.metaId || null],
       subtareas: this.fb.array(this.tarea?.subtareas?.map(sub => this.createSubtaskFormGroup(sub)) || [])
     });
 
     if (this.esEdicion && this.tarea) {
       let fechaVencimientoISO = null;
       if (this.tarea.fechaVencimiento && this.tarea.fechaVencimiento instanceof Timestamp) {
-        fechaVencimientoISO = this.tarea.fechaVencimiento.toDate().toISOString();
+        fechaVencimientoISO = this.tarea.fechaVencimiento.toDate().toISOString().split('T')[0];
       } else if (typeof this.tarea.fechaVencimiento === 'string') {
         fechaVencimientoISO = this.tarea.fechaVencimiento;
       }
@@ -104,6 +104,13 @@ export class TaskFormComponent implements OnInit {
   async cerrarModal(data?: any) { await this.modalCtrl.dismiss(data); }
 
   limpiarFechaVencimiento() { this.tareaForm.get('fechaVencimiento')?.setValue(null); }
+
+  // Corrige el desfase de fecha por zona horaria
+  parseLocalDate(dateString: string): Date {
+    // dateString: "YYYY-MM-DD"
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day, 12); // 12:00 para evitar desfase por zona horaria
+  }
 
   async guardarTarea() {
     if (this.tareaForm.invalid) {
@@ -125,8 +132,10 @@ export class TaskFormComponent implements OnInit {
       prioridad: formValues.prioridad,
       etiquetas: formValues.etiquetas || [],
       recurrencia: formValues.recurrencia,
-      fechaVencimiento: formValues.fechaVencimiento ? Timestamp.fromDate(new Date(formValues.fechaVencimiento)) : null,
-      metaId: formValues.metaId || null, // <--- NUEVO
+      fechaVencimiento: formValues.fechaVencimiento
+        ? Timestamp.fromDate(this.parseLocalDate(formValues.fechaVencimiento))
+        : null,
+      metaId: formValues.metaId || null,
       subtareas: formValues.subtareas?.filter((s: any) => s.titulo) || []
     };
 
