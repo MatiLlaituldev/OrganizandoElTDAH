@@ -11,62 +11,72 @@
 
 <ion-content class="ion-padding">
   <form [formGroup]="goalForm" (ngSubmit)="guardarMeta()">
+    <ion-item>
+      <ion-label position="floating">Título</ion-label>
+      <ion-input formControlName="titulo"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Descripción</ion-label>
+      <ion-textarea formControlName="descripcion"></ion-textarea>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Fecha límite</ion-label>
+      <ion-input type="date" formControlName="fechaLimite" [min]="minDate"></ion-input>
+      <ion-button fill="clear" slot="end" (click)="limpiarFechaLimite()" *ngIf="goalForm.get('fechaLimite')?.value">
+        <ion-icon name="close-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
 
-    <div class="input-wrapper">
-      <ion-item class="custom-ion-item" lines="none">
-        <ion-label position="floating">Título de la Meta <ion-text color="danger">*</ion-text></ion-label>
-        <ion-input type="text" formControlName="titulo" required></ion-input>
-      </ion-item>
-      <div *ngIf="goalForm.get('titulo')?.invalid && (goalForm.get('titulo')?.dirty || goalForm.get('titulo')?.touched)"
-           class="error-message">
-        <div *ngIf="goalForm.get('titulo')?.errors?.['required']">
-          El título es requerido.
-        </div>
-        <div *ngIf="goalForm.get('titulo')?.errors?.['minlength']">
-          El título debe tener al menos 3 caracteres.
-        </div>
-      </div>
-    </div>
-
-    <div class="input-wrapper">
-      <ion-item class="custom-ion-item" lines="none">
-        <ion-label position="floating">Descripción (Opcional)</ion-label>
-        <ion-textarea formControlName="descripcion" autoGrow="true" rows="3"></ion-textarea>
-      </ion-item>
-    </div>
-
-    <div class="input-wrapper">
-      <ion-item lines="none" class="custom-ion-item item-datetime">
-        <ion-label position="stacked">Fecha Límite (Opcional)</ion-label>
-        <ion-datetime-button datetime="fechaLimitePicker"></ion-datetime-button>
-      </ion-item>
-      <ion-button fill="clear" size="small" (click)="limpiarFechaLimite()" *ngIf="goalForm.get('fechaLimite')?.value" class="clear-date-button">
-          <ion-icon slot="start" name="close-circle-outline"></ion-icon>
-          Limpiar Fecha
+    <!-- Sección de tareas asociadas -->
+    <div class="meta-tasks-section ion-padding">
+      <h2>Tareas asociadas</h2>
+      <ion-list>
+        <ion-item *ngFor="let tarea of tareas">
+          <ion-label>
+            {{ tarea.titulo }}
+          </ion-label>
+          <ion-button fill="clear" slot="end" color="medium" (click)="editarTarea(tarea)">
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" slot="end" color="danger" (click)="eliminarTarea(tarea)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+        <ion-item *ngIf="!tareas.length">
+          <ion-label>No hay tareas asociadas.</ion-label>
+        </ion-item>
+      </ion-list>
+      <ion-button expand="block" color="primary" fill="outline" (click)="crearTarea()">
+        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+        Asociar o crear tarea
       </ion-button>
     </div>
 
-    <ion-modal [keepContentsMounted]="true">
-      <ng-template>
-        <ion-datetime
-          id="fechaLimitePicker"
-          formControlName="fechaLimite"
-          presentation="date"
-          showDefaultButtons="true"
-          doneText="Hecho"
-          cancelText="Cancelar"
-          [min]="minDate">
-          <span slot="title">Selecciona Fecha Límite</span>
-        </ion-datetime>
-      </ng-template>
-    </ion-modal>
-
-    <div class="input-wrapper">
-      <ion-button expand="block" type="submit" [disabled]="goalForm.invalid" color="primary" class="submit-button">
-        <ion-icon slot="start" name="save-outline"></ion-icon>
-        {{ botonGuardarTexto }}
+    <!-- Sección de hábitos asociados -->
+    <div class="meta-habits-section ion-padding">
+      <h2>Hábitos asociados</h2>
+      <ion-list>
+        <ion-item *ngFor="let habito of habitos">
+          <ion-label>
+            {{ habito.titulo }}
+          </ion-label>
+          <ion-button fill="clear" slot="end" color="medium" (click)="editarHabito(habito)">
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" slot="end" color="danger" (click)="eliminarHabito(habito)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+        <ion-item *ngIf="!habitos.length">
+          <ion-label>No hay hábitos asociados.</ion-label>
+        </ion-item>
+      </ion-list>
+      <ion-button expand="block" color="primary" fill="outline" (click)="crearHabito()">
+        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+        Asociar o crear hábito
       </ion-button>
     </div>
 
-  </form>
-</ion-content>
+    <ion-button expand="block" type="submit" color="success" class="ion-margin-top">
+      {{ botonGuardarTexto }}
+    </ion-button>

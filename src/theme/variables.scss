@@ -1,2 +1,15 @@
 // For information on how to create your own theme, please see:
 // http://ionicframework.com/docs/theming/
+/* Pega este bloque junto a los otros colores como --ion-color-primary */
+:root {
+  /* ... tus otras variables como --ion-font-family y los colores primary, secondary ... */
+
+  --ion-color-tertiary: #f03484;
+  --ion-color-tertiary-rgb: 240, 52, 132;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #d32e73;
+  --ion-color-tertiary-tint: #f2488f;
+
+  /* ... puedes tener aquí los colores success, warning, danger, etc. probando el commit ... */
+}

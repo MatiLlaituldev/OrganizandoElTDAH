@@ -1,0 +1,178 @@
+/* Contenedor principal de la página */
+.goal-detail-content {
+  --background: #f4f5f8; // Un fondo gris muy suave para que las "tarjetas" resalten.
+}
+
+/* Cabecera principal de la meta */
+.meta-header {
+  padding: 24px 20px;
+  color: #ffffff; // Texto blanco por defecto, se lee bien sobre la mayoría de los colores.
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); // Sombra para garantizar la legibilidad del texto.
+  border-radius: 0 0 30px 30px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 1rem;
+    line-height: 1.5;
+    opacity: 0.9;
+    margin-bottom: 16px;
+  }
+
+  ion-chip {
+    backdrop-filter: blur(5px) saturate(150%);
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* Estilo general para las secciones en formato de tarjeta */
+.meta-info-list,
+.meta-progress-section,
+.meta-tasks-section,
+.meta-habits-section {
+  background: #ffffff;
+  margin: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+}
+
+/* Lista de información de fechas */
+.meta-info-list {
+  padding-top: 8px;
+  padding-bottom: 8px;
+
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    --background: transparent;
+
+    span {
+      display: block;
+      color: var(--ion-color-medium-shade);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+  }
+}
+
+/* Sección de progreso total de la meta */
+.meta-progress-section {
+  .meta-progress-label {
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    color: var(--ion-color-dark);
+
+    ion-icon {
+      margin-right: 8px;
+      font-size: 1.5rem;
+    }
+  }
+
+  ion-progress-bar {
+    height: 12px;
+    border-radius: 6px;
+  }
+
+  .meta-progress-text {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ion-color-success-shade);
+    margin-top: 8px;
+  }
+}
+
+/* Títulos H2 para las secciones de Tareas y Hábitos */
+.meta-tasks-section h2,
+.meta-habits-section h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--ion-color-primary);
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ion-color-primary-tint);
+}
+
+/* Listas de Tareas y Hábitos */
+.meta-tasks-section,
+.meta-habits-section {
+  ion-list {
+    padding-top: 0;
+    background: transparent;
+    margin: -16px; // Ajuste para que los items llenen la tarjeta
+  }
+
+  ion-item {
+    --background: transparent;
+    --padding-start: 16px;
+    --inner-padding-end: 16px;
+  }
+
+  h3 {
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--ion-color-medium-shade);
+  }
+
+  // Estilo específico para la barra de progreso de hábitos
+  .meta-habits-section ion-progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+  }
+
+  small {
+    display: block;
+    margin-top: 4px;
+    color: var(--ion-color-medium);
+  }
+
+  // Botones de acción dentro de los items
+  ion-button[fill="clear"] {
+    --padding-start: 4px;
+    --padding-end: 4px;
+    height: 30px;
+    ion-icon {
+      font-size: 1.3rem;
+    }
+  }
+
+  // Botón principal de la sección
+  ion-button[expand="block"] {
+    margin: 16px 0 0 0;
+  }
+}
+
+/* Contenedor de Carga */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--ion-color-medium);
+
+  ion-spinner {
+    width: 50px;
+    height: 50px;
+  }
+
+  p {
+    margin-top: 16px;
+    font-size: 1rem;
+  }
+}

@@ -1,148 +1,103 @@
-// src/app/components/shared-components/goal-form/goal-form.component.scss
+// Tema "Dopamina" v3: Código revisado para máxima compatibilidad y evitar errores de sintaxis.
 
-// Variables específicas del componente (puedes ajustarlas o usar globales)
+// :host se refiere al componente actual. Es la forma más segura de aplicar estilos en Angular.
 :host {
-  --ion-color-primary: #6a4acb; // Morado principal de tu app
-  --ion-color-primary-contrast: #ffffff;
-  --ion-color-secondary: #5d41b3; // Un tono más oscuro para labels, etc.
-  --ion-color-tertiary: #FFC107; // Un color de acento, si lo usas
-  --ion-color-tertiary-contrast: #000000;
-
-  --modal-content-background: #f9f9f9; // Un fondo muy claro para el contenido del modal
-  --modal-item-background: #ffffff;    // Fondo blanco para los ion-item/inputs
-  --ion-text-color-input: #333333;     // Color del texto que el usuario escribe
-  --ion-border-color-input: #e0e0e0;   // Un color de borde sutil para los items
-  --ion-border-radius: 12px;           // Radio de borde general para elementos
-  --font-family-principal: 'Nunito', sans-serif; // Asegúrate que esta fuente esté cargada
+  --ion-background-color: #ffffff;
+  --ion-text-color: #1e2023;
+  --theme-secondary-accent: var(--ion-color-tertiary);
 }
 
-// Estilos para el encabezado del modal
-ion-header {
-  ion-toolbar {
-    --background: var(--ion-color-primary);
-    --color: var(--ion-color-primary-contrast);
-    font-family: var(--font-family-principal);
-  }
-  ion-title {
-    font-weight: 600; // O 700 si prefieres más grueso
-    font-size: 1.1em; // Ajusta según tu gusto
-  }
-  ion-button { // Para el botón de cerrar
-    --color: var(--ion-color-primary-contrast);
-  }
-}
+// --- Estilos para los Inputs ---
+:host ion-item {
+  --background: #f5f6f9;
+  --border-radius: 14px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --border-color: transparent;
+  --highlight-height: 0;
 
-// Estilos para el contenido del modal
-ion-content {
-  --background: var(--modal-content-background);
-  font-family: var(--font-family-principal);
+  margin-bottom: 20px;
+  // Transición con una función de curva cúbica para el efecto de "rebote".
+  // Esta es la parte clave para la animación del input que salta.
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+              box-shadow 0.2s ease-out,
+              background 0.2s ease-out;
 
-  form {
-    padding-top: 8px; // Un pequeño espacio al inicio del formulario
-  }
-}
+  // Estilos cuando el input está enfocado (activo).
+  &.item-has-focus {
+    transform: scale(1.03);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(var(--ion-color-primary-rgb), 0.2), 0 4px 10px rgba(0,0,0,0.1);
 
-// Contenedor para cada grupo de input + mensaje de error
-.input-wrapper {
-  padding-left: 16px;
-  padding-right: 16px;
-  margin-bottom: 16px; // Espacio entre cada campo del formulario
-}
-
-// Estilos personalizados para ion-item dentro del formulario
-.custom-ion-item {
-  --background: var(--modal-item-background);
-  --padding-start: 16px; // Padding interno del item
-  --inner-padding-end: 16px;
-  --border-radius: var(--ion-border-radius);
-  --border-color: var(--ion-border-color-input); // Borde sutil por defecto
-  --highlight-color-focused: var(--ion-color-primary); // Color del borde/label cuando está enfocado
-  // Eliminar márgenes si input-wrapper ya los maneja
-  margin-left: 0;
-  margin-right: 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); // Una sombra muy sutil
-
-  ion-label[position="floating"] {
-    color: var(--ion-color-medium-shade, #757575); // Color inicial del label
-    font-weight: 500; // Un poco más de peso para el label
-    // Ajustes para que el label flotante se vea bien
-    transform-origin: left top;
-    &.label-floating { // Cuando el label flota
-      color: var(--ion-color-primary); // Cambia a color primario cuando flota
+    ion-label {
+      color: var(--ion-color-primary);
     }
   }
+}
 
-  ion-input,
-  ion-textarea {
-    --color: var(--ion-text-color-input);
-    --padding-top: 20px; // Más espacio para el label flotante
-    --padding-bottom: 10px;
-    font-size: 1em;
+// --- Estilos para las Secciones de Tareas y Hábitos ---
+:host .meta-tasks-section,
+:host .meta-habits-section {
+  margin-top: 32px;
+  padding-top: 16px;
+
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin-bottom: 16px;
+    padding-left: 16px;
+    border-left: 5px solid var(--theme-secondary-accent);
   }
 
-  ion-textarea {
-    min-height: 70px; // Altura mínima para el campo de descripción
+  ion-list {
+    background: #fbfdff;
+    border: 1px solid #eaf2ff;
+    border-radius: 16px;
+    padding: 8px;
+  }
+
+  // Estilos específicos para los ion-item DENTRO de las listas.
+  ion-list ion-item {
+    --background: transparent;
+    margin-bottom: 0;
+    // Reseteamos cualquier transformación o sombra heredada.
+    transform: none;
+    box-shadow: none;
+  }
+
+  ion-button[fill="outline"] {
+    --border-radius: 12px;
+    --border-width: 2px;
+    --color: var(--ion-color-primary);
+    --border-color: var(--ion-color-primary);
+    height: 48px;
+    font-weight: 600;
+    margin-top: 16px;
   }
 }
 
-// Estilo específico para el item del datetime para quitar bordes no deseados
-.item-datetime {
-  --border-width: 0;
-  --inner-border-width: 0;
-  box-shadow: none; // Quitar sombra si no se desea para este item en particular
-  margin-bottom: 0px !important; // Reducir margen inferior si el botón de limpiar va justo debajo
-  padding-bottom: 4px; // Espacio antes del botón de limpiar
-}
+// --- Estilo para el Botón Principal de Guardar ---
+:host ion-button[type="submit"] {
+  --border-radius: 18px;
+  --box-shadow: 0 10px 25px -5px rgba(var(--ion-color-primary-rgb), 0.4);
+  --background: linear-gradient(
+    135deg,
+    var(--ion-color-primary),
+    var(--ion-color-tertiary)
+  );
 
-ion-datetime-button {
-  width: 100%;
-  font-size: 1em;
-  color: var(--ion-text-color-input); // Que el texto del botón coincida con el de los inputs
-  --padding-start: 0; // Quitar padding para alinearlo mejor
-  justify-content: flex-start;
-  margin-top: 8px; // Espacio sobre el botón si el label está stacked
-}
-
-// Estilos para el modal del ion-datetime que se abre
-:host ion-modal ion-datetime {
-  --background: var(--modal-item-background); // Fondo blanco para el picker
-  // Puedes personalizar los botones "Hecho" y "Cancelar" aquí si es necesario
-  // &::part(confirm-button), &::part(cancel-button) {
-  //   color: var(--ion-color-primary);
-  // }
-}
-
-.clear-date-button {
-  color: var(--ion-color-medium-shade, #757575);
-  font-size: 0.85em;
-  margin-left: 0; // Ya que el input-wrapper maneja el padding
+  color: #ffffff;
+  height: 55px;
+  margin: 40px 0;
+  font-size: 1.3rem;
+  font-weight: bold;
   text-transform: none;
-  --padding-start: 0; // Para que el ícono y texto estén más juntos
-  --ripple-color: transparent; // O un color sutil
-  margin-top: -4px; // Acercarlo un poco al datetime-button
-  margin-bottom: 8px; // Espacio antes del siguiente input-wrapper
+  transition: transform 0.1s ease-out;
 
-  ion-icon {
-    margin-right: 4px;
-    font-size: 1.2em; // Ícono un poco más grande
+  // Efecto al presionar.
+  &:active {
+    transform: scale(0.95);
+    --box-shadow: 0 5px 15px -5px rgba(var(--ion-color-primary-rgb), 0.5);
   }
-}
-
-.error-message {
-  color: var(--ion-color-danger, #eb445a);
-  font-size: 0.8em;
-  padding-left: 4px; // Un pequeño padding dentro del input-wrapper
-  padding-top: 2px;
-  // No necesita margen inferior si input-wrapper ya da espacio
-}
-
-.submit-button {
-  --border-radius: var(--ion-border-radius);
-  --box-shadow: 0 3px 8px rgba(var(--ion-color-primary-rgb, 106, 74, 203), 0.3); // Sombra con el color primario
-  font-weight: 600;
-  height: 48px;
-  margin-top: 24px; // Espacio sobre el botón
-  margin-bottom: 16px; // Espacio debajo del botón
-  // Los márgenes laterales ya están en .input-wrapper
-  text-transform: none; // O 'capitalize'
 }
