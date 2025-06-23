@@ -4,6 +4,7 @@ import {
   collection,
   collectionData,
   doc,
+  docData,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -35,6 +36,22 @@ export class GoalService {
     const metasCollectionRef = collection(this.firestore, `usuarios/${userId}/metas`) as CollectionReference<Meta>;
     const q = query(metasCollectionRef, orderBy('fechaCreacion', 'desc'));
     return collectionData(q, { idField: 'id' });
+  }
+
+  // Obtener una meta por ID
+  getMetaById(metaId: string, userId?: string): Observable<Meta | null> {
+    if (!metaId) {
+      return of(null);
+    }
+    // Si tienes el userId, úsalo (más seguro)
+    if (userId) {
+      const metaDocRef = doc(this.firestore, `usuarios/${userId}/metas/${metaId}`);
+      return docData(metaDocRef, { idField: 'id' }) as Observable<Meta | null>;
+    } else {
+      // Si no tienes userId, deberías obtenerlo de AuthService o similar
+      // Aquí solo por compatibilidad, pero lo ideal es siempre pasar el userId
+      return of(null);
+    }
   }
 
   // Agregar una nueva meta
@@ -82,22 +99,22 @@ export class GoalService {
 
   // Actualizar el estado de una meta (ej. marcar como alcanzada)
   async actualizarEstadoMeta(userId: string, metaId: string, nuevoEstado: EstadoMeta): Promise<void> {
-    if (!userId || !metaId) {
-      return Promise.reject(new Error('User ID y Meta ID son requeridos.'));
-    }
-
-    const datosActualizar: Partial<Meta> = {
-      estado: nuevoEstado
-    };
-
-    if (nuevoEstado === 'alcanzada') {
-      datosActualizar.fechaAlcanzada = Timestamp.now();
-    } else {
-      datosActualizar.fechaAlcanzada = null;
-    }
-
-    return this.actualizarMeta(userId, metaId, datosActualizar);
+  if (!userId || !metaId) {
+    return Promise.reject(new Error('User ID y Meta ID son requeridos.'));
   }
+
+  const datosActualizar: Partial<Meta> = {
+    estado: nuevoEstado
+  };
+
+  if (nuevoEstado === 'alcanzada') {
+    datosActualizar.fechaAlcanzada = Timestamp.now();
+  } else {
+    datosActualizar.fechaAlcanzada = null;
+  }
+
+  return this.actualizarMeta(userId, metaId, datosActualizar);
+}
 
   // Métodos para registros de meta (opcional)
   // async agregarRegistroMeta(...) { ... }

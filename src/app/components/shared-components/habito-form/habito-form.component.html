@@ -103,6 +103,14 @@
       </ion-item>
     </div>
 
+    <!-- Campo para meta de racha -->
+    <div class="input-wrapper">
+      <ion-item class="custom-ion-item">
+        <ion-label position="floating">Meta de racha (días seguidos)</ion-label>
+        <ion-input type="number" formControlName="metaRacha"></ion-input>
+      </ion-item>
+    </div>
+
     <ion-button expand="block" type="submit" [disabled]="habitoForm.invalid" color="primary" class="submit-button ion-margin-top">
       <ion-icon slot="start" name="save-outline"></ion-icon>
       {{ esEdicion ? 'Actualizar Hábito' : 'Guardar Hábito' }}

@@ -65,7 +65,8 @@ export class HabitoFormComponent implements OnInit {
       icono: [this.iconos[0]],
       color: [this.colores[0]],
       horaPreferida: [null],
-      metaId: [this.habito?.metaId || null] // <--- NUEVO
+      metaId: [this.habito?.metaId || null],
+      metaRacha: [this.habito?.metaRacha ?? null] // <-- Campo agregado
     });
 
     if (this.esEdicion && this.habito) {
@@ -76,7 +77,8 @@ export class HabitoFormComponent implements OnInit {
         icono: this.habito.icono || this.iconos[0],
         color: this.habito.color || this.colores[0],
         horaPreferida: this.habito.horaPreferida || null,
-        metaId: this.habito.metaId || null // <--- NUEVO
+        metaId: this.habito.metaId || null,
+        metaRacha: this.habito.metaRacha ?? null // <-- Campo agregado
       });
     }
   }
@@ -112,7 +114,8 @@ export class HabitoFormComponent implements OnInit {
       icono: formValues.icono,
       color: formValues.color,
       horaPreferida: formValues.horaPreferida || null,
-      metaId: formValues.metaId || null // <--- NUEVO
+      metaId: formValues.metaId || null,
+      metaRacha: formValues.metaRacha ?? null // <-- Campo agregado
     };
 
     try {

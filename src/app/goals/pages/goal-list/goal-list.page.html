@@ -28,23 +28,28 @@
     </ion-button>
   </div>
 
-  <ion-list *ngIf="(metas$ | async)?.length">
-    <ion-item *ngFor="let meta of (metas$ | async)">
-      <ion-avatar slot="start" *ngIf="meta.color">
-        <div [style.background]="meta.color" class="meta-avatar"></div>
-      </ion-avatar>
-      <ion-label>
-        <h2>{{ meta.titulo }}</h2>
-        <p>{{ meta.descripcion }}</p>
-        <!-- Progreso de la meta -->
-        <ion-progress-bar [value]="getProgresoMeta(meta)" color="success"></ion-progress-bar>
-        <p class="meta-progress-text">
-          {{ getResumenMeta(meta) }}
-        </p>
-      </ion-label>
-      <ion-button fill="clear" slot="end" (click)="verDetalleMeta(meta)">
-        <ion-icon name="chevron-forward-outline"></ion-icon>
-      </ion-button>
-    </ion-item>
-  </ion-list>
+  <!-- Progreso en tiempo real de cada meta -->
+  <ng-container *ngIf="tareas$ | async as tareas">
+    <ng-container *ngIf="habitos$ | async as habitos">
+      <ion-list *ngIf="metas$ | async as metas">
+        <ion-item *ngFor="let meta of metas">
+          <ion-avatar slot="start" *ngIf="meta.color">
+            <div [style.background]="meta.color" class="meta-avatar"></div>
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ meta.titulo }}</h2>
+            <p>{{ meta.descripcion }}</p>
+            <!-- Progreso de la meta -->
+            <ion-progress-bar [value]="getProgresoMeta(meta, tareas, habitos)" color="success"></ion-progress-bar>
+            <p class="meta-progress-text">
+              {{ getResumenMeta(meta, tareas, habitos) }}
+            </p>
+          </ion-label>
+          <ion-button fill="clear" slot="end" (click)="verDetalleMeta(meta)">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ng-container>
+  </ng-container>
 </ion-content>

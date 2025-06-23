@@ -14,4 +14,5 @@ export interface Habito {
   rachaActual?: number;
   mejorRacha?: number;
   metaId?: string | null;
+  metaRacha?: number;
 }

@@ -1,13 +1,18 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ModalController, ToastController, AlertController, LoadingController } from '@ionic/angular';
-import { Observable, Subscription, of } from 'rxjs';
+import { Observable, Subscription, of, combineLatest } from 'rxjs';
 import { switchMap, catchError, tap, map } from 'rxjs/operators';
 import { User } from '@firebase/auth';
 import { Meta, EstadoMeta } from '../../../models/meta.model';
+import { Tarea } from '../../../models/tarea.model';
+import { Habito } from '../../../models/habito.model';
 import { GoalService } from '../../../services/goal.service';
 import { AuthService } from '../../../services/auth.service';
+import { TaskService } from '../../../services/task.service';
+import { HabitoService } from '../../../services/habito.service';
 import { GoalFormComponent } from '../../../components/shared-components/goal-form/goal-form.component';
 import { take } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-goal-list',
@@ -18,6 +23,8 @@ import { take } from 'rxjs/operators';
 export class GoalListPage implements OnInit, OnDestroy {
 
   metas$: Observable<Meta[]> = of([]);
+  tareas$: Observable<Tarea[]> = of([]);
+  habitos$: Observable<Habito[]> = of([]);
   private authUser: User | null = null;
   private authSubscription: Subscription | undefined;
   private metasSubscription: Subscription | undefined;
@@ -31,9 +38,12 @@ export class GoalListPage implements OnInit, OnDestroy {
     private modalCtrl: ModalController,
     private goalService: GoalService,
     private authService: AuthService,
+    private taskService: TaskService,
+    private habitoService: HabitoService,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -42,10 +52,14 @@ export class GoalListPage implements OnInit, OnDestroy {
         if (!this.authUser || this.authUser.uid !== user.uid) {
           this.authUser = user;
           this.subscribeToMetas(user.uid);
+          this.tareas$ = this.taskService.getTasks(user.uid);
+          this.habitos$ = this.habitoService.getHabitos(user.uid);
         }
       } else {
         this.authUser = null;
         this.metas$ = of([]);
+        this.tareas$ = of([]);
+        this.habitos$ = of([]);
         if (this.metasSubscription) {
           this.metasSubscription.unsubscribe();
         }
@@ -256,19 +270,41 @@ export class GoalListPage implements OnInit, OnDestroy {
     }
     this.dismissLoading();
   }
-  getProgresoMeta(meta: Meta): number {
-  // Si tu modelo Meta tiene tareas/hábitos asociadas, calcula el progreso real aquí
-  return 0.5; // 50% de ejemplo
-}
 
-// Devuelve un resumen simulado (luego lo puedes mejorar)
-getResumenMeta(meta: Meta): string {
-  // Ejemplo: "3/5 tareas completadas, 2/4 hábitos al día de hoy"
-  return 'Progreso: 50% (ejemplo)';
-}
+  // Calcula el progreso real de la meta usando tareas y hábitos asociados
+  getProgresoMeta(meta: Meta, tareas: Tarea[], habitos: Habito[]): number {
+    const tareasDeMeta = tareas.filter(t => t.metaId === meta.id);
+    const habitosDeMeta = habitos.filter(h => h.metaId === meta.id);
 
-// Navega al detalle de la meta (puedes implementar la navegación real después)
-verDetalleMeta(meta: Meta) {
-  this.presentToast('Función de detalle de meta aún no implementada.', 'warning');
-}
+    const totalTareas = tareasDeMeta.length;
+    const tareasCompletadas = tareasDeMeta.filter(t => t.completada).length;
+    const totalHabitos = habitosDeMeta.length;
+    const habitosCompletados = habitosDeMeta.filter(h => {
+      const metaRacha = h.metaRacha ?? 21;
+      return (h.rachaActual ?? 0) >= metaRacha;
+    }).length;
+
+    const total = totalTareas + totalHabitos;
+    const completados = tareasCompletadas + habitosCompletados;
+
+    return total > 0 ? completados / total : 0;
+  }
+
+  // (Opcional) Resumen textual del progreso
+  getResumenMeta(meta: Meta, tareas: Tarea[], habitos: Habito[]): string {
+    const tareasDeMeta = tareas.filter(t => t.metaId === meta.id);
+    const habitosDeMeta = habitos.filter(h => h.metaId === meta.id);
+    const tareasCompletadas = tareasDeMeta.filter(t => t.completada).length;
+    const habitosCompletados = habitosDeMeta.filter(h => {
+      const metaRacha = h.metaRacha ?? 21;
+      return (h.rachaActual ?? 0) >= metaRacha;
+    }).length;
+    return `${tareasCompletadas}/${tareasDeMeta.length} tareas, ${habitosCompletados}/${habitosDeMeta.length} hábitos`;
+  }
+
+  verDetalleMeta(meta: Meta) {
+    if (meta.id) {
+      this.router.navigate(['/goal-detail', meta.id]);
+    }
+  }
 }
