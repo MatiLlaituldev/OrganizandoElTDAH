@@ -1,33 +1,29 @@
-// src/app/habits/pages/habits-list/habits-list.page.ts
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ModalController, ToastController, AlertController, LoadingController } from '@ionic/angular';
-// CORRECCIÓN: Importar firstValueFrom directamente desde 'rxjs'
-import { Observable, Subscription, of, forkJoin, firstValueFrom, BehaviorSubject } from 'rxjs'; // BehaviorSubject también se importa de 'rxjs'
-// Los operadores de pipe siguen viniendo de 'rxjs/operators'
+import { Observable, Subscription, of, forkJoin, firstValueFrom, BehaviorSubject } from 'rxjs';
 import { switchMap, catchError, tap, map, finalize, take } from 'rxjs/operators';
 import { User } from '@firebase/auth';
 import { Timestamp } from 'firebase/firestore';
 
 import { Habito } from '../../../models/habito.model';
-// La importación de RegistroHabito es correcta, aunque no se use directamente en este componente,
-// es usada por HabitoService, que este componente consume.
 import { RegistroHabito } from '../../../models/registro-habito.model';
 import { HabitoService } from '../../../services/habito.service';
 import { AuthService } from '../../../services/auth.service';
-
-// Asegúrate que la ruta a HabitoFormComponent sea correcta
 import { HabitoFormComponent } from 'src/app/components/shared-components/habito-form/habito-form.component';
+
+// NUEVO: Importa Meta y GoalService
+import { Meta } from 'src/app/models/meta.model';
+import { GoalService } from 'src/app/services/goal.service';
 
 export interface HabitoConEstadoUI extends Habito {
   completadoHoy: boolean;
-  registroHoyId?: string; // Mantenido por si se implementa "desmarcar"
+  registroHoyId?: string;
 }
 
 @Component({
   selector: 'app-habits-list',
-  templateUrl: './habit-list.page.html', // Asegúrate que el nombre del archivo HTML sea correcto
-  styleUrls: ['./habit-list.page.scss'],  // Asegúrate que el nombre del archivo SCSS sea correcto
+  templateUrl: './habit-list.page.html',
+  styleUrls: ['./habit-list.page.scss'],
   standalone: false,
 })
 export class HabitsListPage implements OnInit, OnDestroy {
@@ -42,13 +38,17 @@ export class HabitsListPage implements OnInit, OnDestroy {
   private loadingElement: HTMLIonLoadingElement | null = null;
   fechaHoyString: string;
 
+  // NUEVO: Observable de metas
+  metas$!: Observable<Meta[]>;
+
   constructor(
     private modalCtrl: ModalController,
     private habitoService: HabitoService,
     private authService: AuthService,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private goalService: GoalService // NUEVO
   ) {
     this.fechaHoyString = this.getFechaHoyString();
   }
@@ -58,6 +58,8 @@ export class HabitsListPage implements OnInit, OnDestroy {
     this.authSubscription = this.authService.user$.subscribe(user => {
       console.log('[HabitsListPage] Auth state changed', user);
       if (user && user.uid) {
+        // NUEVO: Cargar metas del usuario
+        this.metas$ = this.goalService.getMetas(user.uid);
         if (!this.authUser || this.authUser.uid !== user.uid) {
           this.authUser = user;
           this.loadHabitosConEstadoHoy(user.uid);
@@ -70,6 +72,8 @@ export class HabitsListPage implements OnInit, OnDestroy {
         if (this.habitosRawSubscription && !this.habitosRawSubscription.closed) {
           this.habitosRawSubscription.unsubscribe();
         }
+        // NUEVO: Limpiar metas si no hay usuario
+        this.metas$ = of([]);
       }
     });
   }
@@ -122,13 +126,11 @@ export class HabitsListPage implements OnInit, OnDestroy {
       tap(habitosConEstado => {
         console.log('[HabitsListPage] tap (después de switchMap) - Hábitos con estado procesados:', habitosConEstado);
         this._habitosConEstado.next(habitosConEstado);
-        // Mover el cierre del loading aquí asegura que se cierre después de la primera emisión procesada
         this.isLoading = false;
         this.dismissLoading();
       }),
       finalize(() => {
         console.log('[HabitsListPage] finalize: Flujo principal de carga de hábitos.');
-        // Red de seguridad final para el loading
         if (this.isLoading) {
             this.isLoading = false;
             this.dismissLoading();
@@ -142,15 +144,13 @@ export class HabitsListPage implements OnInit, OnDestroy {
         this.dismissLoading();
         return of([] as HabitoConEstadoUI[]);
       })
-    ).subscribe(); // No necesitamos hacer nada en el next: aquí, _habitosConEstado ya se actualizó en el tap
+    ).subscribe();
   }
 
   async refreshHabitosEstadoHoy() {
     if (!this.authUser?.uid) return;
     const userId = this.authUser.uid;
-    // Usar el BehaviorSubject para obtener el valor actual de forma síncrona si es posible,
-    // o firstValueFrom si se necesita esperar la primera emisión.
-    const currentHabitos = this._habitosConEstado.value; // Acceso síncrono al último valor
+    const currentHabitos = this._habitosConEstado.value;
 
     if (!currentHabitos || currentHabitos.length === 0) return;
 
@@ -214,12 +214,10 @@ export class HabitsListPage implements OnInit, OnDestroy {
     try {
       await this.habitoService.registrarCumplimientoHabito(this.authUser.uid, habito.id, this.fechaHoyString);
       this.presentToast(`¡Hábito "${habito.titulo}" registrado!`, 'success');
-      // Actualizar UI localmente
       const currentHabitos = this._habitosConEstado.value;
       const habitoIndex = currentHabitos.findIndex(h => h.id === habito.id);
       if (habitoIndex > -1) {
         const habitoActualizado = { ...currentHabitos[habitoIndex], completadoHoy: true };
-        // Para que el BehaviorSubject emita y la UI reaccione, necesitamos pasar un nuevo array.
         const nuevosHabitos = [...currentHabitos];
         nuevosHabitos[habitoIndex] = habitoActualizado;
         this._habitosConEstado.next(nuevosHabitos);
@@ -248,7 +246,6 @@ export class HabitsListPage implements OnInit, OnDestroy {
             try {
               await this.habitoService.eliminarHabito(this.authUser!.uid, habito.id!);
               this.presentToast('Hábito eliminado.', 'success');
-              // La lista se actualizará automáticamente si getHabitos() es un observable de Firestore
             } catch (error) {
               this.presentToast('Error al eliminar el hábito.', 'danger');
             } finally {
@@ -267,7 +264,7 @@ export class HabitsListPage implements OnInit, OnDestroy {
     if (this.authUser?.uid) {
       try {
         await this.loadHabitosConEstadoHoy(this.authUser.uid);
-      } finally { // finally se ejecutará después de que la promesa de loadHabitosConEstadoHoy se resuelva o rechace
+      } finally {
         if (event && event.target && typeof event.target.complete === 'function') {
           event.target.complete();
         }
@@ -297,7 +294,7 @@ export class HabitsListPage implements OnInit, OnDestroy {
     if (this.loadingElement) {
       try { await this.loadingElement.dismiss(); } catch (e) {}
       this.loadingElement = null;
-    } else { // Intenta cerrar cualquier loading global si no hay una instancia específica
+    } else {
       try {
         const topLoading = await this.loadingCtrl.getTop();
         if (topLoading) await topLoading.dismiss();
@@ -308,6 +305,13 @@ export class HabitsListPage implements OnInit, OnDestroy {
   async presentToast(mensaje: string, color: 'success' | 'warning' | 'danger' | 'light' | 'dark' = 'dark', duracion: number = 2000) {
     const toast = await this.toastCtrl.create({ message: mensaje, duration: duracion, color: color, position: 'bottom', cssClass: 'custom-toast' });
     toast.present();
+  }
+
+  // NUEVO: Método para obtener el título de la meta asociada
+  getMetaTitulo(metaId: string | null | undefined, metas: Meta[] | null | undefined): string | null {
+    if (!metaId || !metas) return null;
+    const meta = metas.find(m => m.id === metaId);
+    return meta ? meta.titulo : null;
   }
 
   ngOnDestroy() {

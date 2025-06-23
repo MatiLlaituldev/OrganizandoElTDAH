@@ -22,6 +22,17 @@
       <ion-textarea formControlName="descripcion" [autoGrow]="true"></ion-textarea>
     </ion-item>
 
+    <!-- Selector de Meta asociada -->
+    <ion-item>
+      <ion-label position="floating">Meta asociada</ion-label>
+      <ion-select formControlName="metaId" placeholder="Sin meta" [compareWith]="compareWith">
+        <ion-select-option [value]="null">Sin meta</ion-select-option>
+        <ion-select-option *ngFor="let meta of metas$ | async" [value]="meta.id">
+          {{ meta.titulo }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
     <ion-item lines="none">
       <ion-label>Tipo de Tarea</ion-label>
     </ion-item>
@@ -89,4 +100,3 @@
     </ion-button>
 
   </form>
-</ion-content>

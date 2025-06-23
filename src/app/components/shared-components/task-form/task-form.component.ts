@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
-import { Tarea, Subtarea } from '../../../models/tarea.model'; // Asegúrate de importar Subtarea
+import { Tarea, Subtarea } from '../../../models/tarea.model';
 import { AuthService } from '../../../services/auth.service';
 import { TaskService } from '../../../services/task.service';
 import { Timestamp } from 'firebase/firestore';
@@ -9,6 +9,8 @@ import { Timestamp } from 'firebase/firestore';
 import { Etiqueta } from '../../../models/etiqueta.model';
 import { EtiquetaService } from '../../../services/etiqueta.service';
 import { Observable } from 'rxjs';
+import { Meta } from '../../../models/meta.model';
+import { GoalService } from '../../../services/goal.service';
 
 @Component({
   selector: 'app-task-form',
@@ -23,6 +25,7 @@ export class TaskFormComponent implements OnInit {
   esEdicion: boolean = false;
   minDate: string;
   etiquetas$!: Observable<Etiqueta[]>;
+  metas$!: Observable<Meta[]>;
   compareWith = (o1: any, o2: any) => o1 && o2 ? o1.id === o2.id : o1 === o2;
 
   get modalTitle(): string { return this.esEdicion ? 'Editar Tarea' : 'Nueva Tarea'; }
@@ -34,13 +37,11 @@ export class TaskFormComponent implements OnInit {
     private toastCtrl: ToastController,
     private authService: AuthService,
     private taskService: TaskService,
-    private etiquetaService: EtiquetaService
+    private etiquetaService: EtiquetaService,
+    private goalService: GoalService
   ) {
     this.minDate = new Date().toISOString().split('T')[0];
   }
-
-  // --- AÑADIDO ---
-  // Métodos para gestionar el FormArray de subtareas.
 
   // Getter para acceder fácilmente al FormArray desde el HTML
   get subtareas(): FormArray {
@@ -68,11 +69,15 @@ export class TaskFormComponent implements OnInit {
     this.subtareas.removeAt(index);
   }
 
-  // --- MODIFICADO ---
-  // Se actualiza ngOnInit para incluir el FormArray de subtareas.
   ngOnInit() {
     this.esEdicion = !!this.tarea && !!this.tarea.id;
     this.etiquetas$ = this.etiquetaService.getEtiquetas();
+
+    // Cargar metas del usuario
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.metas$ = this.goalService.getMetas(currentUser.uid);
+    }
 
     this.tareaForm = this.fb.group({
       titulo: ['', [Validators.required, Validators.minLength(3)]],
@@ -81,7 +86,7 @@ export class TaskFormComponent implements OnInit {
       prioridad: [2],
       etiquetas: [[]],
       recurrencia: ['unica', Validators.required],
-      // Se añade el FormArray para las subtareas.
+      metaId: [this.tarea?.metaId || null], // <--- NUEVO
       subtareas: this.fb.array(this.tarea?.subtareas?.map(sub => this.createSubtaskFormGroup(sub)) || [])
     });
 
@@ -100,8 +105,6 @@ export class TaskFormComponent implements OnInit {
 
   limpiarFechaVencimiento() { this.tareaForm.get('fechaVencimiento')?.setValue(null); }
 
-  // --- MODIFICADO ---
-  // Se actualiza guardarTarea para incluir las subtareas en el objeto que se guarda.
   async guardarTarea() {
     if (this.tareaForm.invalid) {
       this.presentToast('Por favor, completa los campos requeridos.', 'warning');
@@ -123,7 +126,7 @@ export class TaskFormComponent implements OnInit {
       etiquetas: formValues.etiquetas || [],
       recurrencia: formValues.recurrencia,
       fechaVencimiento: formValues.fechaVencimiento ? Timestamp.fromDate(new Date(formValues.fechaVencimiento)) : null,
-      // Se añaden las subtareas, filtrando las que estén vacías.
+      metaId: formValues.metaId || null, // <--- NUEVO
       subtareas: formValues.subtareas?.filter((s: any) => s.titulo) || []
     };
 

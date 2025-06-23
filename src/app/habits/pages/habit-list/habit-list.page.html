@@ -4,7 +4,7 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Mis Hábitos</ion-title>
-    </ion-toolbar>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="habits-list-content">
@@ -37,6 +37,17 @@
             </div>
 
             <h2 class="habit-title">{{ habito.titulo }}</h2>
+
+            <!-- CHIP DE META ASOCIADA -->
+            <ng-container *ngIf="habito.metaId">
+              <ng-container *ngIf="metas$ | async as metas">
+                <ion-chip color="primary" *ngIf="getMetaTitulo(habito.metaId, metas)">
+                  <ion-icon name="flag-outline" color="primary" slot="start"></ion-icon>
+                  {{ getMetaTitulo(habito.metaId, metas) }}
+                </ion-chip>
+              </ng-container>
+            </ng-container>
+            <!-- FIN CHIP DE META -->
 
             <p class="habit-racha" *ngIf="habito.rachaActual !== undefined && habito.rachaActual > 0">
               <ion-icon name="flame" [style.color]="habito.color || 'var(--ion-color-tertiary)'"></ion-icon>

@@ -6,11 +6,15 @@ import { AuthService } from 'src/app/services/auth.service';
 import { HabitoService } from 'src/app/services/habito.service';
 import { Timestamp } from 'firebase/firestore';
 
+import { Meta } from 'src/app/models/meta.model';
+import { GoalService } from 'src/app/services/goal.service';
+import { Observable } from 'rxjs';
+
 @Component({
   selector: 'app-habito-form',
   templateUrl: './habito-form.component.html',
   styleUrls: ['./habito-form.component.scss'],
-  standalone: false // Si estás usando Angular con módulos, asegúrate de que este componente esté declarado en un módulo
+  standalone: false
 })
 export class HabitoFormComponent implements OnInit {
   @Input() habito?: Habito;
@@ -18,7 +22,8 @@ export class HabitoFormComponent implements OnInit {
   habitoForm!: FormGroup;
   esEdicion: boolean = false;
 
-  // --- NUEVO: Listas para los selectores visuales ---
+  metas$!: Observable<Meta[]>;
+
   colores = [
     '#FF6B6B', '#FFD166', '#06D6A0', '#118AB2', '#073B4C',
     '#F78C6B', '#FF8CC6', '#8338EC', '#3A86FF', '#6A040F'
@@ -27,7 +32,6 @@ export class HabitoFormComponent implements OnInit {
     'book', 'barbell', 'leaf', 'water', 'walk', 'bed', 'heart',
     'cash', 'musical-notes', 'code-slash', 'brush', 'construct'
   ];
-  // --- FIN DE LO NUEVO ---
 
   get modalTitle(): string {
     return this.esEdicion ? 'Editar Hábito' : 'Nuevo Hábito';
@@ -42,20 +46,27 @@ export class HabitoFormComponent implements OnInit {
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
     private authService: AuthService,
-    private habitoService: HabitoService
+    private habitoService: HabitoService,
+    private goalService: GoalService
   ) {}
 
   ngOnInit() {
     this.esEdicion = !!this.habito && !!this.habito.id;
 
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.metas$ = this.goalService.getMetas(currentUser.uid);
+    }
+
     this.habitoForm = this.fb.group({
       titulo: ['', [Validators.required, Validators.minLength(3)]],
       descripcion: [''],
       frecuenciaTipo: ['diaria', Validators.required],
-      // Valores por defecto para los nuevos selectores visuales
       icono: [this.iconos[0]],
       color: [this.colores[0]],
       horaPreferida: [null],
+      metaId: [this.habito?.metaId || null],
+      metaRacha: [this.habito?.metaRacha ?? null] // <-- Campo agregado
     });
 
     if (this.esEdicion && this.habito) {
@@ -66,6 +77,8 @@ export class HabitoFormComponent implements OnInit {
         icono: this.habito.icono || this.iconos[0],
         color: this.habito.color || this.colores[0],
         horaPreferida: this.habito.horaPreferida || null,
+        metaId: this.habito.metaId || null,
+        metaRacha: this.habito.metaRacha ?? null // <-- Campo agregado
       });
     }
   }
@@ -94,7 +107,6 @@ export class HabitoFormComponent implements OnInit {
       return;
     }
 
-    // La estructura de datos que se envía al servicio es la MISMA que en tu código original
     const habitoData: Partial<Habito> = {
       titulo: formValues.titulo,
       descripcion: formValues.descripcion || '',
@@ -102,6 +114,8 @@ export class HabitoFormComponent implements OnInit {
       icono: formValues.icono,
       color: formValues.color,
       horaPreferida: formValues.horaPreferida || null,
+      metaId: formValues.metaId || null,
+      metaRacha: formValues.metaRacha ?? null // <-- Campo agregado
     };
 
     try {

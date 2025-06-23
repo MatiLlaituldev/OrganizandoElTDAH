@@ -61,7 +61,6 @@
     </ion-button>
   </div>
 
-
   <ion-list *ngIf="tareasMostradas.length > 0" class="task-list">
     <ion-accordion-group>
       <ion-item-sliding *ngFor="let tarea of tareasMostradas; trackBy: trackTareaById" #slidingItem>
@@ -95,6 +94,17 @@
             <ion-label>
               <h2>{{ tarea.titulo }}</h2>
               <p *ngIf="tarea.descripcion">{{ tarea.descripcion | slice:0:100 }}{{ tarea.descripcion && tarea.descripcion.length > 100 ? '...' : '' }}</p>
+
+              <!-- CHIP DE META ASOCIADA -->
+              <ng-container *ngIf="tarea.metaId">
+                <ng-container *ngIf="metas$ | async as metas">
+                  <ion-chip color="primary" *ngIf="getMetaTitulo(tarea.metaId, metas)">
+                    <ion-icon name="flag-outline" color="primary" slot="start"></ion-icon>
+                    {{ getMetaTitulo(tarea.metaId, metas) }}
+                  </ion-chip>
+                </ng-container>
+              </ng-container>
+              <!-- FIN CHIP DE META -->
 
               <ion-progress-bar
                 *ngIf="tarea.subtareas && tarea.subtareas.length > 0"

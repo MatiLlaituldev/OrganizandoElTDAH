@@ -13,4 +13,6 @@ export interface Habito {
   fechaInicio: Timestamp;
   rachaActual?: number;
   mejorRacha?: number;
+  metaId?: string | null;
+  metaRacha?: number;
 }

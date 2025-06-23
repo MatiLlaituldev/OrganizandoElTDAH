@@ -1,82 +1,55 @@
 <ion-header [translucent]="true">
   <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
     <ion-title>Mis Metas</ion-title>
-  </ion-toolbar>
-  <ion-toolbar color="primary">
-    <ion-segment [(ngModel)]="currentSegment" (ionChange)="segmentChanged($event)" value="enProgreso">
-      <ion-segment-button value="enProgreso">
-        <ion-label>En Progreso</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="alcanzada">
-        <ion-label>Alcanzadas</ion-label>
-      </ion-segment-button>
-    </ion-segment>
+    <ion-buttons slot="end">
+      <ion-button (click)="abrirModalMeta()">
+        <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="goal-list-content">
+<ion-content [fullscreen]="true" class="meta-list-content">
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div *ngIf="isLoading && !(metas$ | async)?.length" class="loading-container ion-padding ion-text-center">
+  <div *ngIf="isLoading" class="loading-container">
     <ion-spinner name="crescent"></ion-spinner>
     <p>Cargando metas...</p>
   </div>
 
-  <div *ngIf="!isLoading && !(metas$ | async)?.length" class="empty-state ion-padding ion-text-center">
+  <div *ngIf="!isLoading && !(metas$ | async)?.length" class="empty-state-metas">
     <ion-icon name="flag-outline" class="empty-icon"></ion-icon>
-    <p *ngIf="currentSegment === 'enProgreso'">No tienes metas en progreso.</p>
-    <p *ngIf="currentSegment === 'alcanzada'">Aún no has alcanzado ninguna meta.</p>
-    <ion-button fill="outline" (click)="abrirModalMeta()" class="add-first-button">
+    <p>¡Aún no tienes metas! Crea tu primera meta.</p>
+    <ion-button fill="outline" (click)="abrirModalMeta()" class="add-first-meta-button">
       <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-      Establecer una Meta
+      Crear meta
     </ion-button>
   </div>
 
-  <ion-list *ngIf="(metas$ | async)?.length" class="goal-list">
-    <ion-item-sliding *ngFor="let meta of (metas$ | async); trackBy: trackMetaById" #slidingItem>
-      <ion-item (click)="abrirModalMeta(meta)" lines="inset" detail="false"
-                [ngClass]="{ 'meta-alcanzada': meta.estado === 'alcanzada' }">
-        <ion-checkbox *ngIf="currentSegment === 'enProgreso'"
-                      slot="start"
-                      [checked]="meta.estado === 'alcanzada'"
-                      (ionChange)="toggleEstadoMeta(meta, $event)"
-                      (click)="$event.stopPropagation();">
-        </ion-checkbox>
-        <ion-icon *ngIf="currentSegment === 'alcanzada'" name="checkmark-circle" slot="start" color="success"></ion-icon>
-
-        <ion-label>
-          <h2>{{ meta.titulo }}</h2>
-          <p *ngIf="meta.descripcion">{{ meta.descripcion | slice:0:100 }}{{ meta.descripcion && meta.descripcion.length > 100 ? '...' : '' }}</p>
-          <p *ngIf="meta.fechaLimite" class="fecha-limite">
-            <ion-icon name="calendar-outline"></ion-icon>
-            Límite: {{ meta.fechaLimite.toDate() | date: 'dd/MM/yy' }}
-          </p>
-          <p *ngIf="meta.estado === 'alcanzada' && meta.fechaAlcanzada" class="fecha-alcanzada">
-            <ion-icon name="trophy-outline"></ion-icon>
-            Alcanzada: {{ meta.fechaAlcanzada.toDate() | date: 'dd/MM/yy' }}
-          </p>
-        </ion-label>
-      </ion-item>
-
-      <ion-item-options side="end">
-        <ion-item-option color="light" (click)="abrirModalMeta(meta); slidingItem.close()">
-          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
-        </ion-item-option>
-        <ion-item-option color="danger" (click)="confirmarEliminar(meta, $event); slidingItem.close()">
-          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-        </ion-item-option>
-      </ion-item-options>
-    </ion-item-sliding>
-  </ion-list>
-
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="abrirModalMeta()" color="tertiary">
-      <ion-icon name="add-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  <!-- Progreso en tiempo real de cada meta -->
+  <ng-container *ngIf="tareas$ | async as tareas">
+    <ng-container *ngIf="habitos$ | async as habitos">
+      <ion-list *ngIf="metas$ | async as metas">
+        <ion-item *ngFor="let meta of metas">
+          <ion-avatar slot="start" *ngIf="meta.color">
+            <div [style.background]="meta.color" class="meta-avatar"></div>
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ meta.titulo }}</h2>
+            <p>{{ meta.descripcion }}</p>
+            <!-- Progreso de la meta -->
+            <ion-progress-bar [value]="getProgresoMeta(meta, tareas, habitos)" color="success"></ion-progress-bar>
+            <p class="meta-progress-text">
+              {{ getResumenMeta(meta, tareas, habitos) }}
+            </p>
+          </ion-label>
+          <ion-button fill="clear" slot="end" (click)="verDetalleMeta(meta)">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ng-container>
+  </ng-container>
 </ion-content>
