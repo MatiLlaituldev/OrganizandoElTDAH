@@ -12,15 +12,15 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div *ngIf="isLoading && !(habitosConEstado$ | async)?.length" class="loading-container">
+  <div *ngIf="isLoading && !(habitosConEstado$ | async)?.length" class="loading-state">
     <ion-spinner name="crescent"></ion-spinner>
     <p>Cargando hábitos...</p>
   </div>
 
-  <div *ngIf="!isLoading && !(habitosConEstado$ | async)?.length" class="empty-state-habits">
+  <div *ngIf="!isLoading && !(habitosConEstado$ | async)?.length" class="empty-state">
     <ion-icon name="leaf-outline" class="empty-icon"></ion-icon>
     <p>¡Empieza a construir buenos hábitos! Todavía no has añadido ninguno.</p>
-    <ion-button fill="outline" (click)="abrirModalHabito()" class="add-first-habit-button">
+    <ion-button fill="outline" (click)="abrirModalHabito()" class="add-first-button">
       <ion-icon slot="start" name="add-circle-outline"></ion-icon>
       Crear mi primer hábito
     </ion-button>
@@ -29,11 +29,10 @@
   <div class="habits-grid" *ngIf="(habitosConEstado$ | async)?.length">
     <div *ngFor="let habito of (habitosConEstado$ | async); trackBy: trackHabitoById">
       <ion-item-sliding class="habit-sliding-item" #slidingItem>
-        <ion-item lines="none" class="habit-item-wrapper" detail="false">
+        <ion-item lines="none" class="habit-card-wrapper" detail="false">
           <div class="habit-card" (click)="abrirModalHabito(habito)">
-            <div class="habit-icon-wrapper" [style.border-color]="habito.color || 'var(--ion-color-primary)'">
-              <ion-icon [name]="habito.icono || 'sparkles-outline'"
-                        [style.color]="habito.color || 'var(--icon-color-default)'"></ion-icon>
+            <div class="habit-icon-wrapper" [style.backgroundColor]="habito.color || 'var(--ion-color-primary)'">
+              <ion-icon [name]="habito.icono || 'sparkles-outline'"></ion-icon>
             </div>
 
             <h2 class="habit-title">{{ habito.titulo }}</h2>
@@ -84,5 +83,4 @@
       <ion-icon name="add-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-
 </ion-content>

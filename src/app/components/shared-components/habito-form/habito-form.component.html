@@ -19,7 +19,7 @@
         <h2 class="card-title">Detalles del Hábito</h2>
       </div>
       <div class="input-wrapper">
-        <ion-item class="custom-ion-item" lines="none">
+        <ion-item class="form-input custom-ion-item" lines="none">
           <ion-label position="floating">Nombre del Hábito <ion-text color="danger">*</ion-text></ion-label>
           <ion-input type="text" formControlName="titulo" required placeholder="Ej: Meditar 10 minutos"></ion-input>
         </ion-item>
@@ -30,7 +30,7 @@
         </div>
       </div>
       <div class="input-wrapper">
-        <ion-item class="custom-ion-item" lines="none">
+        <ion-item class="form-input custom-ion-item" lines="none">
           <ion-label position="floating">Descripción (Opcional)</ion-label>
           <ion-textarea formControlName="descripcion" autoGrow="true" rows="2" placeholder="Describe por qué es importante..."></ion-textarea>
         </ion-item>
@@ -81,7 +81,7 @@
         </ion-segment>
       </div>
       <div class="input-wrapper">
-        <ion-item lines="none" class="custom-ion-item item-datetime">
+        <ion-item lines="none" class="form-input custom-ion-item item-datetime">
           <ion-label position="stacked">Hora Preferida (Opcional)</ion-label>
           <ion-datetime-button datetime="horaPreferidaPicker"></ion-datetime-button>
         </ion-item>
@@ -112,8 +112,9 @@
         <h2 class="card-title">Meta asociada</h2>
       </div>
       <div class="input-wrapper">
-        <ion-item class="custom-ion-item" lines="none">
+        <ion-item class="form-input custom-ion-item" lines="none">
           <ion-label position="floating">Meta asociada</ion-label>
+          <!-- Mejora: Elimina [disabled] y controla el estado solo desde el TS -->
           <ion-select formControlName="metaId" placeholder="Sin meta">
             <ion-select-option [value]="null">Sin meta</ion-select-option>
             <ion-select-option *ngFor="let meta of metas$ | async" [value]="meta.id">
@@ -121,6 +122,9 @@
             </ion-select-option>
           </ion-select>
         </ion-item>
+        <div *ngIf="habitoForm.get('metaId')?.invalid && (habitoForm.get('metaId')?.dirty || habitoForm.get('metaId')?.touched)" class="validation-message ion-padding-start">
+          <div *ngIf="habitoForm.get('metaId')?.errors?.['required']">Debes asociar una meta.</div>
+        </div>
       </div>
     </div>
 
@@ -128,3 +132,6 @@
       <ion-icon slot="start" name="save-outline"></ion-icon>
       {{ esEdicion ? 'Actualizar Hábito' : 'Guardar Hábito' }}
     </ion-button>
+
+  </form>
+</ion-content>

@@ -11,6 +11,17 @@
 
 <ion-content class="ion-padding">
   <form [formGroup]="goalForm" (ngSubmit)="guardarMeta()">
+
+    <!-- Panel informativo sobre asociación -->
+    <div class="info-panel ion-padding ion-margin-bottom" style="border-left: 4px solid var(--ion-color-primary); background: var(--ion-color-light); border-radius: 8px;">
+      <ion-icon name="information-circle-outline" color="primary" style="vertical-align: middle; font-size: 1.5em; margin-right: 8px;"></ion-icon>
+      <ion-text color="medium">
+        <p style="display: inline;">
+          Luego de crear la meta podrás asociar <b>hábitos</b> y <b>tareas</b> a ella desde el detalle de la meta, donde también verás tu progreso.
+        </p>
+      </ion-text>
+    </div>
+
     <ion-item>
       <ion-label position="floating">Título</ion-label>
       <ion-input formControlName="titulo"></ion-input>
@@ -46,9 +57,9 @@
           <ion-label>No hay tareas asociadas.</ion-label>
         </ion-item>
       </ion-list>
-      <ion-button expand="block" color="primary" fill="outline" (click)="crearTarea()">
+      <ion-button expand="block" color="primary" fill="outline" (click)="onIntentoAsociar('tarea')">
         <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-        Asociar o crear tarea
+        Crear tarea para esta meta
       </ion-button>
     </div>
 
@@ -71,12 +82,14 @@
           <ion-label>No hay hábitos asociados.</ion-label>
         </ion-item>
       </ion-list>
-      <ion-button expand="block" color="primary" fill="outline" (click)="crearHabito()">
+      <ion-button expand="block" color="primary" fill="outline" (click)="onIntentoAsociar('habito')">
         <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-        Asociar o crear hábito
+        Crear hábito para esta meta
       </ion-button>
     </div>
 
     <ion-button expand="block" type="submit" color="success" class="ion-margin-top">
       {{ botonGuardarTexto }}
     </ion-button>
+  </form>
+</ion-content>

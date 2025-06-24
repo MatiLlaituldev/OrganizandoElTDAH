@@ -36,6 +36,7 @@
       </div>
       <ion-item class="form-input">
         <ion-label position="floating">Meta asociada</ion-label>
+        <!-- Mejora: Elimina [disabled] y controla el estado solo desde el TS -->
         <ion-select formControlName="metaId" placeholder="Sin meta" [compareWith]="compareWith">
           <ion-select-option [value]="null">Sin meta</ion-select-option>
           <ion-select-option *ngFor="let meta of metas$ | async" [value]="meta.id">

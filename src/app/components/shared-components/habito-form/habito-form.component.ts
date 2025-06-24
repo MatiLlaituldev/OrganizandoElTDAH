@@ -5,7 +5,6 @@ import { Habito } from 'src/app/models/habito.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { HabitoService } from 'src/app/services/habito.service';
 import { Timestamp } from 'firebase/firestore';
-
 import { Meta } from 'src/app/models/meta.model';
 import { GoalService } from 'src/app/services/goal.service';
 import { Observable } from 'rxjs';
@@ -18,10 +17,11 @@ import { Observable } from 'rxjs';
 })
 export class HabitoFormComponent implements OnInit {
   @Input() habito?: Habito;
+  @Input() metaId?: string;
+  @Input() metaSeleccionada?: boolean = false;
 
   habitoForm!: FormGroup;
   esEdicion: boolean = false;
-
   metas$!: Observable<Meta[]>;
 
   colores = [
@@ -32,19 +32,6 @@ export class HabitoFormComponent implements OnInit {
     'book', 'barbell', 'leaf', 'water', 'walk', 'bed', 'heart',
     'cash', 'musical-notes', 'code-slash', 'brush', 'construct'
   ];
-
-  get modalTitle(): string {
-    return this.esEdicion ? 'Editar Hábito' : 'Nuevo Hábito';
-  }
-
-  get botonGuardarTexto(): string {
-    return this.esEdicion ? 'Actualizar Hábito' : 'Guardar Hábito';
-  }
-
-  // Getter para validación reactiva del campo título
-  get titulo() {
-    return this.habitoForm.get('titulo');
-  }
 
   constructor(
     private fb: FormBuilder,
@@ -63,6 +50,7 @@ export class HabitoFormComponent implements OnInit {
       this.metas$ = this.goalService.getMetas(currentUser.uid);
     }
 
+    // Manejo del estado disabled de metaId solo desde TS
     this.habitoForm = this.fb.group({
       titulo: ['', [Validators.required, Validators.minLength(3)]],
       descripcion: [''],
@@ -70,7 +58,10 @@ export class HabitoFormComponent implements OnInit {
       icono: [this.iconos[0]],
       color: [this.colores[0]],
       horaPreferida: [null],
-      metaId: [this.habito?.metaId || null],
+      metaId: [
+        { value: this.metaId || null, disabled: !!this.metaSeleccionada },
+        this.metaSeleccionada ? [Validators.required] : []
+      ],
       metaRacha: [this.habito?.metaRacha ?? null]
     });
 
@@ -82,9 +73,14 @@ export class HabitoFormComponent implements OnInit {
         icono: this.habito.icono || this.iconos[0],
         color: this.habito.color || this.colores[0],
         horaPreferida: this.habito.horaPreferida || null,
-        metaId: this.habito.metaId || null,
+        metaId: this.habito.metaId || this.metaId || null,
         metaRacha: this.habito.metaRacha ?? null
       });
+      if (this.metaSeleccionada) {
+        this.habitoForm.get('metaId')?.disable();
+      } else {
+        this.habitoForm.get('metaId')?.enable();
+      }
     }
   }
 
@@ -97,13 +93,20 @@ export class HabitoFormComponent implements OnInit {
   }
 
   async guardarHabito() {
+    // Validación: si metaSeleccionada es true, metaId debe estar presente
+    if (this.metaSeleccionada && !this.metaId) {
+      this.presentToast('No se encontró la meta asociada.', 'danger');
+      return;
+    }
+
+    // Validación general del formulario
     if (this.habitoForm.invalid) {
       this.presentToast('Por favor, completa los campos requeridos.', 'warning');
       this.habitoForm.markAllAsTouched();
       return;
     }
 
-    const formValues = this.habitoForm.value;
+    const formValues = this.habitoForm.getRawValue();
     const currentUser = await this.authService.getCurrentUser();
     const userId = currentUser?.uid;
 
@@ -119,7 +122,7 @@ export class HabitoFormComponent implements OnInit {
       icono: formValues.icono,
       color: formValues.color,
       horaPreferida: formValues.horaPreferida || null,
-      metaId: formValues.metaId || null,
+      metaId: this.metaSeleccionada ? this.metaId : formValues.metaId || null,
       metaRacha: formValues.metaRacha ?? null
     };
 
