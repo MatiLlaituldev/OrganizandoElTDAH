@@ -1,254 +1,529 @@
-// src/app/components/habito-form/habito-form.component.scss
+/* ===================================================================
+   CSS Definitivo para Formulario de Hábitos
+   (Fusión de "Base elegante" + Inputs mejorados + Línea inferior)
+   =================================================================== */
 
-// Variables de color específicas para este componente (pueden estar en :host o usar globales).
-// Estas aseguran que el modal de hábitos tenga una apariencia consistente.
+// --- Paleta de Colores y Variables ---
 :host {
-  --ion-color-primary: #7F00FF;         // Morado principal
-  --ion-color-primary-contrast: #ffffff;
-  --ion-color-secondary: #6A0DAD;      // Morado más oscuro para labels y acentos
-  --ion-color-tertiary: #FFC107;       // Amarillo/Dorado para botones de acción principales
-  --ion-color-tertiary-contrast: #000000;
-
-  --modal-content-background: #F8F5FF; // Fondo del contenido del modal (ligero tinte morado)
-  --modal-item-background: #FFFFFF;    // Fondo blanco para los ion-item/inputs
-
-  --ion-color-placeholder: #86888f;    // Color para el label cuando actúa como placeholder
-  --ion-color-medium-grey: var(--ion-color-placeholder);
-  --ion-border-radius: 12px;
-  --ion-text-color-input: #333333;     // Color del texto que el usuario escribe
-  --ion-border-color-input: #E0E0E0;   // Borde sutil para los items
-  --font-family-sans-serif: 'Inter', sans-serif; // Fuente principal
+  --theme-bg: #f4f5f8;
+  --theme-card-bg: #ffffff;
+  --theme-primary: #7F00FF;
+  --theme-primary-rgb: 127, 0, 255;
+  --theme-primary-tint: rgba(127, 0, 255, 0.1);
+  --theme-text-title: #333333;
+  --theme-text-body: #666666;
+  --theme-border: #e0e6ed;
+  --card-border-radius: 16px;
+  --card-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
 }
 
-// Estilos para el encabezado del modal
-ion-header {
-  ion-toolbar {
-    --background: var(--ion-color-primary);
-    --color: var(--ion-color-primary-contrast);
-    font-family: var(--font-family-sans-serif);
+// --- Estructura General y Header ---
+.form-header ion-toolbar {
+  --background: var(--theme-primary);
+  --color: #ffffff;
+}
+
+ion-content {
+  --background: var(--theme-bg);
+}
+
+.form-container {
+  padding: 8px 0 16px;
+}
+
+// --- Tarjetas de Formulario ---
+.form-card {
+  background: var(--theme-card-bg);
+  margin: 0 16px 16px;
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--card-box-shadow);
+  padding: 16px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-primary);
+
+  ion-icon {
+    font-size: 1.6rem;
+    margin-right: 12px;
   }
-  ion-title {
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-  ion-button { // Botón de cerrar
-    --color: var(--ion-color-primary-contrast);
-    --ripple-color: var(--ion-color-primary-contrast);
+
+  .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
   }
 }
 
-// Estilos para el contenido del modal
-// Usar el selector del componente ('app-habito-form' o el que hayas definido)
-// o :host para asegurar que los estilos se apliquen correctamente.
-:host ion-content {
-  --background: var(--modal-content-background);
-  font-family: var(--font-family-sans-serif);
-
-  form {
-    padding-top: 16px;
-  }
-}
-
-// Estilos para el contenedor de cada input y su mensaje de error
-.input-wrapper {
-  margin-bottom: 20px; // Espacio uniforme entre los campos del formulario
-  padding-left: 16px;  // Margen lateral para que no pegue a los bordes del modal
-  padding-right: 16px;
-}
-
-// Estilos personalizados para ion-item dentro del formulario
-.custom-ion-item {
-  --background: var(--modal-item-background); // Fondo blanco
-  --padding-start: 16px; // Padding interno del item
+// --- Estilo de Inputs y Selects (con línea inferior mejorada) ---
+.form-input {
+  --background: #f9faff;
+  --padding-start: 16px;
   --inner-padding-end: 16px;
-  --border-radius: var(--ion-border-radius); // Bordes redondeados
-  --border-color: var(--ion-border-color-input); // Borde sutil
-  --highlight-color-focused: var(--ion-color-primary); // Color del borde cuando el input está enfocado
-  // Quitar márgenes laterales del item si .input-wrapper ya los maneja
-  margin-left: 0;
-  margin-right: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); // Sombra ligera
-  overflow: visible; // Para que el label flotante no se corte
+  --highlight-height: 0;
+  --border-color: var(--theme-border);
+
+  background: #f9faff;
+  border: none;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  position: relative;
+  transition: box-shadow 0.2s;
 
   ion-label[position="floating"] {
-    color: var(--ion-color-placeholder); // Color inicial del label (como placeholder)
-    font-weight: normal;
-  }
-
-  ion-label[position="floating"].label-floating {
-    color: var(--ion-color-secondary); // Color del label cuando flota
+    color: var(--theme-text-body);
     font-weight: 500;
   }
 
-  // Estilos para los inputs, textareas y selects
-  ion-input,
-  ion-textarea,
-  ion-select {
-    --color: var(--ion-text-color-input); // Color del texto escrito por el usuario
-    --placeholder-opacity: 0;             // Ocultar placeholder nativo
-    --placeholder-color: transparent;     // Doble seguridad para ocultar placeholder nativo
-    --padding-top: 20px;                  // Espacio para el label flotante
-    --padding-bottom: 10px;
-    font-size: 1em;
-    background: transparent; // Asegurar que el input no tenga fondo propio
+  // Línea inferior personalizada y animada
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 6px;
+    height: 2.5px;
+    background: var(--theme-border);
+    border-radius: 2px;
+    transition: background 0.2s, height 0.2s;
+    z-index: 2;
   }
 
-  ion-textarea {
-    min-height: 60px; // Altura mínima para descripción
+  // Línea activa al enfocar
+  &.item-has-focus::after,
+  &:focus-within::after {
+    background: var(--theme-primary);
+    height: 3.5px;
   }
 
-  ion-select {
-    width: 100%; // Para que el select ocupe el ancho disponible
-    --placeholder-color: var(--ion-color-placeholder); // Color para el placeholder del select
+  // Línea roja si hay error
+  &.ng-invalid.ng-touched::after,
+  &.ng-invalid.ng-dirty::after {
+    background: #eb445a;
+    height: 3.5px;
   }
 
-  // Input de tipo color
-  .color-picker-input {
-    min-height: 40px; // Altura para el input de color
-    padding-top: 8px !important; // Ajustar padding para el input de color
-    padding-bottom: 8px !important;
-    // Quitar el padding-start por defecto de ion-input para que el color picker quede mejor
-    --padding-start: 0px;
+  // Efecto "glow" al seleccionar un campo
+  &.item-has-focus {
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb), 0.13);
+    transition: border-color 0.18s, box-shadow 0.18s;
   }
-}
 
-// Estilos para la vista previa del icono
-.icon-preview {
-  display: flex;
-  align-items: center;
-  padding-left: 20px; // Alineado con el texto de error
-  padding-top: 6px;
-  font-size: 0.9em;
-  color: var(--ion-color-medium-grey);
-
-  ion-icon {
-    font-size: 1.8em; // Tamaño del icono de vista previa
-    margin-right: 8px;
+  // Borde rojo y glow si hay error
+  &.ng-invalid.ng-touched,
+  &.ng-invalid.ng-dirty {
+    box-shadow: 0 0 0 3px rgba(235, 68, 90, 0.10);
+    transition: border-color 0.18s, box-shadow 0.18s;
   }
-}
 
-// Estilos para el item que contiene el ion-datetime-button
-.item-datetime {
-    --border-width: 0;
-    --inner-border-width: 0;
+  // Color del texto que el usuario escribe
+  ion-input, ion-textarea, ion-select {
+    background: transparent;
+    border: none;
     box-shadow: none;
-    margin-bottom: 0px !important; // Ajustar si es necesario
-    padding-bottom: 4px;
-    --background: var(--modal-item-background); // Asegurar fondo del item
-}
-
-ion-datetime-button {
-  width: 100%;
-  font-weight: normal;
-  font-size: 1em;
-  color: var(--ion-text-color-input);
-  --padding-start: 0;
-  justify-content: flex-start;
-  margin-top: 8px;
-}
-
-// Estilos para el modal del selector de fecha/hora (si es presentado por este componente)
-:host ion-modal ion-datetime { // O app-habito-form ion-modal ion-datetime
-    --background: #ffffff;
-    // Puedes personalizar los botones "Hecho" y "Cancelar" aquí si es necesario
-    // &::part(confirm-button), &::part(cancel-button) {
-    //   color: var(--ion-color-primary);
-    // }
-}
-
-// Mensajes de error
-.error-message {
-  color: var(--ion-color-danger, #eb445a); // Fallback a un rojo estándar si no está definido
-  font-size: 0.8em;
-  padding-left: 4px; // Menos padding si .input-wrapper ya tiene
-  padding-top: 4px;
-}
-
-// Botón para limpiar fecha/hora
-.clear-date-button {
-  color: var(--ion-color-medium-grey);
-  font-size: 0.85em;
-  // margin-left: 0; // Si .input-wrapper maneja el padding
-  text-transform: none;
-  --padding-start: 0;
-  --ripple-color: transparent;
-
-  ion-icon {
-    margin-right: 4px;
-    font-size: 1.1em;
+    font-weight: 500;
+    --color: var(--theme-text-title);
+    --padding-top: 20px;
+    --padding-bottom: 12px;
+    z-index: 3;
   }
 }
 
-// Botón de envío principal
-.submit-button {
-  --border-radius: var(--ion-border-radius);
-  --box-shadow: 0 4px 10px rgba(127, 0, 255, 0.25); // Sombra con el color primario del :host
-  font-weight: 600;
-  height: 48px;
-  margin-top: 24px;
-  // Los márgenes laterales ya están en .input-wrapper, o puedes ponerlos aquí si no usas .input-wrapper
-  // margin-left: 16px;
-  // margin-right: 16px;
-  text-transform: capitalize;
-  --background: var(--ion-color-primary); // Usar el primario definido en :host
-  --color: var(--ion-color-primary-contrast);
+// --- Mensaje de validación mejorado ---
+.error-message,
+.validation-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  background: #fff0f3;
+  color: #eb445a;
+  border-left: 4px solid #eb445a;
+  border-radius: 8px;
+  font-size: 0.97em;
+  font-weight: 500;
+  margin: 6px 0 0 0;
+  padding: 7px 12px 7px 10px;
+  box-shadow: 0 2px 8px #eb445a11;
+  animation: fadeIn 0.3s;
 }
-// --- ESTILOS PARA NUEVOS SELECTORES VISUALES ---
+
+.error-message::before,
+.validation-message::before {
+  content: '⚠️';
+  font-size: 1.1em;
+  margin-right: 4px;
+  line-height: 1.2;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+// --- Selectores Visuales de Color e Ícono ---
+.selector-wrapper {
+  margin-top: 16px;
+}
 
 .selector-label {
-  font-size: 0.9em;
-  color: var(--ion-color-medium);
-  margin-bottom: 8px;
-  padding-left: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--theme-text-body);
+  display: block;
+  margin-bottom: 12px;
 }
 
 .selector-container {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  padding-top: 8px;
 }
 
 .color-swatch {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   cursor: pointer;
-  border: 2px solid var(--ion-color-step-200, #cccccc);
+  border: 3px solid transparent;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: transform 0.2s ease-in-out;
+  transition: all 0.2s ease-out;
+
   ion-icon {
     color: white;
-    font-size: 26px;
+    font-size: 24px;
   }
+
   &.selected {
-    border-color: var(--ion-color-primary);
+    border-color: var(--theme-primary);
     transform: scale(1.1);
   }
 }
 
 .icon-swatch {
-  width: 42px;
-  height: 42px;
-  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   cursor: pointer;
   border: 2px solid transparent;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--ion-color-step-150, #f0f0f0);
-  transition: all 0.2s ease-in-out;
+  background: #f0f2f5;
+  transition: all 0.2s ease-out;
+
   ion-icon {
-    font-size: 28px;
-    color: var(--ion-color-step-600, #666666);
+    font-size: 26px;
+    color: var(--theme-primary);
+    opacity: 0.7;
   }
+
   &.selected {
-    border-color: var(--ion-color-primary);
-    background-color: var(--ion-color-primary);
+    border-color: var(--theme-primary);
+    background: var(--theme-primary);
+    transform: scale(1.1);
     ion-icon {
-      color: var(--ion-color-primary-contrast, #ffffff);
+      color: #ffffff;
+      opacity: 1;
     }
   }
 }
+
+// --- Segmento de Frecuencia ---
+.form-segment {
+  --background: var(--theme-bg);
+  border-radius: 12px;
+  margin-bottom: 16px;
+
+  ion-segment-button {
+    --color: var(--theme-text-body);
+    --color-checked: #ffffff;
+    --background-checked: var(--theme-primary);
+    --border-radius: 10px;
+    --indicator-color: transparent;
+    font-weight: 600;
+  }
+}
+
+// --- Botón de Guardar Final ---
+.submit-button {
+  --background: var(--theme-primary);
+  --border-radius: 12px;
+  --box-shadow: 0 6px 15px rgba(127, 0, 255, 0.3);
+  height: 48px;
+  margin: 16px;
+  text-transform: none;
+  font-/* ===================================================================
+   CSS Definitivo para Formulario de Hábitos
+   (Fusión de "Base elegante" + Inputs mejorados + Línea inferior)
+   =================================================================== */
+
+// --- Paleta de Colores y Variables ---
+:host {
+  --theme-bg: #f4f5f8;
+  --theme-card-bg: #ffffff;
+  --theme-primary: #7F00FF;
+  --theme-primary-rgb: 127, 0, 255;
+  --theme-primary-tint: rgba(127, 0, 255, 0.1);
+  --theme-text-title: #333333;
+  --theme-text-body: #666666;
+  --theme-border: #e0e6ed;
+  --card-border-radius: 16px;
+  --card-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+}
+
+// --- Estructura General y Header ---
+.form-header ion-toolbar {
+  --background: var(--theme-primary);
+  --color: #ffffff;
+}
+
+ion-content {
+  --background: var(--theme-bg);
+}
+
+.form-container {
+  padding: 8px 0 16px;
+}
+
+// --- Tarjetas de Formulario ---
+.form-card {
+  background: var(--theme-card-bg);
+  margin: 0 16px 16px;
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--card-box-shadow);
+  padding: 16px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-primary);
+
+  ion-icon {
+    font-size: 1.6rem;
+    margin-right: 12px;
+  }
+
+  .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+  }
+}
+
+// --- Estilo de Inputs y Selects (con línea inferior mejorada) ---
+.form-input {
+  --background: #f9faff;
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  --highlight-height: 0;
+  --border-color: var(--theme-border);
+
+  background: #f9faff;
+  border: none;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  position: relative;
+  transition: box-shadow 0.2s;
+
+  ion-label[position="floating"] {
+    color: var(--theme-text-body);
+    font-weight: 500;
+  }
+
+  // Línea inferior personalizada y animada
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 6px;
+    height: 2.5px;
+    background: var(--theme-border);
+    border-radius: 2px;
+    transition: background 0.2s, height 0.2s;
+    z-index: 2;
+  }
+
+  // Línea activa al enfocar
+  &.item-has-focus::after,
+  &:focus-within::after {
+    background: var(--theme-primary);
+    height: 3.5px;
+  }
+
+  // Línea roja si hay error
+  &.ng-invalid.ng-touched::after,
+  &.ng-invalid.ng-dirty::after {
+    background: #eb445a;
+    height: 3.5px;
+  }
+
+  // Efecto "glow" al seleccionar un campo
+  &.item-has-focus {
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb), 0.13);
+    transition: border-color 0.18s, box-shadow 0.18s;
+  }
+
+  // Borde rojo y glow si hay error
+  &.ng-invalid.ng-touched,
+  &.ng-invalid.ng-dirty {
+    box-shadow: 0 0 0 3px rgba(235, 68, 90, 0.10);
+    transition: border-color 0.18s, box-shadow 0.18s;
+  }
+
+  // Color del texto que el usuario escribe
+  ion-input, ion-textarea, ion-select {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    font-weight: 500;
+    --color: var(--theme-text-title);
+    --padding-top: 20px;
+    --padding-bottom: 12px;
+    z-index: 3;
+  }
+}
+
+// --- Mensaje de validación mejorado ---
+.error-message,
+.validation-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  background: #fff0f3;
+  color: #eb445a;
+  border-left: 4px solid #eb445a;
+  border-radius: 8px;
+  font-size: 0.97em;
+  font-weight: 500;
+  margin: 6px 0 0 0;
+  padding: 7px 12px 7px 10px;
+  box-shadow: 0 2px 8px #eb445a11;
+  animation: fadeIn 0.3s;
+}
+
+.error-message::before,
+.validation-message::before {
+  content: '⚠️';
+  font-size: 1.1em;
+  margin-right: 4px;
+  line-height: 1.2;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+// --- Selectores Visuales de Color e Ícono ---
+.selector-wrapper {
+  margin-top: 16px;
+}
+
+.selector-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--theme-text-body);
+  display: block;
+  margin-bottom: 12px;
+}
+
+.selector-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.color-swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease-out;
+
+  ion-icon {
+    color: white;
+    font-size: 24px;
+  }
+
+  &.selected {
+    border-color: var(--theme-primary);
+    transform: scale(1.1);
+  }
+}
+
+.icon-swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f0f2f5;
+  transition: all 0.2s ease-out;
+
+  ion-icon {
+    font-size: 26px;
+    color: var(--theme-primary);
+    opacity: 0.7;
+  }
+
+  &.selected {
+    border-color: var(--theme-primary);
+    background: var(--theme-primary);
+    transform: scale(1.1);
+    ion-icon {
+      color: #ffffff;
+      opacity: 1;
+    }
+  }
+}
+
+// --- Segmento de Frecuencia ---
+.form-segment {
+  --background: var(--theme-bg);
+  border-radius: 12px;
+  margin-bottom: 16px;
+
+  ion-segment-button {
+    --color: var(--theme-text-body);
+    --color-checked: #ffffff;
+    --background-checked: var(--theme-primary);
+    --border-radius: 10px;
+    --indicator-color: transparent;
+    font-weight: 600;
+  }
+}
+
+// --- Botón de Guardar Final ---
+.submit-button {
+  --background: var(--theme-primary);
+  --border-radius: 12px;
+  --box-shadow: 0 6px 15px rgba(127, 0, 255, 0.3);
+  height: 48px;
+  margin: 16px;
+  text-transform: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+}}

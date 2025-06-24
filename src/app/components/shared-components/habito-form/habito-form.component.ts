@@ -41,6 +41,11 @@ export class HabitoFormComponent implements OnInit {
     return this.esEdicion ? 'Actualizar Hábito' : 'Guardar Hábito';
   }
 
+  // Getter para validación reactiva del campo título
+  get titulo() {
+    return this.habitoForm.get('titulo');
+  }
+
   constructor(
     private fb: FormBuilder,
     private modalCtrl: ModalController,
@@ -66,7 +71,7 @@ export class HabitoFormComponent implements OnInit {
       color: [this.colores[0]],
       horaPreferida: [null],
       metaId: [this.habito?.metaId || null],
-      metaRacha: [this.habito?.metaRacha ?? null] // <-- Campo agregado
+      metaRacha: [this.habito?.metaRacha ?? null]
     });
 
     if (this.esEdicion && this.habito) {
@@ -78,7 +83,7 @@ export class HabitoFormComponent implements OnInit {
         color: this.habito.color || this.colores[0],
         horaPreferida: this.habito.horaPreferida || null,
         metaId: this.habito.metaId || null,
-        metaRacha: this.habito.metaRacha ?? null // <-- Campo agregado
+        metaRacha: this.habito.metaRacha ?? null
       });
     }
   }
@@ -115,7 +120,7 @@ export class HabitoFormComponent implements OnInit {
       color: formValues.color,
       horaPreferida: formValues.horaPreferida || null,
       metaId: formValues.metaId || null,
-      metaRacha: formValues.metaRacha ?? null // <-- Campo agregado
+      metaRacha: formValues.metaRacha ?? null
     };
 
     try {
