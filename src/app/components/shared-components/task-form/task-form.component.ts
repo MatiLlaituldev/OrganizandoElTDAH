@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit,ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { Tarea, Subtarea } from '../../../models/tarea.model';
@@ -16,7 +16,8 @@ import { GoalService } from '../../../services/goal.service';
   selector: 'app-task-form',
   templateUrl: './task-form.component.html',
   styleUrls: ['./task-form.component.scss'],
-  standalone: false
+  standalone: false,
+   encapsulation: ViewEncapsulation.Emulated
 })
 export class TaskFormComponent implements OnInit {
 

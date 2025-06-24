@@ -1,168 +1,125 @@
-// src/app/components/task-form/task-form.component.scss
+/* ===================================================================
+   CSS para Formulario de Tarea (Inspirado en Goal-Detail)
+   =================================================================== */
 
-// Variables de color específicas para este componente.
+// Paleta de colores y variables
 :host {
-  --ion-color-primary: #7F00FF;
-  --ion-color-primary-contrast: #ffffff;
-  --ion-color-secondary: #6A0DAD; // Color para labels
-  --ion-color-tertiary: #FFC107;
-  --ion-color-tertiary-contrast: #000000;
-
-  --modal-content-background: #F8F5FF;
-  --modal-item-background: #FFFFFF;    // Fondo blanco para los items
-
-  --ion-color-medium-grey: #757575;    // Color para placeholders
-  --ion-border-radius: 12px;
-  --ion-text-color-input: #333333;     // Color del texto cuando se escribe
-  --ion-border-color-input: #E0E0E0;
-  --font-family-sans-serif: 'Inter', sans-serif;
+  --theme-bg: #f4f5f8;
+  --theme-card-bg: #ffffff;
+  --theme-primary: #7F00FF;
+  --theme-primary-tint: rgba(127, 0, 255, 0.1);
+  --theme-text-title: #3d3b62;
+  --theme-text-body: #6a738c;
+  --theme-border: #e0e6ed;
+  --card-border-radius: 16px;
+  --card-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
 }
 
-// Estilos para el encabezado del modal
-ion-header {
-  ion-toolbar {
-    --background: var(--ion-color-primary);
-    --color: var(--ion-color-primary-contrast);
-    font-family: var(--font-family-sans-serif);
+// Estructura general
+.form-header ion-toolbar {
+  --background: var(--theme-primary);
+  --color: #ffffff;
+}
+
+ion-content {
+  --background: var(--theme-bg);
+}
+
+.form-container {
+  padding: 8px 0 16px;
+}
+
+// Estilo de las tarjetas de sección
+.form-card {
+  background: var(--theme-card-bg);
+  margin: 0 16px 16px;
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--card-box-shadow);
+  padding: 16px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-primary);
+
+  ion-icon {
+    font-size: 1.6rem;
+    margin-right: 12px;
   }
-  ion-title {
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-  ion-button {
-    --color: var(--ion-color-primary-contrast);
-    --ripple-color: var(--ion-color-primary-contrast);
+
+  .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
   }
 }
 
-// Estilos para el contenido del modal
-app-task-form ion-content {
-  --background: var(--modal-content-background);
-  font-family: var(--font-family-sans-serif);
-
-  form {
-    padding-top: 16px;
-  }
-}
-
-// Estilos personalizados para ion-item
-.custom-ion-item {
-  --background: var(--modal-item-background); // Fondo blanco
-  --padding-start: 16px;
-  --inner-padding-end: 16px;
-  --border-radius: var(--ion-border-radius);
-  --border-color: var(--ion-border-color-input);
-  --highlight-color-focused: var(--ion-color-primary);
-  margin-left: 16px;
-  margin-right: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  overflow: visible; // Para asegurar que el label flotante no se corte si es más grande
+// Estilo de los inputs y selects
+.form-input {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --background: transparent;
+  --border-color: transparent;
+  --highlight-color-focused: var(--theme-primary);
+  border-bottom: 1px solid var(--theme-border);
+  margin-bottom: 8px;
 
   ion-label[position="floating"] {
-    color: var(--ion-color-medium-grey); // Color inicial del label (actúa como placeholder)
-    font-weight: normal; // Placeholder no tan grueso
-    // La transformación para cuando flota ya está definida por Ionic,
-    // pero podemos ajustarla si es necesario.
-    // Cuando el label flota (tiene la clase .label-floating añadida por Ionic):
-    &.label-floating {
-      color: var(--ion-color-secondary); // Color del label cuando está flotando y enfocado/con valor
-      font-weight: 500; // Puede ser un poco más grueso cuando flota
-      // transform: translateY(-10px) scale(0.85); // Ajuste de Ionic por defecto
-    }
-  }
-
-  ion-input,
-  ion-textarea {
-    --color: var(--ion-text-color-input); // Color del texto que el usuario escribe
-    --placeholder-color: transparent; // Hacemos el placeholder nativo del input transparente
-                                      // ya que el ion-label flotante hace ese trabajo.
-    --padding-top: 18px; // Ajustar padding para dar espacio al label flotante
-    --padding-bottom: 10px;
-    --padding-start: 0px; // El padding ya está en ion-item
-    font-size: 1em;
-    background-color: transparent; // Asegurar que el fondo del input sea transparente sobre el item
-  }
-
-  ion-select {
-    --color: var(--ion-text-color-input);
-    --placeholder-color: var(--ion-color-medium-grey);
-     width: 100%; // Para que ocupe el espacio y el placeholder del select se vea bien
-    --padding-top: 10px;
-    --padding-bottom: 10px;
-  }
-
-
-  ion-textarea {
-    min-height: 80px;
+    color: var(--theme-text-body);
   }
 }
 
-.input-wrapper {
-    margin-bottom: 20px;
+// Segmentos de Recurrencia
+.form-segment {
+  --background: var(--theme-bg);
+  border-radius: 12px;
+  margin-top: 8px;
+  ion-segment-button {
+    --color: var(--theme-text-body);
+    --color-checked: #ffffff;
+    --background-checked: var(--theme-primary);
+    --border-radius: 10px;
+    --indicator-color: transparent;
+    font-weight: 600;
+  }
 }
 
-.item-datetime {
-    --border-width: 0;
-    --inner-border-width: 0;
-    box-shadow: none;
-    margin-bottom: 0px !important;
-    padding-bottom: 4px;
-    --background: var(--modal-item-background);
-}
-
-ion-datetime-button {
+// Contenedor y botón para la fecha
+.date-input-wrapper {
+  display: flex;
+  align-items: center;
   width: 100%;
-  font-weight: normal;
-  font-size: 1em;
-  color: var(--ion-text-color-input);
-  --padding-start: 0;
-  justify-content: flex-start;
+}
+.clear-button {
+    color: var(--theme-text-body);
+    opacity: 0.7;
+}
+
+// Subtareas
+.subtask-item {
+  --background: #f9faff;
+  --border-radius: 10px;
+  border: 1px solid var(--theme-border);
+  margin-bottom: 8px;
+}
+.add-button {
+  --color: var(--theme-primary);
+  font-weight: 600;
   margin-top: 8px;
 }
 
-app-task-form ion-modal {
-  ion-datetime {
-    --background: #ffffff;
-    &::part(confirm-button), &::part(cancel-button) {
-        // color: var(--ion-color-primary);
-    }
-  }
-}
-
-.error-message {
-  color: var(--ion-color-danger, #eb445a);
-  font-size: 0.8em;
-  padding-left: 20px;
-  padding-top: 4px;
-}
-
-.clear-date-button {
-  color: var(--ion-color-medium-grey);
-  font-size: 0.85em;
-  margin-left: 12px;
-  text-transform: none;
-  --padding-start: 0;
-  --ripple-color: transparent;
-
-  ion-icon {
-    margin-right: 4px;
-    font-size: 1.1em;
-  }
-}
-
+// Botón de guardar
 .submit-button {
-  --border-radius: var(--ion-border-radius);
-  --box-shadow: 0 4px 10px rgba(127, 0, 255, 0.25);
-  font-weight: 600;
+  --background: var(--theme-primary);
+  --border-radius: 12px;
+  --box-shadow: 0 6px 15px rgba(127, 0, 255, 0.3);
   height: 48px;
-  margin-top: 24px;
-  margin-left: 16px;
-  margin-right: 16px;
-  text-transform: capitalize;
-  --background: var(--ion-color-primary);
-  --color: var(--ion-color-primary-contrast);
-}
-
-.custom-toast {
-  // Estilos personalizados para toasts si es necesario
+  margin: 16px;
+  text-transform: none;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
