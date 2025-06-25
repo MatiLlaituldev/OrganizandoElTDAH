@@ -80,6 +80,23 @@
           <ion-segment-button value="semanal"><ion-label>Semanal</ion-label></ion-segment-button>
         </ion-segment>
       </div>
+
+      <!-- Días de la semana (solo si es semanal) -->
+      <div class="input-wrapper" *ngIf="habitoForm.get('frecuenciaTipo')?.value === 'semanal'">
+        <ion-label class="selector-label">Selecciona los días</ion-label>
+        <div class="dias-semana-checkboxes">
+          <ion-checkbox
+            *ngFor="let dia of diasSemana"
+            [checked]="diasSeleccionados.includes(dia.valor)"
+            (ionChange)="toggleDiaSemana(dia.valor)">
+            {{ dia.nombre }}
+          </ion-checkbox>
+        </div>
+        <div *ngIf="diasSeleccionados.length === 0" class="validation-message ion-padding-start">
+          <ion-text color="danger">Debes seleccionar al menos un día.</ion-text>
+        </div>
+      </div>
+
       <div class="input-wrapper">
         <ion-item lines="none" class="form-input custom-ion-item item-datetime">
           <ion-label position="stacked">Hora Preferida (Opcional)</ion-label>
@@ -114,7 +131,6 @@
       <div class="input-wrapper">
         <ion-item class="form-input custom-ion-item" lines="none">
           <ion-label position="floating">Meta asociada</ion-label>
-          <!-- Mejora: Elimina [disabled] y controla el estado solo desde el TS -->
           <ion-select formControlName="metaId" placeholder="Sin meta">
             <ion-select-option [value]="null">Sin meta</ion-select-option>
             <ion-select-option *ngFor="let meta of metas$ | async" [value]="meta.id">
