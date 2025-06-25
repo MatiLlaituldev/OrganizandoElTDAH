@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header class="form-header">
   <ion-toolbar>
     <ion-title>{{ modalTitle }}</ion-title>
     <ion-buttons slot="end">
@@ -9,94 +9,125 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <form [formGroup]="tareaForm" (ngSubmit)="guardarTarea()">
+<ion-content>
+  <form [formGroup]="tareaForm" (ngSubmit)="guardarTarea()" class="form-container">
 
-    <ion-item>
-      <ion-label position="floating">Título</ion-label>
-      <ion-input formControlName="titulo" type="text"></ion-input>
-    </ion-item>
+    <!-- Detalles de la tarea -->
+    <div class="form-card">
+      <div class="card-header">
+        <ion-icon name="document-text-outline"></ion-icon>
+        <h2 class="card-title">Detalles de la Tarea</h2>
+      </div>
+      <ion-item class="form-input">
+        <ion-label position="floating">Título</ion-label>
+        <ion-input formControlName="titulo" type="text" placeholder="Ej: Redactar informe..."></ion-input>
+      </ion-item>
+      <ion-item class="form-input">
+        <ion-label position="floating">Descripción (Opcional)</ion-label>
+        <ion-textarea formControlName="descripcion" [autoGrow]="true" placeholder="Añade más detalles aquí..."></ion-textarea>
+      </ion-item>
+    </div>
 
-    <ion-item>
-      <ion-label position="floating">Descripción</ion-label>
-      <ion-textarea formControlName="descripcion" [autoGrow]="true"></ion-textarea>
-    </ion-item>
-
-    <!-- Selector de Meta asociada -->
-    <ion-item>
-      <ion-label position="floating">Meta asociada</ion-label>
-      <ion-select formControlName="metaId" placeholder="Sin meta" [compareWith]="compareWith">
-        <ion-select-option [value]="null">Sin meta</ion-select-option>
-        <ion-select-option *ngFor="let meta of metas$ | async" [value]="meta.id">
-          {{ meta.titulo }}
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
-
-    <ion-item lines="none">
-      <ion-label>Tipo de Tarea</ion-label>
-    </ion-item>
-    <ion-segment formControlName="recurrencia">
-      <ion-segment-button value="unica">
-        <ion-label>Única</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="diaria">
-        <ion-label>Diaria</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-
-    <ion-item-divider class="ion-margin-top">
-      <ion-label>
-        Subtareas
-      </ion-label>
-    </ion-item-divider>
-
-    <div formArrayName="subtareas">
-      <ion-item *ngFor="let subtask of subtareas.controls; let i = index" [formGroupName]="i">
-        <ion-input
-          labelPlacement="floating"
-          [label]="'Subtarea ' + (i + 1)"
-          formControlName="titulo"
-          placeholder="Describe la subtarea">
-        </ion-input>
-        <ion-button (click)="removeSubtask(i)" fill="clear" color="danger" slot="end">
+    <!-- Configuración -->
+    <div class="form-card">
+      <div class="card-header">
+        <ion-icon name="options-outline"></ion-icon>
+        <h2 class="card-title">Configuración</h2>
+      </div>
+      <ion-item class="form-input">
+        <ion-label position="floating">Meta asociada</ion-label>
+        <ion-select formControlName="metaId" placeholder="Sin meta" [compareWith]="compareWith">
+          <ion-select-option [value]="null">Sin meta</ion-select-option>
+          <ion-select-option *ngFor="let meta of metas$ | async" [value]="meta.id">
+            {{ meta.titulo }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item class="form-input">
+        <ion-label position="floating">Prioridad</ion-label>
+        <ion-select formControlName="prioridad" interface="popover">
+          <ion-select-option [value]="1">Baja</ion-select-option>
+          <ion-select-option [value]="2">Media</ion-select-option>
+          <ion-select-option [value]="3">Alta</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item class="form-input" [disabled]="tareaForm.get('recurrencia')?.value === 'diaria'">
+        <ion-label position="floating">Fecha de Vencimiento</ion-label>
+        <ion-input type="date" formControlName="fechaVencimiento" [min]="minDate"></ion-input>
+        <ion-button fill="clear" (click)="limpiarFechaVencimiento()" slot="end" aria-label="Limpiar fecha">
           <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-item>
+      <!-- Recordatorio personalizado -->
+      <ion-item class="form-input">
+        <ion-label position="floating">Recordatorio personalizado</ion-label>
+        <!-- Puedes usar ion-datetime o un input tipo datetime-local -->
+        <ion-input
+          type="datetime-local"
+          formControlName="fechaRecordatorio"
+          [min]="minDateTime">
+        </ion-input>
+        <ion-button fill="clear" size="small" (click)="limpiarFechaRecordatorio()" *ngIf="tareaForm.get('fechaRecordatorio')?.value">
+          Limpiar
         </ion-button>
       </ion-item>
     </div>
 
-    <ion-button (click)="addSubtask()" expand="block" fill="outline" class="ion-margin-top">
-      <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-      Añadir Subtarea
-    </ion-button>
-    <ion-item class="ion-margin-top">
-      <ion-label>Prioridad</ion-label>
-      <ion-select formControlName="prioridad" interface="popover">
-        <ion-select-option [value]="1">Baja</ion-select-option>
-        <ion-select-option [value]="2">Media</ion-select-option>
-        <ion-select-option [value]="3">Alta</ion-select-option>
-      </ion-select>
-    </ion-item>
+    <!-- Tipo de tarea -->
+    <div class="form-card">
+      <div class="card-header">
+        <ion-icon name="repeat-outline"></ion-icon>
+        <h2 class="card-title">Tipo de Tarea</h2>
+      </div>
+      <ion-segment formControlName="recurrencia" class="form-segment">
+        <ion-segment-button value="unica">
+          <ion-label>Única</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="diaria">
+          <ion-label>Diaria</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
 
-    <ion-item [disabled]="tareaForm.get('recurrencia')?.value === 'diaria'">
-      <ion-label>Fecha de Vencimiento</ion-label>
-      <ion-input type="date" formControlName="fechaVencimiento" [min]="minDate"></ion-input>
-      <ion-button fill="clear" (click)="limpiarFechaVencimiento()" slot="end" aria-label="Limpiar fecha">
-        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+    <!-- Subtareas -->
+    <div class="form-card">
+      <div class="card-header">
+        <ion-icon name="list-outline"></ion-icon>
+        <h2 class="card-title">Subtareas</h2>
+      </div>
+      <div formArrayName="subtareas">
+        <ion-item class="form-input subtask-item" *ngFor="let subtask of subtareas.controls; let i = index" [formGroupName]="i">
+          <ion-input labelPlacement="floating" [label]="'Subtarea ' + (i + 1)" formControlName="titulo" placeholder="Describe la subtarea"></ion-input>
+          <ion-button (click)="removeSubtask(i)" fill="clear" color="danger" slot="end">
+            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </div>
+      <ion-button (click)="addSubtask()" expand="block" fill="clear" class="add-button">
+        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+        Añadir Subtarea
       </ion-button>
-    </ion-item>
+    </div>
 
-    <ion-item>
-      <ion-label>Etiquetas</ion-label>
-      <ion-select formControlName="etiquetas" [multiple]="true" placeholder="Seleccionar" [compareWith]="compareWith">
-        <ion-select-option *ngFor="let etiqueta of etiquetas$ | async" [value]="{id: etiqueta.id, nombre: etiqueta.nombre, color: etiqueta.color}">
-          {{ etiqueta.nombre }}
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
+    <!-- Etiquetas -->
+    <div class="form-card">
+      <div class="card-header">
+        <ion-icon name="pricetags-outline"></ion-icon>
+        <h2 class="card-title">Etiquetas</h2>
+      </div>
+      <ion-item class="form-input">
+        <ion-select formControlName="etiquetas" [multiple]="true" placeholder="Seleccionar etiquetas" [compareWith]="compareWith">
+          <ion-select-option *ngFor="let etiqueta of etiquetas$ | async" [value]="{id: etiqueta.id, nombre: etiqueta.nombre, color: etiqueta.color}">
+            {{ etiqueta.nombre }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </div>
 
-    <ion-button class="ion-margin-top" type="submit" expand="block" [disabled]="tareaForm.invalid">
+    <ion-button class="submit-button" type="submit" expand="block" [disabled]="tareaForm.invalid">
       {{ botonGuardarTexto }}
     </ion-button>
 
   </form>
+  <pre>{{ tareaForm.status }} - {{ tareaForm.errors | json }}</pre>
+</ion-content>

@@ -15,4 +15,5 @@ export interface Habito {
   mejorRacha?: number;
   metaId?: string | null;
   metaRacha?: number;
+  diasSemana?: number[];
 }

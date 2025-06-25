@@ -83,7 +83,7 @@
           <ion-label>No hay tareas asociadas.</ion-label>
         </ion-item>
       </ion-list>
-      <ion-button expand="block" color="primary" fill="outline" (click)="abrirModalTarea()">
+      <ion-button expand="block" color="primary" fill="outline" (click)="onIntentoAsociar('tarea')">
         <ion-icon slot="start" name="add-circle-outline"></ion-icon>
         Asociar o crear tarea
       </ion-button>
@@ -114,7 +114,7 @@
           <ion-label>No hay hábitos asociados.</ion-label>
         </ion-item>
       </ion-list>
-      <ion-button expand="block" color="secondary" fill="outline" (click)="abrirModalHabito()">
+      <ion-button expand="block" color="secondary" fill="outline" (click)="onIntentoAsociar('habito')">
         <ion-icon slot="start" name="add-circle-outline"></ion-icon>
         Asociar o crear hábito
       </ion-button>

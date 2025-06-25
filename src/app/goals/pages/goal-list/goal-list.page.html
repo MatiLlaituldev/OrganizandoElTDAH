@@ -1,5 +1,8 @@
 <ion-header [translucent]="true">
   <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
     <ion-title>Mis Metas</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="abrirModalMeta()">
@@ -9,47 +12,68 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="meta-list-content">
+<ion-content [fullscreen]="true" class="goal-list-content">
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div *ngIf="isLoading" class="loading-container">
+  <div *ngIf="isLoading" class="state-container">
     <ion-spinner name="crescent"></ion-spinner>
     <p>Cargando metas...</p>
   </div>
-
-  <div *ngIf="!isLoading && !(metas$ | async)?.length" class="empty-state-metas">
+  <div *ngIf="!isLoading && !(metas$ | async)?.length" class="state-container empty-state">
     <ion-icon name="flag-outline" class="empty-icon"></ion-icon>
-    <p>¡Aún no tienes metas! Crea tu primera meta.</p>
-    <ion-button fill="outline" (click)="abrirModalMeta()" class="add-first-meta-button">
+    <p>¡Aún no tienes metas! Crea tu primera meta para empezar a organizar tus sueños.</p>
+    <ion-button fill="outline" (click)="abrirModalMeta()" class="add-first-button">
       <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-      Crear meta
+      Crear mi primera meta
     </ion-button>
   </div>
 
-  <!-- Progreso en tiempo real de cada meta -->
-  <ng-container *ngIf="tareas$ | async as tareas">
-    <ng-container *ngIf="habitos$ | async as habitos">
-      <ion-list *ngIf="metas$ | async as metas">
-        <ion-item *ngFor="let meta of metas">
-          <ion-avatar slot="start" *ngIf="meta.color">
-            <div [style.background]="meta.color" class="meta-avatar"></div>
-          </ion-avatar>
-          <ion-label>
-            <h2>{{ meta.titulo }}</h2>
-            <p>{{ meta.descripcion }}</p>
-            <!-- Progreso de la meta -->
-            <ion-progress-bar [value]="getProgresoMeta(meta, tareas, habitos)" color="success"></ion-progress-bar>
-            <p class="meta-progress-text">
-              {{ getResumenMeta(meta, tareas, habitos) }}
-            </p>
-          </ion-label>
-          <ion-button fill="clear" slot="end" (click)="verDetalleMeta(meta)">
-            <ion-icon name="chevron-forward-outline"></ion-icon>
-          </ion-button>
-        </ion-item>
-      </ion-list>
+  <div class="goals-container" *ngIf="metas$ | async as metas">
+    <ng-container *ngIf="tareas$ | async as tareas">
+      <ng-container *ngIf="habitos$ | async as habitos">
+        <ion-item-sliding *ngFor="let meta of metas" class="goal-item-sliding">
+          <ion-item-options side="end">
+            <ion-item-option color="light" (click)="editarMeta(meta)">
+              <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+            </ion-item-option>
+            <ion-item-option color="danger" (click)="eliminarMeta(meta)">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
+
+          <ion-item lines="none" class="goal-panel-wrapper" detail="false" (click)="verDetalleMeta(meta)">
+            <div class="goal-panel">
+              <div class="panel-header">
+                <h2 class="panel-title">{{ meta.titulo }}</h2>
+                <div class="progress-ring"
+                     [style.--progress]="getProgresoMeta(meta, tareas, habitos)"
+                     [style.--goal-color]="meta.color || 'var(--theme-accent-alt)'">
+                  <span class="progress-ring-text">{{ getProgresoMeta(meta, tareas, habitos) | number:'1.0-0' }}%</span>
+                </div>
+              </div>
+
+              <div class="panel-content">
+                <p class="panel-description" *ngIf="meta.descripcion">{{ meta.descripcion }}</p>
+
+                <div class="card-stats">
+                  <div class="stat-item">
+                    <ion-icon name="checkbox-outline"></ion-icon>
+                    <span>{{ getTaskCountForMeta(meta, tareas) }} Tareas</span>
+                  </div>
+                  <div class="stat-item">
+                    <ion-icon name="flame-outline"></ion-icon>
+                    <span>{{ getHabitCountForMeta(meta, habitos) }} Hábitos</span>
+                  </div>
+                </div>
+
+                <div class="summary-text">{{ getResumenMeta(meta, tareas, habitos) }}</div>
+              </div>
+            </div>
+          </ion-item>
+        </ion-item-sliding>
+      </ng-container>
     </ng-container>
-  </ng-container>
+  </div>
 </ion-content>

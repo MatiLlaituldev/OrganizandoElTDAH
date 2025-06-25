@@ -9,7 +9,7 @@ import { Observable, of } from 'rxjs';
 import { switchMap, map, take } from 'rxjs/operators';
 import { Habito } from 'src/app/models/habito.model';
 import { HabitoService } from 'src/app/services/habito.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
 import { TaskFormComponent } from 'src/app/components/shared-components/task-form/task-form.component';
 import { HabitoFormComponent } from 'src/app/components/shared-components/habito-form/habito-form.component';
 
@@ -32,7 +32,8 @@ export class GoalDetailPage implements OnInit {
     private authService: AuthService,
     private taskService: TaskService,
     private habitoService: HabitoService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private toastCtrl: ToastController
   ) {}
 
   ngOnInit() {
@@ -58,7 +59,8 @@ export class GoalDetailPage implements OnInit {
       component: TaskFormComponent,
       componentProps: {
         metaId: this.metaId,
-        tarea: tarea ? { ...tarea } : undefined
+        tarea: tarea ? { ...tarea } : undefined,
+        metaSeleccionada: true
       }
     });
     await modal.present();
@@ -69,7 +71,8 @@ export class GoalDetailPage implements OnInit {
       component: HabitoFormComponent,
       componentProps: {
         metaId: this.metaId,
-        habito: habito ? { ...habito } : undefined
+        habito: habito ? { ...habito } : undefined,
+        metaSeleccionada: true
       }
     });
     await modal.present();
@@ -79,6 +82,7 @@ export class GoalDetailPage implements OnInit {
     const user = await this.authService.user$.pipe(take(1)).toPromise();
     if (user && tarea.id) {
       await this.taskService.eliminarTask(user.uid, tarea.id);
+      this.presentToast('Tarea eliminada correctamente.', 'success');
     }
   }
 
@@ -86,22 +90,47 @@ export class GoalDetailPage implements OnInit {
     const user = await this.authService.user$.pipe(take(1)).toPromise();
     if (user && habito.id) {
       await this.habitoService.eliminarHabito(user.uid, habito.id);
+      this.presentToast('Hábito eliminado correctamente.', 'success');
     }
   }
+
   getProgresoHabito(habito: Habito): number {
-  const meta = habito.metaRacha ?? 21; // Usa la meta personalizada o 21 por defecto
-  if (!habito.rachaActual) return 0;
-  return Math.min(habito.rachaActual / meta, 1);
-}
-getProgresoMeta(tareas: Tarea[], habitos: Habito[]): number {
-  const totalTareas = tareas.length;
-  const tareasCompletadas = tareas.filter(t => t.completada).length;
-  const totalHabitos = habitos.length;
-  const habitosCompletados = habitos.filter(h => this.getProgresoHabito(h) >= 1).length;
+    const meta = habito.metaRacha ?? 21; // Usa la meta personalizada o 21 por defecto
+    if (!habito.rachaActual) return 0;
+    return Math.min(habito.rachaActual / meta, 1);
+  }
 
-  const total = totalTareas + totalHabitos;
-  const completados = tareasCompletadas + habitosCompletados;
+  getProgresoMeta(tareas: Tarea[], habitos: Habito[]): number {
+    const totalTareas = tareas.length;
+    const tareasCompletadas = tareas.filter(t => t.completada).length;
+    const totalHabitos = habitos.length;
+    const habitosCompletados = habitos.filter(h => this.getProgresoHabito(h) >= 1).length;
 
-  return total > 0 ? completados / total : 0;
-}
+    const total = totalTareas + totalHabitos;
+    const completados = tareasCompletadas + habitosCompletados;
+
+    return total > 0 ? completados / total : 0;
+  }
+
+  onIntentoAsociar(tipo: 'tarea' | 'habito') {
+    if (!this.metaId) {
+      this.presentToast('Primero debes guardar la meta antes de poder asociar hábitos o tareas.', 'warning');
+      return;
+    }
+    if (tipo === 'tarea') {
+      this.abrirModalTarea();
+    } else {
+      this.abrirModalHabito();
+    }
+  }
+
+  async presentToast(message: string, color: 'success' | 'warning' | 'danger' = 'success') {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'bottom'
+    });
+    toast.present();
+  }
 }

@@ -10,6 +10,11 @@ import { Tarea } from '../../../models/tarea.model';
 import { Habito } from '../../../models/habito.model';
 import { Timestamp } from 'firebase/firestore';
 import { User } from '@firebase/auth';
+import { Router } from '@angular/router';
+
+// Importa los formularios de tarea y hábito si los usas como modales
+import { TaskFormComponent } from '../task-form/task-form.component';
+import { HabitoFormComponent } from '../habito-form/habito-form.component';
 
 @Component({
   selector: 'app-goal-form',
@@ -37,7 +42,8 @@ export class GoalFormComponent implements OnInit {
     private goalService: GoalService,
     private taskService: TaskService,
     private habitoService: HabitoService,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private router: Router
   ) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -49,6 +55,10 @@ export class GoalFormComponent implements OnInit {
   }
   get botonGuardarTexto(): string {
     return this.esEdicion ? 'Actualizar' : 'Guardar';
+  }
+
+  get metaId(): string | undefined {
+    return this.meta?.id;
   }
 
   async ngOnInit() {
@@ -120,10 +130,12 @@ export class GoalFormComponent implements OnInit {
         await this.goalService.actualizarMeta(userId, this.meta.id, datosActualizados);
         this.presentToast('Meta actualizada exitosamente.', 'success');
         this.cerrarModal({ actualizada: true, id: this.meta.id, meta: { ...this.meta, ...datosActualizados } });
+        this.router.navigate(['/goal-detail', this.meta.id]);
       } else {
         const docRef = await this.goalService.agregarMeta(userId, metaDataParaGuardar as Omit<Meta, 'id' | 'userId' | 'fechaCreacion' | 'estado'>);
         this.presentToast('Meta creada exitosamente.', 'success');
         this.cerrarModal({ creada: true, id: docRef.id, meta: { ...metaDataParaGuardar, id: docRef.id } });
+        this.router.navigate(['/goal-detail', docRef.id]);
       }
     } catch (error) {
       console.error('Error al guardar la meta:', error);
@@ -134,31 +146,79 @@ export class GoalFormComponent implements OnInit {
   }
 
   // Métodos para tareas
-  crearTarea() {
-    // Aquí deberías abrir un modal o formulario para crear una tarea asociada a esta meta
-    this.presentToast('Funcionalidad para crear tarea no implementada.', 'warning');
+  async crearTareaParaMeta() {
+    if (!this.metaId) {
+      this.presentToast('Primero debes guardar la meta.', 'warning');
+      return;
+    }
+    const modal = await this.modalCtrl.create({
+      component: TaskFormComponent,
+      componentProps: {
+        metaId: this.metaId,
+        metaSeleccionada: true
+      }
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    if (data?.creada) {
+      const user = await this.authService.getCurrentUser();
+      if (user?.uid) {
+        this.taskService.getTasks(user.uid).subscribe(tareas => {
+          this.tareas = (tareas || []).filter(t => t.metaId === this.metaId);
+        });
+      }
+    }
   }
-  editarTarea(tarea: Tarea) {
-    // Aquí deberías abrir un modal o formulario para editar la tarea
+
+  async editarTarea(tarea: Tarea) {
     this.presentToast('Funcionalidad para editar tarea no implementada.', 'warning');
   }
-  eliminarTarea(tarea: Tarea) {
-    // Aquí deberías llamar al servicio para eliminar la tarea
+  async eliminarTarea(tarea: Tarea) {
     this.presentToast('Funcionalidad para eliminar tarea no implementada.', 'warning');
   }
 
   // Métodos para hábitos
-  crearHabito() {
-    // Aquí deberías abrir un modal o formulario para crear un hábito asociado a esta meta
-    this.presentToast('Funcionalidad para crear hábito no implementada.', 'warning');
+  async crearHabitoParaMeta() {
+    if (!this.metaId) {
+      this.presentToast('Primero debes guardar la meta.', 'warning');
+      return;
+    }
+    const modal = await this.modalCtrl.create({
+      component: HabitoFormComponent,
+      componentProps: {
+        metaId: this.metaId,
+        metaSeleccionada: true
+      }
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    if (data?.creada) {
+      const user = await this.authService.getCurrentUser();
+      if (user?.uid) {
+        this.habitoService.getHabitos(user.uid).subscribe(habitos => {
+          this.habitos = (habitos || []).filter(h => h.metaId === this.metaId);
+        });
+      }
+    }
   }
-  editarHabito(habito: Habito) {
-    // Aquí deberías abrir un modal o formulario para editar el hábito
+
+  async editarHabito(habito: Habito) {
     this.presentToast('Funcionalidad para editar hábito no implementada.', 'warning');
   }
-  eliminarHabito(habito: Habito) {
-    // Aquí deberías llamar al servicio para eliminar el hábito
+  async eliminarHabito(habito: Habito) {
     this.presentToast('Funcionalidad para eliminar hábito no implementada.', 'warning');
+  }
+
+  onIntentoAsociar(tipo: 'tarea' | 'habito') {
+    if (!this.metaId) {
+      this.presentToast('Primero debes guardar la meta antes de poder asociar hábitos o tareas.', 'warning');
+      return;
+    }
+    if (tipo === 'tarea') {
+      this.crearTareaParaMeta();
+    } else {
+      this.crearHabitoParaMeta();
+    }
   }
 
   async presentToast(message: string, color: 'success' | 'warning' | 'danger' = 'success') {
