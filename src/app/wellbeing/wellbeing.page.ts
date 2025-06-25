@@ -5,8 +5,9 @@ import { EstadoAnimoService } from '../services/estado-animo.service';
 import { EstadoAnimoEnergia } from '../models/estado-animo-energia.model';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { User } from '@firebase/auth';
-import { Subscription, firstValueFrom, Observable, of } from 'rxjs'; // Agregado Observable y of
-import { catchError, map } from 'rxjs/operators'; // Agregado map
+import { Subscription, firstValueFrom, Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { NotificationService } from '../services/notification.service';
 
 interface OpcionSeleccion {
   valor: number;
@@ -28,8 +29,8 @@ export class WellbeingPage implements OnInit, OnDestroy {
   private authSubscription: Subscription = new Subscription();
   private registroActualId: string | null | undefined = null;
 
-  vistaActual: string = 'registrar'; // Para controlar el segmento: 'registrar' o 'historial'
-  historialAnimo$: Observable<EstadoAnimoEnergia[]> = of([]); // Observable para el historial
+  vistaActual: string = 'registrar';
+  historialAnimo$: Observable<EstadoAnimoEnergia[]> = of([]);
 
   opcionesAnimo: OpcionSeleccion[] = [
     { valor: 5, texto: 'Feliz', emoji: '😊', color: 'success' },
@@ -47,30 +48,35 @@ export class WellbeingPage implements OnInit, OnDestroy {
 
   private loadingElement: HTMLIonLoadingElement | null = null;
 
+  // --- Notificaciones de bienestar ---
+  recordatorioActivo = false;
+  horaRecordatorio: string | null = '';
+  minHora = '2025-01-01T06:00';
+  maxHora = '2025-01-01T23:00';
+  notificationId?: number | null;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private estadoAnimoService: EstadoAnimoService,
     private toastCtrl: ToastController,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private notificationService: NotificationService
   ) {
     this.initForm();
   }
 
   ngOnInit() {
-    console.log('WellbeingPage ngOnInit.');
     this.authSubscription.add(
       this.authService.user$.subscribe(user => {
         this.currentUser = user;
         if (user) {
-          console.log('Usuario autenticado:', this.currentUser?.uid);
           if (this.vistaActual === 'registrar') {
             this.cargarRegistroDelDia();
           } else {
             this.cargarHistorialAnimo();
           }
         } else {
-          console.log('No hay usuario, reseteando formulario e historial.');
           this.initForm();
           this.registroActualId = null;
           this.historialAnimo$ = of([]);
@@ -80,7 +86,6 @@ export class WellbeingPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('WellbeingPage ngOnDestroy.');
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
     }
@@ -92,11 +97,9 @@ export class WellbeingPage implements OnInit, OnDestroy {
 
   segmentChanged(event: any) {
     this.vistaActual = event.detail.value;
-    console.log('Segmento cambiado a:', this.vistaActual);
     if (this.vistaActual === 'historial') {
       this.cargarHistorialAnimo();
     } else if (this.vistaActual === 'registrar' && this.currentUser) {
-      // Si volvemos a la pestaña de registrar, recargamos el registro del día
       this.cargarRegistroDelDia();
     }
   }
@@ -108,6 +111,11 @@ export class WellbeingPage implements OnInit, OnDestroy {
       notas: [data?.notas ?? '']
     });
     this.registroActualId = data?.id;
+
+    // Si el registro existe pero no tiene los campos, inicialízalos
+    this.recordatorioActivo = data?.recordatorioActivo ?? false;
+    this.horaRecordatorio = data?.horaRecordatorio ?? '';
+    this.notificationId = data?.notificationId ?? null;
   }
 
   async cargarRegistroDelDia() {
@@ -120,7 +128,6 @@ export class WellbeingPage implements OnInit, OnDestroy {
       const registro = await firstValueFrom(
         this.estadoAnimoService.getRegistroDelDia(this.currentUser.uid, new Date()).pipe(
           catchError(err => {
-            console.error('Error en getRegistroDelDia:', err);
             this.presentToast('Error al obtener el registro de hoy.', 'danger');
             return of(null);
           })
@@ -140,28 +147,22 @@ export class WellbeingPage implements OnInit, OnDestroy {
       this.historialAnimo$ = of([]);
       return;
     }
-    console.log('Cargando historial de ánimo...');
-    // Cargar, por ejemplo, los últimos 30 días
     const hoy = new Date();
     const hace30Dias = new Date();
     hace30Dias.setDate(hoy.getDate() - 30);
 
-    // Mostrar loading mientras se carga el historial
-    // Podríamos usar un loading específico para la sección de historial si se vuelve lento
     this.historialAnimo$ = this.estadoAnimoService.getRegistrosPorRango(
       this.currentUser.uid,
       hace30Dias,
       hoy
     ).pipe(
-      map(registros => registros.sort((a, b) => b.fecha.localeCompare(a.fecha))), // Más reciente primero
+      map(registros => registros.sort((a, b) => b.fecha.localeCompare(a.fecha))),
       catchError(err => {
-        console.error('Error cargando historial:', err);
         this.presentToast('Error al cargar el historial.', 'danger');
         return of([]);
       })
     );
   }
-
 
   async guardarRegistro() {
     if (!this.currentUser?.uid) {
@@ -176,19 +177,56 @@ export class WellbeingPage implements OnInit, OnDestroy {
 
     await this.presentLoading(this.registroActualId ? 'Actualizando...' : 'Guardando...');
     const formValues = this.wellbeingForm.value;
+    // Siempre incluye los campos de notificación
     const datosParaGuardar: Partial<EstadoAnimoEnergia> = {
       estadoAnimo: formValues.estadoAnimo,
       nivelEnergia: formValues.nivelEnergia,
-      notas: formValues.notas
+      notas: formValues.notas,
+      recordatorioActivo: this.recordatorioActivo,
+      horaRecordatorio: this.horaRecordatorio ? this.horaRecordatorio : null,
+      notificationId: this.notificationId ?? null
     };
+
+    // --- Lógica de notificaciones de bienestar (similar a hábitos) ---
+    if (this.recordatorioActivo && this.horaRecordatorio) {
+      // Extraer solo la hora en formato HH:mm si viene en formato ISO
+      let hora = this.horaRecordatorio;
+      if (typeof hora === 'string' && hora.includes('T')) {
+        hora = hora.split('T')[1]?.substring(0,5);
+      }
+      // Cancela notificación previa si existe
+      if (this.notificationId) {
+        await this.notificationService.cancelNotification([this.notificationId]);
+      }
+      // LOG para depuración
+      console.log('Programando notificación bienestar para:', hora);
+      // Programa nueva notificación
+      this.notificationId = await this.notificationService.programarNotificacionBienestar(
+        this.currentUser.uid,
+        hora
+      );
+      console.log('Notificación programada con ID:', this.notificationId);
+      datosParaGuardar.notificationId = this.notificationId;
+      datosParaGuardar.recordatorioActivo = true;
+      datosParaGuardar.horaRecordatorio = hora;
+    } else if (!this.recordatorioActivo && this.notificationId) {
+      await this.notificationService.cancelNotification([this.notificationId]);
+      this.notificationId = null;
+      datosParaGuardar.notificationId = null;
+      datosParaGuardar.recordatorioActivo = false;
+      datosParaGuardar.horaRecordatorio = null;
+    } else {
+      datosParaGuardar.recordatorioActivo = false;
+      datosParaGuardar.horaRecordatorio = null;
+      datosParaGuardar.notificationId = null;
+    }
 
     try {
       await this.estadoAnimoService.guardarRegistroDelDia(this.currentUser.uid, datosParaGuardar);
       const mensajeExito = this.registroActualId ? 'Registro actualizado.' : '¡Registro guardado!';
-      await this.cargarRegistroDelDia(); // Recarga para actualizar ID y estado del form
+      await this.cargarRegistroDelDia();
       this.presentToast(mensajeExito, 'success');
     } catch (error) {
-      console.error('Error al guardar el registro:', error);
       this.presentToast('Error al guardar tu registro.', 'danger');
     } finally {
       await this.dismissLoading();
@@ -211,7 +249,6 @@ export class WellbeingPage implements OnInit, OnDestroy {
   getEmojiEnergia(valor: number): string {
     return this.opcionesEnergia.find(op => op.valor === valor)?.emoji || '';
   }
-
 
   async presentToast(message: string, color: string = 'dark', duration: number = 2500) {
     const toast = await this.toastCtrl.create({
@@ -247,6 +284,4 @@ export class WellbeingPage implements OnInit, OnDestroy {
         await this.loadingElement.dismiss();
       } catch (e) { /* Silenciar error */ }
       finally { this.loadingElement = null; }
-    }
-  }
-}
+    }}}

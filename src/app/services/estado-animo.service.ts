@@ -10,9 +10,9 @@ import {
   DocumentReference,
   collectionData,
   doc,
-  updateDoc,
   getDocs,
-  limit
+  limit,
+  setDoc
 } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 import { map, take } from 'rxjs/operators';
@@ -46,7 +46,7 @@ export class EstadoAnimoService {
     return null;
   }
 
-  async guardarRegistroDelDia(userId: string, registroEntrada: Partial<EstadoAnimoEnergia>): Promise<void | DocumentReference> {
+  async guardarRegistroDelDia(userId: string, registroEntrada: Partial<EstadoAnimoEnergia>): Promise<void> {
     if (!userId) {
       console.error('[EstadoAnimoService] guardarRegistroDelDia: User ID es requerido.');
       return Promise.reject(new Error('User ID es requerido.'));
@@ -56,25 +56,35 @@ export class EstadoAnimoService {
     const fechaHoyStr = this.getFechaString(fechaHoy);
 
     // Objeto base con los datos que SIEMPRE queremos guardar/actualizar
-    const datosBase = {
-      fechaRegistro: Timestamp.now(), // Momento de la acción
-      fecha: fechaHoyStr,             // El día que se registra
-      estadoAnimo: registroEntrada.estadoAnimo !== undefined ? registroEntrada.estadoAnimo : 3, // Valor por defecto
-      nivelEnergia: registroEntrada.nivelEnergia !== undefined ? registroEntrada.nivelEnergia : 2, // Valor por defecto
-      notas: registroEntrada.notas || ''
+    const datosBase: Partial<EstadoAnimoEnergia> = {
+      fechaRegistro: Timestamp.now(),
+      fecha: fechaHoyStr,
+      estadoAnimo: registroEntrada.estadoAnimo !== undefined ? registroEntrada.estadoAnimo : 3,
+      nivelEnergia: registroEntrada.nivelEnergia !== undefined ? registroEntrada.nivelEnergia : 2,
+      notas: registroEntrada.notas || '',
+      // Campos de notificación, siempre presentes aunque sean false/null
+      recordatorioActivo: registroEntrada.recordatorioActivo ?? false,
+      horaRecordatorio: registroEntrada.horaRecordatorio ?? null,
+      notificationId: registroEntrada.notificationId // <-- acepta undefined o number o null según tu modelo
     };
 
-    const refExistente = await this.findRegistroPorFecha(userId, fechaHoyStr);
+    const registrosCollectionRef = collection(this.firestore, `usuarios/${userId}/estadosAnimoEnergia`);
+    const q = query(
+      registrosCollectionRef,
+      where('fecha', '==', fechaHoyStr),
+      limit(1)
+    );
+    const querySnapshot = await getDocs(q);
 
-    if (refExistente) {
-      console.log(`[EstadoAnimoService] Actualizando registro existente para userId: ${userId}, fecha: ${fechaHoyStr}`, datosBase);
-      // Para updateDoc, el objeto no debe tener 'id'. 'datosBase' ya no lo tiene.
-      return updateDoc(refExistente, datosBase);
+    if (!querySnapshot.empty) {
+      // Si existe, usa set con merge para actualizar/agregar campos nuevos
+      const docRef = querySnapshot.docs[0].ref;
+      // @ts-ignore
+      return setDoc(docRef, datosBase, { merge: true });
     } else {
-      console.log(`[EstadoAnimoService] Agregando nuevo registro para userId: ${userId}, fecha: ${fechaHoyStr}`, datosBase);
-      const registrosCollectionRef = collection(this.firestore, `usuarios/${userId}/estadosAnimoEnergia`);
-      // Para addDoc, el objeto no debe tener 'id'. 'datosBase' ya no lo tiene.
-      return addDoc(registrosCollectionRef, datosBase);
+      // Si no existe, crea el documento con todos los campos
+      await addDoc(registrosCollectionRef, datosBase);
+      return;
     }
   }
 
@@ -84,8 +94,6 @@ export class EstadoAnimoService {
       return of(null);
     }
     const fechaStr = this.getFechaString(fecha);
-    console.log(`[EstadoAnimoService] Obteniendo registro para userId: ${userId}, fecha: ${fechaStr}`);
-
     const registrosCollectionRef = collection(this.firestore, `usuarios/${userId}/estadosAnimoEnergia`);
     const q = query(
       registrosCollectionRef,
@@ -107,7 +115,6 @@ export class EstadoAnimoService {
 
     const fechaInicioStr = this.getFechaString(fechaInicio);
     const fechaFinStr = this.getFechaString(fechaFin);
-    console.log(`[EstadoAnimoService] Obteniendo registros para userId: ${userId} entre ${fechaInicioStr} y ${fechaFinStr}`);
 
     const registrosCollectionRef = collection(this.firestore, `usuarios/${userId}/estadosAnimoEnergia`);
     const q = query(

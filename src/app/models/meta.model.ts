@@ -12,4 +12,5 @@ export interface Meta {
   fechaAlcanzada?: Timestamp | null;
   estado: EstadoMeta;
   color?: string;
+   fechaVencimiento?: string | Date | Timestamp;
 }

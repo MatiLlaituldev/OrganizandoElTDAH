@@ -93,7 +93,6 @@ export class TaskFormComponent implements OnInit {
 
   getLocalDateTimeString(): string {
     const now = new Date();
-    // yyyy-MM-ddTHH:mm (para input type="datetime-local")
     const pad = (n: number) => n.toString().padStart(2, '0');
     return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   }
@@ -124,15 +123,6 @@ export class TaskFormComponent implements OnInit {
 
   async cerrarModal(data?: any) {
     await this.modalCtrl.dismiss(data);
-  }
-
-  private toDateSafe(fecha: any): Date | null {
-    if (!fecha) return null;
-    if (fecha instanceof Date) return fecha;
-    if (typeof fecha.toDate === 'function') return fecha.toDate();
-    if (typeof fecha === 'string' || typeof fecha === 'number')
-      return new Date(fecha);
-    return null;
   }
 
   async guardarTarea() {
@@ -181,74 +171,23 @@ export class TaskFormComponent implements OnInit {
             this.tarea.notificationIdVencimiento,
           ]);
         }
+
         // Programa nueva notificación de recordatorio personalizada
-        let notificationId: number | undefined = undefined;
-        const fechaRecordatorio = this.toDateSafe(tareaData.fechaRecordatorio);
-        if (fechaRecordatorio) {
-          console.log(
-            'Programando notificación para:',
-            fechaRecordatorio,
-            'Hora local:',
-            fechaRecordatorio.toLocaleString()
-          );
-          notificationId = Math.floor(Math.random() * 1000000); // ID válido para Java int
-          await this.notificationService.scheduleNotification({
-            notifications: [
-              {
-                id: notificationId,
-                title: 'Recordatorio de tarea',
-                body: `Recuerda: ${tareaData.titulo}`,
-                schedule: { at: fechaRecordatorio },
-                sound: undefined,
-                smallIcon: 'ic_stat_icon_config_sample',
-                actionTypeId: '',
-                extra: { tipo: 'tarea', id: this.tarea.id },
-              },
-            ],
-          });
-          tareaData.notificationId = notificationId;
-        } else {
-          tareaData.notificationId = undefined;
-        }
+        tareaData.notificationId = await this.notificationService.programarNotificacionTarea(
+          { ...this.tarea, ...tareaData } as Tarea,
+          this.tarea.id
+        );
+
         // Notificación un día antes de la fecha de vencimiento
-        let notificationIdVencimiento: number | undefined = undefined;
-        const fechaVencimiento = this.toDateSafe(tareaData.fechaVencimiento);
-        if (fechaVencimiento) {
-          const fechaUnDiaAntes = new Date(
-            fechaVencimiento.getTime() - 24 * 60 * 60 * 1000
-          );
-          console.log(
-            'Programando notificación de vencimiento para:',
-            fechaUnDiaAntes,
-            'Hora local:',
-            fechaUnDiaAntes.toLocaleString()
-          );
-          notificationIdVencimiento = Math.floor(Math.random() * 1000000); // ID válido para Java int
-          await this.notificationService.scheduleNotification({
-            notifications: [
-              {
-                id: notificationIdVencimiento,
-                title: 'Tarea por vencer',
-                body: `Tu tarea "${tareaData.titulo}" vence mañana.`,
-                schedule: { at: fechaUnDiaAntes },
-                sound: undefined,
-                smallIcon: 'ic_stat_icon_config_sample',
-                actionTypeId: '',
-                extra: { tipo: 'tarea', id: this.tarea.id },
-              },
-            ],
-          });
-          tareaData.notificationIdVencimiento = notificationIdVencimiento;
-        } else {
-          tareaData.notificationIdVencimiento = undefined;
-        }
+        tareaData.notificationIdVencimiento = await this.notificationService.programarNotificacionVencimientoTarea(
+          { ...this.tarea, ...tareaData } as Tarea,
+          this.tarea.id
+        );
+
         // Elimina campos undefined antes de guardar
-        if (tareaData.notificationId === undefined) {
-          delete tareaData.notificationId;
-        }
-        if (tareaData.notificationIdVencimiento === undefined) {
-          delete tareaData.notificationIdVencimiento;
-        }
+        if (tareaData.notificationId === undefined) delete tareaData.notificationId;
+        if (tareaData.notificationIdVencimiento === undefined) delete tareaData.notificationIdVencimiento;
+
         await this.taskService.actualizarTask(userId, this.tarea.id, tareaData);
         this.presentToast('Tarea actualizada exitosamente.', 'success');
         this.cerrarModal({
@@ -258,78 +197,21 @@ export class TaskFormComponent implements OnInit {
         });
       } else {
         // Nueva tarea: programa notificación de recordatorio personalizada
-        let notificationId: number | undefined = undefined;
-        const fechaRecordatorio = this.toDateSafe(tareaData.fechaRecordatorio);
-        if (fechaRecordatorio) {
-          console.log(
-            'Programando notificación para:',
-            fechaRecordatorio,
-            'Hora local:',
-            fechaRecordatorio.toLocaleString()
-          );
-          notificationId = Math.floor(Math.random() * 1000000); // ID válido para Java int
-          await this.notificationService.scheduleNotification({
-            notifications: [
-              {
-                id: notificationId,
-                title: `📌 Recordatorio: ${tareaData.titulo}`,
-                body:
-                  tareaData.descripcion &&
-                  tareaData.descripcion.trim().length > 0
-                    ? `Descripción: ${tareaData.descripcion}`
-                    : `¡No olvides realizar esta tarea!`,
-                schedule: { at: fechaRecordatorio },
-                sound: undefined,
-                smallIcon: 'ic_stat_icon_config_sample',
-                actionTypeId: '',
-                extra: { tipo: 'tarea' },
-              },
-            ],
-          });
-          tareaData.notificationId = notificationId;
-        }
-        // Notificación un día antes de la fecha de vencimiento
-        let notificationIdVencimiento: number | undefined = undefined;
-        const fechaVencimiento = this.toDateSafe(tareaData.fechaVencimiento);
-        if (fechaVencimiento) {
-          const fechaUnDiaAntes = new Date(
-            fechaVencimiento.getTime() - 24 * 60 * 60 * 1000
-          );
-          console.log(
-            'Programando notificación de vencimiento para:',
-            fechaUnDiaAntes,
-            'Hora local:',
-            fechaUnDiaAntes.toLocaleString()
-          );
-          notificationIdVencimiento = Math.floor(Math.random() * 1000000); // ID válido para Java int
-          await this.notificationService.scheduleNotification({
-            notifications: [
-              {
-                id: notificationIdVencimiento,
-                title: '⏰ ¡Tarea por vencer!',
-                body:
-                  tareaData.descripcion &&
-                  tareaData.descripcion.trim().length > 0
-                    ? `Mañana vence: ${tareaData.titulo}\nDescripción: ${tareaData.descripcion}`
-                    : `Mañana vence: ${tareaData.titulo}. ¡No olvides completarla!`,
-                schedule: { at: fechaUnDiaAntes },
-                sound: undefined,
-                smallIcon: 'ic_stat_icon_config_sample',
-                actionTypeId: '',
-                extra: { tipo: 'tarea', id: this.tarea?.id },
-              },
-            ],
-          });
-          tareaData.notificationIdVencimiento = notificationIdVencimiento;
-        }
-        // Elimina campos undefined antes de guardar
-        if (tareaData.notificationId === undefined) {
-          delete tareaData.notificationId;
-        }
-        if (tareaData.notificationIdVencimiento === undefined) {
-          delete tareaData.notificationIdVencimiento;
-        }
         const docRef = await this.taskService.agregarTask(userId, tareaData);
+
+        tareaData.notificationId = await this.notificationService.programarNotificacionTarea(
+          { ...tareaData, id: docRef.id } as Tarea,
+          docRef.id
+        );
+
+        tareaData.notificationIdVencimiento = await this.notificationService.programarNotificacionVencimientoTarea(
+          { ...tareaData, id: docRef.id } as Tarea,
+          docRef.id
+        );
+
+        if (tareaData.notificationId === undefined) delete tareaData.notificationId;
+        if (tareaData.notificationIdVencimiento === undefined) delete tareaData.notificationIdVencimiento;
+
         this.presentToast('Tarea creada exitosamente.', 'success');
         this.cerrarModal({
           creada: true,

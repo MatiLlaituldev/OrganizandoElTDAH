@@ -2,8 +2,12 @@ import { Timestamp } from 'firebase/firestore';
 export interface EstadoAnimoEnergia {
   id?: string;
   fechaRegistro: Timestamp;
-  fecha: string; // YYYY-MM-DD
-  estadoAnimo: number; // Guardamos el número de la escala
-  nivelEnergia: number; // Guardamos el número de la escala
+  fecha: string;
+  estadoAnimo: number;
+  nivelEnergia: number;
   notas?: string;
+  notificationId?: number| null; // <-- Para gestionar la notificación
+  recordatorioActivo?: boolean;
+  horaRecordatorio?: string | null;
+  // <-- Para gestionar la notificación
 }

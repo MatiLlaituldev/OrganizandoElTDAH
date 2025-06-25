@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { Habito } from 'src/app/models/habito.model';
 import { AuthService } from 'src/app/services/auth.service';
@@ -8,7 +8,8 @@ import { Timestamp } from 'firebase/firestore';
 import { Meta } from 'src/app/models/meta.model';
 import { GoalService } from 'src/app/services/goal.service';
 import { Observable } from 'rxjs';
-import { NotificationService } from 'src/app/services/notification.service'; // Asegúrate de tener este servicio
+import { NotificationService } from 'src/app/services/notification.service';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 @Component({
   selector: 'app-habito-form',
@@ -52,8 +53,20 @@ export class HabitoFormComponent implements OnInit {
     private authService: AuthService,
     private habitoService: HabitoService,
     private goalService: GoalService,
-    private notificationService: NotificationService // Inyecta tu servicio de notificaciones
+    private notificationService: NotificationService
   ) {}
+
+  private frecuenciaRequeridaSiRecordatorioActivo(): ValidatorFn {
+    return (control: AbstractControl) => {
+      const parent = control.parent;
+      if (!parent) return null;
+      const recordatoriosActivos = parent.get('recordatoriosActivos')?.value;
+      if (recordatoriosActivos && !control.value) {
+        return { required: true };
+      }
+      return null;
+    };
+  }
 
   ngOnInit() {
     this.esEdicion = !!this.habito && !!this.habito.id;
@@ -66,7 +79,7 @@ export class HabitoFormComponent implements OnInit {
     this.habitoForm = this.fb.group({
       titulo: ['', [Validators.required, Validators.minLength(3)]],
       descripcion: [''],
-      frecuenciaTipo: ['diaria', Validators.required],
+      frecuenciaTipo: ['', this.frecuenciaRequeridaSiRecordatorioActivo()],
       icono: [this.iconos[0]],
       color: [this.colores[0]],
       horaPreferida: [null],
@@ -74,37 +87,40 @@ export class HabitoFormComponent implements OnInit {
         { value: this.metaId || null, disabled: !!this.metaSeleccionada },
         this.metaSeleccionada ? [Validators.required] : []
       ],
-      metaRacha: [this.habito?.metaRacha ?? null]
+      metaRacha: [this.habito?.metaRacha ?? null],
+      recordatoriosActivos: [true]
     });
 
-    // Si es edición, carga los valores y los días seleccionados
     if (this.esEdicion && this.habito) {
       this.habitoForm.patchValue({
         titulo: this.habito.titulo,
         descripcion: this.habito.descripcion || '',
-        frecuenciaTipo: this.habito.frecuenciaTipo || 'diaria',
+        frecuenciaTipo: this.habito.frecuenciaTipo || '',
         icono: this.habito.icono || this.iconos[0],
         color: this.habito.color || this.colores[0],
         horaPreferida: this.habito.horaPreferida || null,
         metaId: this.habito.metaId || this.metaId || null,
-        metaRacha: this.habito.metaRacha ?? null
+        metaRacha: this.habito.metaRacha ?? null,
+        recordatoriosActivos: this.habito.recordatoriosActivos ?? true
       });
       if (this.metaSeleccionada) {
         this.habitoForm.get('metaId')?.disable();
       } else {
         this.habitoForm.get('metaId')?.enable();
       }
-      // Carga los días seleccionados si existen
       if (this.habito.diasSemana && Array.isArray(this.habito.diasSemana)) {
         this.diasSeleccionados = [...this.habito.diasSemana];
       }
     }
 
-    // Limpia los días seleccionados si cambia la frecuencia a diaria
     this.habitoForm.get('frecuenciaTipo')?.valueChanges.subscribe(val => {
       if (val === 'diaria') {
         this.diasSeleccionados = [];
       }
+    });
+
+    this.habitoForm.get('recordatoriosActivos')?.valueChanges.subscribe(() => {
+      this.habitoForm.get('frecuenciaTipo')?.updateValueAndValidity();
     });
   }
 
@@ -125,44 +141,23 @@ export class HabitoFormComponent implements OnInit {
     this.habitoForm.get('horaPreferida')?.setValue(null);
   }
 
-  // Función auxiliar para calcular la próxima fecha para un día de la semana y hora
-  private getNextDateForDayAndTime(diaSemana: number, horaPreferida: string): Date {
-    const [hora, minuto] = horaPreferida.split(':').map(Number);
-    const now = new Date();
-    const result = new Date(now);
-    result.setHours(hora, minuto, 0, 0);
-
-    // 0 = domingo, 1 = lunes, ..., 6 = sábado
-    const diaActual = now.getDay();
-    let diasHasta = diaSemana - diaActual;
-    if (diasHasta < 0 || (diasHasta === 0 && result <= now)) {
-      diasHasta += 7;
-    }
-    result.setDate(now.getDate() + diasHasta);
-    return result;
-  }
-
-  // Genera un ID único para cada notificación (puedes mejorarlo según tu lógica)
-  private generaIdUnico(): number {
-    return Math.floor(Math.random() * 100000000);
-  }
-
   async guardarHabito() {
-    // Validación: si metaSeleccionada es true, metaId debe estar presente
     if (this.metaSeleccionada && !this.metaId) {
       this.presentToast('No se encontró la meta asociada.', 'danger');
       return;
     }
 
-    // Validación general del formulario
     if (this.habitoForm.invalid) {
       this.presentToast('Por favor, completa los campos requeridos.', 'warning');
       this.habitoForm.markAllAsTouched();
       return;
     }
 
-    // Validación: si es semanal, debe seleccionar al menos un día
-    if (this.habitoForm.get('frecuenciaTipo')?.value === 'semanal' && this.diasSeleccionados.length === 0) {
+    if (
+      this.habitoForm.get('recordatoriosActivos')?.value &&
+      this.habitoForm.get('frecuenciaTipo')?.value === 'semanal' &&
+      this.diasSeleccionados.length === 0
+    ) {
       this.presentToast('Selecciona al menos un día de la semana.', 'warning');
       return;
     }
@@ -179,15 +174,17 @@ export class HabitoFormComponent implements OnInit {
     const habitoData: Partial<Habito> = {
       titulo: formValues.titulo,
       descripcion: formValues.descripcion || '',
-      frecuenciaTipo: formValues.frecuenciaTipo,
+      frecuenciaTipo: formValues.recordatoriosActivos ? formValues.frecuenciaTipo : null,
       icono: formValues.icono,
       color: formValues.color,
-      horaPreferida: formValues.horaPreferida || null,
+      horaPreferida: formValues.recordatoriosActivos ? formValues.horaPreferida || null : null,
       metaId: this.metaSeleccionada ? this.metaId : formValues.metaId || null,
       metaRacha: formValues.metaRacha ?? null,
-      diasSemana: formValues.frecuenciaTipo === 'semanal' ? [...this.diasSeleccionados] : undefined,
-      recordatoriosActivos: true // Activar recordatorios por defecto
+      recordatoriosActivos: formValues.recordatoriosActivos
     };
+    if (formValues.recordatoriosActivos && formValues.frecuenciaTipo === 'semanal') {
+      habitoData.diasSemana = [...this.diasSeleccionados];
+    }
 
     try {
       this.presentToast('Guardando...', 'light', 1500);
@@ -205,7 +202,7 @@ export class HabitoFormComponent implements OnInit {
           fechaInicio: Timestamp.now(),
           rachaActual: 0,
           mejorRacha: 0,
-          recordatoriosActivos: true,
+          recordatoriosActivos: formValues.recordatoriosActivos,
         } as Habito;
 
         const docRef = await this.habitoService.agregarHabito(userId, nuevoHabitoData);
@@ -214,37 +211,18 @@ export class HabitoFormComponent implements OnInit {
         this.cerrarModal({ creada: true, habito: { ...nuevoHabitoData, id: habitoId } });
       }
 
-      // NOTIFICACIONES: solo si hay hora preferida
-      if (habitoData.horaPreferida) {
-        if (habitoData.frecuenciaTipo === 'diaria') {
-          // Notificación diaria
-          const proximaFecha = this.getNextDateForDayAndTime(new Date().getDay(), habitoData.horaPreferida);
-          await this.notificationService.scheduleNotification({
-            notifications: [{
-              id: this.generaIdUnico(),
-              title: '¡Recuerda tu hábito!',
-              body: `Hoy toca: ${habitoData.titulo}`,
-              schedule: { at: proximaFecha },
-              smallIcon: 'ic_stat_icon_config_sample',
-              extra: { tipo: 'habito', id: habitoId }
-            }]
-          });
-        } else if (habitoData.frecuenciaTipo === 'semanal' && habitoData.diasSemana) {
-          // Notificación en días seleccionados
-          for (const dia of habitoData.diasSemana) {
-            const proximaFecha = this.getNextDateForDayAndTime(dia, habitoData.horaPreferida);
-            await this.notificationService.scheduleNotification({
-              notifications: [{
-                id: this.generaIdUnico(),
-                title: '¡Recuerda tu hábito!',
-                body: `Hoy toca: ${habitoData.titulo}`,
-                schedule: { at: proximaFecha },
-                smallIcon: 'ic_stat_icon_config_sample',
-                extra: { tipo: 'habito', id: habitoId }
-              }]
-            });
-          }
+      // NOTIFICACIONES: solo si el usuario quiere recordatorios y hay hora preferida y hay id
+      if (formValues.recordatoriosActivos && habitoData.horaPreferida && habitoId) {
+        console.log('Hora preferida:', habitoData.horaPreferida, typeof habitoData.horaPreferida);
+        // Si viene en formato ISO, extrae solo la hora
+        if (typeof habitoData.horaPreferida === 'string' && habitoData.horaPreferida.includes('T')) {
+          habitoData.horaPreferida = habitoData.horaPreferida.split('T')[1]?.substring(0,5);
+          console.log('Hora preferida corregida:', habitoData.horaPreferida);
         }
+        await this.notificationService.programarNotificacionHabito(
+          { ...habitoData, id: habitoId, diasSemana: habitoData.diasSemana } as Habito,
+          habitoId
+        );
       }
 
     } catch (error) {
@@ -266,5 +244,18 @@ export class HabitoFormComponent implements OnInit {
       cssClass: 'custom-toast'
     });
     toast.present();
+  }
+
+  async probarNotificacion() {
+    await LocalNotifications.requestPermissions();
+    await LocalNotifications.schedule({
+      notifications: [{
+        id: 9999,
+        title: 'Notificación de prueba',
+        body: '¡Esto es una prueba!',
+        schedule: { at: new Date(Date.now() + 5000) }
+      }]
+    });
+    this.presentToast('Notificación de prueba programada en 5 segundos', 'success');
   }
 }

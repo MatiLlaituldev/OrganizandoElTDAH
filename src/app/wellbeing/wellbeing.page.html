@@ -1,122 +1,125 @@
 <ion-header [translucent]="true">
   <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
     <ion-title>Mi Bienestar Diario</ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar class="segment-toolbar">
+    <ion-segment [(ngModel)]="vistaActual" (ionChange)="segmentChanged($event)" value="registrar" mode="md">
+      <ion-segment-button value="registrar">
+        <ion-icon name="create-outline"></ion-icon>
+        <ion-label>Registrar Hoy</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="historial">
+        <ion-icon name="time-outline"></ion-icon>
+        <ion-label>Mi Historial</ion-label>
+      </ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <div class="content-wrapper">
 
-  <ion-segment [(ngModel)]="vistaActual" (ionChange)="segmentChanged($event)" value="registrar" mode="md" class="sticky-segment">
-    <ion-segment-button value="registrar">
-      <ion-label>Registrar Hoy</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="historial">
-      <ion-label>Mi Historial</ion-label>
-    </ion-segment-button>
-  </ion-segment>
+    <div *ngIf="vistaActual === 'registrar'" class="page-view">
+      <div class="welcome-header">
+        <img src="assets/images/cerebrito.png" alt="Cerebrito Bienestar" class="welcome-image" />
+        <div class="welcome-text">
+          <h2>¿Cómo te sientes hoy?</h2>
+          <p>Tómate un momento para conectar contigo.</p>
+        </div>
+      </div>
 
-  <div class="page-content-wrapper ion-padding">
+      <form [formGroup]="wellbeingForm" (ngSubmit)="guardarRegistro()" *ngIf="wellbeingForm">
 
-    <div *ngIf="vistaActual === 'registrar'">
-      <div class="registro-section" *ngIf="wellbeingForm">
-        <h2>¿Cómo te sientes hoy?</h2>
-        <p class="subtitulo">Un registro general de tu día.</p>
-
-        <div class="cerebrito-container-card">
-          <img src="assets/images/cerebrito.png" alt="Cerebrito Bienestar" class="cerebrito-imagen-bienestar-card" />
+        <div class="form-card">
+          <ion-label class="card-title">Tu Estado de Ánimo</ion-label>
+          <ion-segment formControlName="estadoAnimo" class="mood-segment" scrollable="true">
+            <ion-segment-button *ngFor="let opcion of opcionesAnimo" [value]="opcion.valor">
+              <span class="emoji">{{ opcion.emoji }}</span>
+              <ion-label>{{ opcion.texto }}</ion-label>
+            </ion-segment-button>
+          </ion-segment>
         </div>
 
-        <form [formGroup]="wellbeingForm" (ngSubmit)="guardarRegistro()">
-          <ion-item lines="none" class="item-label-stacked">
-            <ion-label position="stacked">Estado de Ánimo</ion-label>
-          </ion-item>
-          <ion-segment formControlName="estadoAnimo" mode="md" class="mood-segment">
-            <ion-segment-button *ngFor="let opcion of opcionesAnimo" [value]="opcion.valor" [ngClass]="'segment-button-' + opcion.color">
-              <div class="segment-content">
-                <span class="emoji">{{ opcion.emoji }}</span>
-                <ion-label class="texto-opcion">{{ opcion.texto }}</ion-label>
-              </div>
+        <div class="form-card">
+          <ion-label class="card-title">Tu Nivel de Energía</ion-label>
+          <ion-segment formControlName="nivelEnergia" class="mood-segment" scrollable="true">
+            <ion-segment-button *ngFor="let opcion of opcionesEnergia" [value]="opcion.valor">
+              <span class="emoji">{{ opcion.emoji }}</span>
+              <ion-label>{{ opcion.texto }}</ion-label>
             </ion-segment-button>
           </ion-segment>
-          <div *ngIf="wellbeingForm.get('estadoAnimo')?.invalid && wellbeingForm.get('estadoAnimo')?.touched && wellbeingForm.get('estadoAnimo')?.errors?.['required']" class="error-message">
-            Es necesario seleccionar un estado de ánimo.
-          </div>
+        </div>
 
-          <ion-item lines="none" class="item-label-stacked item-spacing-top">
-            <ion-label position="stacked">Nivel de Energía</ion-label>
+        <div class="form-card">
+          <ion-label class="card-title">Notas Adicionales</ion-label>
+          <ion-item class="notes-input" lines="none">
+            <ion-textarea formControlName="notas" autoGrow="true" placeholder="Escribe algo sobre tu día..."></ion-textarea>
           </ion-item>
-          <ion-segment formControlName="nivelEnergia" mode="md" class="energy-segment">
-            <ion-segment-button *ngFor="let opcion of opcionesEnergia" [value]="opcion.valor" [ngClass]="'segment-button-' + opcion.color">
-               <div class="segment-content">
-                <span class="emoji">{{ opcion.emoji }}</span>
-                <ion-label class="texto-opcion">{{ opcion.texto }}</ion-label>
-              </div>
-            </ion-segment-button>
-          </ion-segment>
-           <div *ngIf="wellbeingForm.get('nivelEnergia')?.invalid && wellbeingForm.get('nivelEnergia')?.touched && wellbeingForm.get('nivelEnergia')?.errors?.['required']" class="error-message">
-            Es necesario seleccionar un nivel de energía.
-          </div>
+        </div>
 
-          <ion-item lines="none" class="item-spacing-top custom-ion-item-notas">
-            <!-- Clase específica para notas -->
-            <ion-label position="floating">Notas adicionales (opcional)</ion-label>
-            <ion-textarea formControlName="notas" autoGrow="true" rows="3" inputmode="text"></ion-textarea>
+        <div class="form-card">
+          <ion-label class="card-title">Recordatorio</ion-label>
+          <ion-item lines="none" class="toggle-item">
+            <ion-label>Activar recordatorio diario</ion-label>
+            <ion-toggle slot="end" [(ngModel)]="recordatorioActivo" [ngModelOptions]="{standalone: true}"></ion-toggle>
           </ion-item>
-        </form>
-      </div>
 
-      <div *ngIf="!wellbeingForm" class="ion-text-center ion-padding">
-        <ion-spinner name="crescent"></ion-spinner>
-        <p>Cargando formulario...</p>
-      </div>
+          <div class="time-input-container" *ngIf="recordatorioActivo">
+            <ion-icon name="alarm-outline"></ion-icon>
+            <ion-datetime-button datetime="reminderTime"></ion-datetime-button>
+            <ion-datetime
+              id="reminderTime"
+              class="custom-datetime-picker"
+              presentation="time"
+              [(ngModel)]="horaRecordatorio"
+              [ngModelOptions]="{standalone: true}"
+              [min]="minHora"
+              [max]="maxHora"
+              hour-cycle="h23">
+            </ion-datetime>
+          </div>
+        </div>
 
-      <ion-fab vertical="bottom" horizontal="center" slot="fixed" style="margin-bottom: 10px;" *ngIf="vistaActual === 'registrar'">
-        <ion-fab-button (click)="guardarRegistro()" [disabled]="!wellbeingForm || wellbeingForm.invalid">
-          <ion-icon name="save-outline"></ion-icon>
-        </ion-fab-button>
-      </ion-fab>
+        <ion-button expand="block" type="submit" [disabled]="!wellbeingForm || wellbeingForm.invalid">
+          Guardar
+        </ion-button>
+      </form>
     </div>
 
-    <div *ngIf="vistaActual === 'historial'">
-      <div class="estadisticas-section">
-        <h3>Historial de Ánimo y Energía</h3>
-        <p class="subtitulo">Tus registros de los últimos 30 días.</p>
-
-        <div *ngIf="(historialAnimo$ | async) as historial; else cargandoHistorial">
-          <div *ngIf="historial.length > 0; else sinHistorial">
-            <ion-list lines="none" class="lista-historial">
-              <ion-item *ngFor="let registro of historial" class="item-historial">
-                <div slot="start" class="fecha-historial">
-                  <div class="dia">{{ registro.fecha | date:'dd' }}</div>
-                  <div class="mes">{{ registro.fecha | date:'MMM' }}</div>
-                </div>
-                <ion-label>
-                  <h2>
-                    <span class="emoji-pequeno">{{ getEmojiAnimo(registro.estadoAnimo) }}</span> {{ getTextoAnimo(registro.estadoAnimo) }}
-                    <span class="separador-historial">|</span>
-                    <span class="emoji-pequeno">{{ getEmojiEnergia(registro.nivelEnergia) }}</span> {{ getTextoEnergia(registro.nivelEnergia) }}
-                  </h2>
-                  <p *ngIf="registro.notas" class="notas-historial"><i>{{ registro.notas }}</i></p>
-                </ion-label>
-              </ion-item>
-            </ion-list>
-          </div>
-          <ng-template #sinHistorial>
-            <div class="empty-state-historial">
-              <ion-icon name="receipt-outline" class="empty-icon-historial"></ion-icon>
-              <p>Aún no tienes registros en este período.</p>
-              <p>¡Comienza a registrar tu ánimo y energía diariamente!</p>
+    <div *ngIf="vistaActual === 'historial'" class="page-view">
+      <div *ngIf="(historialAnimo$ | async) as historial; else loadingHistory">
+        <div *ngIf="historial.length > 0; else noHistory" class="history-list">
+          <ion-item *ngFor="let registro of historial" lines="none" class="history-card">
+            <div class="date-badge" slot="start">
+              <span class="day">{{ registro.fecha | date:'dd' }}</span>
+              <span class="month">{{ registro.fecha | date:'MMM' }}</span>
             </div>
-          </ng-template>
+            <ion-label>
+              <div class="mood-energy-container">
+                <span class="mood-item">{{ getEmojiAnimo(registro.estadoAnimo) }} {{ getTextoAnimo(registro.estadoAnimo) }}</span>
+                <span class="energy-item">{{ getEmojiEnergia(registro.nivelEnergia) }} {{ getTextoEnergia(registro.nivelEnergia) }}</span>
+              </div>
+              <p *ngIf="registro.notas" class="notes-history">{{ registro.notas }}</p>
+            </ion-label>
+          </ion-item>
         </div>
-        <ng-template #cargandoHistorial>
-          <div class="ion-text-center ion-padding">
-            <ion-spinner name="dots"></ion-spinner>
-            <p>Cargando historial...</p>
+        <ng-template #noHistory>
+          <div class="empty-state">
+            <ion-icon name="receipt-outline" class="empty-icon"></ion-icon>
+            <p>Aún no tienes registros.</p>
           </div>
         </ng-template>
       </div>
+      <ng-template #loadingHistory>
+        <div class="loading-state">
+          <ion-spinner name="dots"></ion-spinner>
+          <p>Cargando historial...</p>
+        </div>
+      </ng-template>
     </div>
 
   </div>
-</ion-content>

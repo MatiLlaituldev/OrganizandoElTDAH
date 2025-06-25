@@ -68,59 +68,75 @@
       </div>
     </div>
 
-    <!-- Frecuencia y hora -->
+    <!-- Recordatorios -->
     <div class="form-card">
       <div class="card-header">
-        <ion-icon name="calendar-outline" color="primary"></ion-icon>
-        <h2 class="card-title">Frecuencia y Hora</h2>
+        <ion-icon name="notifications-outline" color="primary"></ion-icon>
+        <h2 class="card-title">Recordatorios</h2>
       </div>
       <div class="input-wrapper">
-        <ion-segment formControlName="frecuenciaTipo" class="form-segment">
-          <ion-segment-button value="diaria"><ion-label>Diaria</ion-label></ion-segment-button>
-          <ion-segment-button value="semanal"><ion-label>Semanal</ion-label></ion-segment-button>
-        </ion-segment>
-      </div>
-
-      <!-- Días de la semana (solo si es semanal) -->
-      <div class="input-wrapper" *ngIf="habitoForm.get('frecuenciaTipo')?.value === 'semanal'">
-        <ion-label class="selector-label">Selecciona los días</ion-label>
-        <div class="dias-semana-checkboxes">
-          <ion-checkbox
-            *ngFor="let dia of diasSemana"
-            [checked]="diasSeleccionados.includes(dia.valor)"
-            (ionChange)="toggleDiaSemana(dia.valor)">
-            {{ dia.nombre }}
-          </ion-checkbox>
-        </div>
-        <div *ngIf="diasSeleccionados.length === 0" class="validation-message ion-padding-start">
-          <ion-text color="danger">Debes seleccionar al menos un día.</ion-text>
-        </div>
-      </div>
-
-      <div class="input-wrapper">
-        <ion-item lines="none" class="form-input custom-ion-item item-datetime">
-          <ion-label position="stacked">Hora Preferida (Opcional)</ion-label>
-          <ion-datetime-button datetime="horaPreferidaPicker"></ion-datetime-button>
+        <ion-item lines="none">
+          <ion-label>Activar recordatorios</ion-label>
+          <ion-toggle formControlName="recordatoriosActivos"></ion-toggle>
         </ion-item>
-        <ion-button fill="clear" size="small" (click)="limpiarHoraPreferida()" *ngIf="habitoForm.get('horaPreferida')?.value" class="clear-date-button">
-          <ion-icon slot="start" name="close-circle-outline"></ion-icon>
-          Limpiar Hora
-        </ion-button>
-        <ion-modal [keepContentsMounted]="true">
-          <ng-template>
-            <ion-datetime
-              id="horaPreferidaPicker"
-              formControlName="horaPreferida"
-              presentation="time"
-              doneText="Hecho"
-              cancelText="Cancelar"
-              hourCycle="h23">
-              <span slot="title">Selecciona Hora</span>
-            </ion-datetime>
-          </ng-template>
-        </ion-modal>
       </div>
     </div>
+
+    <!-- Opciones de recordatorio solo si está activado -->
+    <ng-container *ngIf="habitoForm.get('recordatoriosActivos')?.value">
+      <div class="form-card">
+        <div class="card-header">
+          <ion-icon name="calendar-outline" color="primary"></ion-icon>
+          <h2 class="card-title">Frecuencia y Hora</h2>
+        </div>
+        <div class="input-wrapper">
+          <ion-segment formControlName="frecuenciaTipo" class="form-segment">
+            <ion-segment-button value="diaria"><ion-label>Diaria</ion-label></ion-segment-button>
+            <ion-segment-button value="semanal"><ion-label>Semanal</ion-label></ion-segment-button>
+          </ion-segment>
+        </div>
+
+        <!-- Días de la semana (solo si es semanal) -->
+        <div class="input-wrapper" *ngIf="habitoForm.get('frecuenciaTipo')?.value === 'semanal'">
+          <ion-label class="selector-label">Selecciona los días</ion-label>
+          <div class="dias-semana-checkboxes">
+            <ion-checkbox
+              *ngFor="let dia of diasSemana"
+              [checked]="diasSeleccionados.includes(dia.valor)"
+              (ionChange)="toggleDiaSemana(dia.valor)">
+              {{ dia.nombre }}
+            </ion-checkbox>
+          </div>
+          <div *ngIf="diasSeleccionados.length === 0" class="validation-message ion-padding-start">
+            <ion-text color="danger">Debes seleccionar al menos un día.</ion-text>
+          </div>
+        </div>
+
+        <div class="input-wrapper">
+          <ion-item lines="none" class="form-input custom-ion-item item-datetime">
+            <ion-label position="stacked">Hora Preferida (Opcional)</ion-label>
+            <ion-datetime-button datetime="horaPreferidaPicker"></ion-datetime-button>
+          </ion-item>
+          <ion-button fill="clear" size="small" (click)="limpiarHoraPreferida()" *ngIf="habitoForm.get('horaPreferida')?.value" class="clear-date-button">
+            <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+            Limpiar Hora
+          </ion-button>
+          <ion-modal [keepContentsMounted]="true">
+            <ng-template>
+              <ion-datetime
+                id="horaPreferidaPicker"
+                formControlName="horaPreferida"
+                presentation="time"
+                doneText="Hecho"
+                cancelText="Cancelar"
+                hourCycle="h23">
+                <span slot="title">Selecciona Hora</span>
+              </ion-datetime>
+            </ng-template>
+          </ion-modal>
+        </div>
+      </div>
+    </ng-container>
 
     <!-- Selector de Meta asociada -->
     <div class="form-card">
@@ -148,6 +164,9 @@
       <ion-icon slot="start" name="save-outline"></ion-icon>
       {{ esEdicion ? 'Actualizar Hábito' : 'Guardar Hábito' }}
     </ion-button>
-
   </form>
+
+  <ion-button expand="block" color="secondary" (click)="probarNotificacion()">
+    Probar notificación inmediata
+  </ion-button>
 </ion-content>
