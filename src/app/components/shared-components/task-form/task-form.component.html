@@ -36,7 +36,6 @@
       </div>
       <ion-item class="form-input">
         <ion-label position="floating">Meta asociada</ion-label>
-        <!-- Mejora: Elimina [disabled] y controla el estado solo desde el TS -->
         <ion-select formControlName="metaId" placeholder="Sin meta" [compareWith]="compareWith">
           <ion-select-option [value]="null">Sin meta</ion-select-option>
           <ion-select-option *ngFor="let meta of metas$ | async" [value]="meta.id">
@@ -57,6 +56,19 @@
         <ion-input type="date" formControlName="fechaVencimiento" [min]="minDate"></ion-input>
         <ion-button fill="clear" (click)="limpiarFechaVencimiento()" slot="end" aria-label="Limpiar fecha">
           <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-item>
+      <!-- Recordatorio personalizado -->
+      <ion-item class="form-input">
+        <ion-label position="floating">Recordatorio personalizado</ion-label>
+        <!-- Puedes usar ion-datetime o un input tipo datetime-local -->
+        <ion-input
+          type="datetime-local"
+          formControlName="fechaRecordatorio"
+          [min]="minDateTime">
+        </ion-input>
+        <ion-button fill="clear" size="small" (click)="limpiarFechaRecordatorio()" *ngIf="tareaForm.get('fechaRecordatorio')?.value">
+          Limpiar
         </ion-button>
       </ion-item>
     </div>
@@ -117,4 +129,5 @@
     </ion-button>
 
   </form>
+  <pre>{{ tareaForm.status }} - {{ tareaForm.errors | json }}</pre>
 </ion-content>

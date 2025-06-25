@@ -94,6 +94,17 @@ export class GoalListPage implements OnInit {
     });
     await alert.present();
   }
+  async editarMeta(meta: Meta) {
+  const modal = await this.modalCtrl.create({
+    component: GoalFormComponent,
+    componentProps: { meta }
+  });
+  await modal.present();
+  const { data } = await modal.onWillDismiss();
+  if (data?.actualizada) {
+    this.cargarDatos(); // O refresca la lista de metas si tienes otro método
+  }
+}
 
   async handleRefresh(event: any) {
     await this.cargarDatos();
@@ -101,4 +112,13 @@ export class GoalListPage implements OnInit {
       event.target.complete();
     }, 1000);
   }
+  getTaskCountForMeta(meta: Meta, allTasks: Tarea[]): number {
+  if (!allTasks) return 0;
+  return allTasks.filter(t => t.metaId === meta.id).length;
+}
+
+getHabitCountForMeta(meta: Meta, allHabits: Habito[]): number {
+  if (!allHabits) return 0;
+  return allHabits.filter(h => h.metaId === meta.id).length;
+}
 }

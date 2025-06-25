@@ -16,15 +16,18 @@ export interface Tarea {
     nombre: string;
     color: string;
   }[];
-  recurrencia?: 'unica' | 'diaria'; // <-- CAMPO CLAVE QUE USAREMOS
+  recurrencia?: 'unica' | 'diaria';
   subtareas?: Subtarea[];
-   eliminada?: boolean;
-    metaId?: string | null;
+  eliminada?: boolean;
+  metaId?: string | null;
+  notificationId?: number;
+  fechaRecordatorio?: Date | Timestamp | string;
+  notificationIdVencimiento?: number; // <-- Agrega esta línea
 }
+
 export interface Subtarea {
-    id?: string;
-    titulo: string;
-    // 'completada' se elimina de la plantilla.
-    fechaCreacion?: import('firebase/firestore').Timestamp;
-    orden?: number;
+  id?: string;
+  titulo: string;
+  fechaCreacion?: import('firebase/firestore').Timestamp;
+  orden?: number;
 }

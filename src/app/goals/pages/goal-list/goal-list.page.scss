@@ -1,99 +1,153 @@
-// src/app/goals/pages/goal-list/goal-list.page.scss
+/* ======================================================
+   CSS "Dashboard Informativo" para la Lista de Metas
+   ====================================================== */
 
+// --- Paleta y Variables ---
 :host {
-  --page-background: var(--ion-color-light-shade, #f4f5f8); // Un fondo claro
-  --card-background: #ffffff;
-  --card-shadow: rgba(0, 0, 0, 0.08);
+  --theme-bg: #f4f5f8;
+  --theme-panel-bg: #ffffff;
+  --theme-primary: #7F00FF;
+  --theme-accent-alt: #3880ff;
+  --theme-text-title: #333333;
+  --theme-text-secondary: #666666;
+  --panel-border-radius: 16px;
+  --panel-box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  --progress-ring-bg: #eef2f8;
 }
 
-ion-content.goal-list-content {
-  --background: var(--page-background);
+// --- Contenido Principal ---
+.goal-list-content {
+  --background: var(--theme-bg);
+}
+.goals-container {
+  padding: 16px;
 }
 
-.loading-container, .empty-state {
+// --- Panel de Meta ---
+.goal-item-sliding {
+  margin-bottom: 20px;
+  border-radius: var(--panel-border-radius);
+  box-shadow: var(--panel-box-shadow);
+  border: 1px solid rgba(0,0,0,0.05);
+  background: var(--theme-panel-bg);
+}
+
+.goal-panel-wrapper {
+  --background: transparent;
+  --border-radius: var(--panel-border-radius);
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --padding-end: 0;
+}
+
+.goal-panel {
+  width: 100%;
+}
+
+// --- Encabezado del Panel ---
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+}
+
+.panel-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+  flex-grow: 1;
+  padding-right: 16px;
+  color: var(--theme-text-title);
+}
+
+// --- Círculo de Progreso ---
+.progress-ring {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--progress-ring-bg);
+  flex-shrink: 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: conic-gradient(
+      var(--goal-color, var(--theme-accent-alt)) calc(var(--progress) * 3.6deg),
+      transparent 0
+    );
+    border-radius: 50%;
+  }
+}
+
+.progress-ring-text {
+  position: relative;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--theme-text-title);
+}
+
+// --- Contenido del Panel ---
+.panel-content {
+  padding: 0 16px 16px 16px;
+}
+
+.panel-description {
+  font-size: 0.9rem;
+  color: var(--theme-text-secondary);
+  margin: 0 0 16px 0;
+  white-space: normal;
+  border-top: 1px solid var(--theme-bg);
+  padding-top: 16px;
+}
+
+/* ======================================================
+   NUEVA SECCIÓN DE ESTADÍSTICAS 👇
+   ====================================================== */
+.card-stats {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  padding: 12px 0;
+  border-top: 1px solid var(--theme-bg);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--theme-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+
+  ion-icon {
+    font-size: 1.2rem;
+    color: var(--ion-color-primary); // O usa un color neutro
+  }
+}
+
+// --- Opciones de Deslizamiento y Estados ---
+ion-item-options ion-item-option {
+  border-radius: 0 var(--panel-border-radius) var(--panel-border-radius) 0;
+}
+
+.state-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 60vh; // Ocupa una buena parte de la pantalla
   text-align: center;
-  color: var(--ion-color-medium-shade);
+  height: 70vh;
+  padding: 20px;
+  color: var(--theme-text-secondary);
 
-  ion-spinner {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 15px;
-    --color: var(--ion-color-primary);
+  &.empty-state .empty-icon {
+    font-size: 5rem;
+    color: #d1d8e0;
+    margin-bottom: 1rem;
   }
-  .empty-icon {
-    font-size: 4rem; // Icono grande
-    color: var(--ion-color-primary-tint);
-    margin-bottom: 20px;
-  }
-  p {
-    font-size: 1.1em;
-    color: var(--ion-color-step-600, #666666);
-  }
-  .add-first-button {
-    margin-top: 20px;
-    --color: var(--ion-color-primary);
-    --border-color: var(--ion-color-primary);
-    --border-radius: 20px;
-  }
-}
-
-ion-list.goal-list {
-  background: transparent; // La lista no necesita su propio fondo
-  padding-top: 8px;
-}
-
-ion-item-sliding ion-item {
-  --background: var(--card-background);
-  margin: 8px 16px;
-  border-radius: 12px; // Bordes redondeados para los items
-  box-shadow: 0 2px 5px var(--card-shadow);
-  --padding-start: 12px;
-  --inner-padding-end: 12px;
-
-  ion-label h2 {
-    font-weight: 600;
-    color: var(--ion-color-dark-shade);
-  }
-
-  ion-label p {
-    font-size: 0.9em;
-    color: var(--ion-color-step-700, #555555);
-  }
-
-  .fecha-limite, .fecha-alcanzada {
-    font-size: 0.8em;
-    color: var(--ion-color-medium-shade);
-    display: flex;
-    align-items: center;
-    margin-top: 4px;
-    ion-icon {
-      margin-right: 6px;
-      font-size: 1.1em;
-    }
-  }
-
-  &.meta-alcanzada {
-    ion-label h2, ion-label p:not(.fecha-alcanzada) {
-      text-decoration: line-through;
-      color: var(--ion-color-medium-tint);
-    }
-    ion-label .fecha-alcanzada ion-icon {
-        color: var(--ion-color-success);
-    }
-  }
-}
-
-ion-item-options ion-item-option {
-  // Estilos para las opciones de swipe si es necesario
-}
-
-ion-fab-button[color="tertiary"] {
-  // Estilos para tu FAB
-  --background: var(--ion-color-tertiary, #FFC107);
-  --color: var(--ion-color-tertiary-contrast, #000000);
 }

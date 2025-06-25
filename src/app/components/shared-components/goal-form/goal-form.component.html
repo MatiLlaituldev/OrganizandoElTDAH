@@ -32,7 +32,11 @@
     </ion-item>
     <ion-item>
       <ion-label position="floating">Fecha límite</ion-label>
-      <ion-input type="date" formControlName="fechaLimite" [min]="minDate"></ion-input>
+      <ion-datetime
+        formControlName="fechaLimite"
+        [min]="minDate"
+        presentation="date">
+      </ion-datetime>
       <ion-button fill="clear" slot="end" (click)="limpiarFechaLimite()" *ngIf="goalForm.get('fechaLimite')?.value">
         <ion-icon name="close-circle-outline"></ion-icon>
       </ion-button>
