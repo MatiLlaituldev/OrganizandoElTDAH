@@ -6,6 +6,7 @@ import { AuthService } from '../../../services/auth.service';
 import { GoalService } from '../../../services/goal.service';
 import { TaskService } from '../../../services/task.service';
 import { HabitoService } from '../../../services/habito.service';
+import { NotificationService } from '../../../services/notification.service';
 import { Tarea } from '../../../models/tarea.model';
 import { Habito } from '../../../models/habito.model';
 import { Timestamp } from 'firebase/firestore';
@@ -42,6 +43,7 @@ export class GoalFormComponent implements OnInit {
     private goalService: GoalService,
     private taskService: TaskService,
     private habitoService: HabitoService,
+    private notificationService: NotificationService,
     private loadingCtrl: LoadingController,
     private router: Router
   ) {
@@ -128,11 +130,37 @@ export class GoalFormComponent implements OnInit {
           fechaLimite: formValues.fechaLimite ? Timestamp.fromDate(new Date(formValues.fechaLimite)) : null,
         };
         await this.goalService.actualizarMeta(userId, this.meta.id, datosActualizados);
+
+        // Notificaciones solo si hay fecha límite
+        if (formValues.fechaLimite) {
+          await this.notificationService.programarNotificacionVencimientoMeta(
+            { ...this.meta, ...datosActualizados } as Meta,
+            this.meta.id
+          );
+          await this.notificationService.programarNotificacionMetaPrueba(
+            { ...this.meta, ...datosActualizados } as Meta,
+            this.meta.id
+          );
+        }
+
         this.presentToast('Meta actualizada exitosamente.', 'success');
         this.cerrarModal({ actualizada: true, id: this.meta.id, meta: { ...this.meta, ...datosActualizados } });
         this.router.navigate(['/goal-detail', this.meta.id]);
       } else {
         const docRef = await this.goalService.agregarMeta(userId, metaDataParaGuardar as Omit<Meta, 'id' | 'userId' | 'fechaCreacion' | 'estado'>);
+
+        // Notificaciones solo si hay fecha límite
+        if (formValues.fechaLimite) {
+          await this.notificationService.programarNotificacionVencimientoMeta(
+            { ...metaDataParaGuardar, id: docRef.id } as Meta,
+            docRef.id
+          );
+          await this.notificationService.programarNotificacionMetaPrueba(
+            { ...metaDataParaGuardar, id: docRef.id } as Meta,
+            docRef.id
+          );
+        }
+
         this.presentToast('Meta creada exitosamente.', 'success');
         this.cerrarModal({ creada: true, id: docRef.id, meta: { ...metaDataParaGuardar, id: docRef.id } });
         this.router.navigate(['/goal-detail', docRef.id]);
@@ -252,5 +280,4 @@ export class GoalFormComponent implements OnInit {
       } catch (e) { /* Ignorar */ }
       this.loadingElement = null;
     }
-  }
-}
+  }}

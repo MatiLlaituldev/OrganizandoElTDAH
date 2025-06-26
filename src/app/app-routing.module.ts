@@ -8,29 +8,39 @@ const routes: Routes = [
   {
     path: '',
     redirectTo: 'tabs',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
   {
     path: 'auth',
-    loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule),
-    canActivate: [NoAuthGuard] // Proteger las páginas de login/registro de usuarios ya logueados.
+    loadChildren: () => import('./auth/auth.module').then((m) => m.AuthModule),
+    canActivate: [NoAuthGuard], // Proteger las páginas de login/registro de usuarios ya logueados.
   },
   {
     path: 'tabs',
-    loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule),
-    canActivate: [AuthGuard] // Proteger TODA la sección de pestañas. Solo usuarios logueados entran aquí.
+    loadChildren: () =>
+      import('./tabs/tabs.module').then((m) => m.TabsPageModule),
+    canActivate: [AuthGuard], // Proteger TODA la sección de pestañas. Solo usuarios logueados entran aquí.
   },
-   {
+  {
     path: 'goal-detail/:id',
-    loadChildren: () => import('./goals/pages/goal-detail/goal-detail.module').then( m => m.GoalDetailPageModule)
-  }
-
+    loadChildren: () =>
+      import('./goals/pages/goal-detail/goal-detail.module').then(
+        (m) => m.GoalDetailPageModule
+      ),
+  },
+  {
+    path: 'task-detail/:id',
+    loadChildren: () =>
+      import('./tasks/pages/task-detail/task-detail.module').then(
+        (m) => m.TaskDetailPageModule
+      ),
+  },
 ];
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
+    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules }),
   ],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

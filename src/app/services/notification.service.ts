@@ -243,4 +243,19 @@ async programarNotificacionBienestar(userId: string, hora: string): Promise<numb
     });
     return notificationId;
   }
+    async programarNotificacionMetaPrueba(meta: Meta, metaId: string) {
+    const notificationId = Math.floor(Math.random() * 1000000);
+    const fechaPrueba = new Date(Date.now() + 10000); // 10 segundos después
+
+    await this.scheduleNotification({
+      notifications: [{
+        id: notificationId,
+        title: '¡Así se verá tu notificación de meta!',
+        body: `Cuando tu meta "${meta.titulo}" esté por vencer, recibirás una notificación como esta.`,
+        schedule: { at: fechaPrueba },
+        smallIcon: 'ic_stat_icon_config_sample',
+        extra: { tipo: 'meta-prueba', id: metaId }
+      }]
+    });
+  }
 }

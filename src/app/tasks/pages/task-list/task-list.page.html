@@ -76,7 +76,7 @@
 
         <ion-accordion [toggleIcon]="(tarea.subtareas && tarea.subtareas.length > 0) ? 'chevron-down' : ''" toggleIconSlot="end">
 
-          <ion-item slot="header" lines="inset" [ngClass]="{ 'task-completada': estaCompletadaHoy(tarea) }">
+          <ion-item slot="header" lines="inset" [ngClass]="{ 'task-completada': estaCompletadaHoy(tarea) }" (click)="verDetalleTarea(tarea)">
 
             <div slot="start"
                  *ngIf="tarea.prioridad && tarea.prioridad > 0"
