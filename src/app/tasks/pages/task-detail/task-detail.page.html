@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Gestor de subtareas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card *ngIf="tarea">
+    <ion-card-header>
+      <ion-card-title>{{ tarea.titulo }}</ion-card-title>
+      <ion-card-subtitle>{{ tarea.descripcion }}</ion-card-subtitle>
+    </ion-card-header>
+  </ion-card>
+
+  <ion-list>
+    <ion-list-header>Subtareas</ion-list-header>
+    <ion-item *ngFor="let subtarea of subtareas">
+      <ion-checkbox
+        slot="start"
+        [(ngModel)]="subtarea.completada"
+        (ionChange)="actualizarEstadoSubtarea(subtarea)">
+      </ion-checkbox>
+      <ion-label>{{ subtarea.titulo }}</ion-label>
+      <ion-button
+        fill="clear"
+        color="danger"
+        slot="end"
+        [disabled]="!subtarea.id"
+        (click)="subtarea.id && eliminarSubtarea(subtarea.id)">
+        Eliminar
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+  <div *ngIf="subtareas.length === 0" class="ion-text-center ion-padding">
+    <ion-icon name="list-outline" size="large" color="medium"></ion-icon>
+    <p>No hay subtareas aún. Usa el campo de abajo para agregar la primera subtarea.</p>
+  </div>
+
+  <ion-item>
+    <ion-input [(ngModel)]="nuevoTitulo" placeholder="Nueva subtarea"></ion-input>
+    <ion-button (click)="agregarSubtarea()">Agregar</ion-button>
+  </ion-item>
+</ion-content>

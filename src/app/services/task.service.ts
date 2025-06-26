@@ -3,6 +3,8 @@ import { Firestore, collection, collectionData, doc, addDoc, updateDoc, getDocs,
 import { Observable, of } from 'rxjs';
 import { Tarea, Subtarea } from '../models/tarea.model';
 import { RegistroTarea } from '../models/registro-tarea.model';
+import { map } from 'rxjs/operators';
+import { docData } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +26,12 @@ export class TaskService {
     );
 
     return collectionData(q, { idField: 'id' }) as Observable<Tarea[]>;
+  }
+
+  // NUEVO: Obtener una tarea por su ID
+  getTaskById(userId: string, tareaId: string): Observable<Tarea | undefined> {
+    const tareaDocRef = doc(this.firestore, `usuarios/${userId}/tareas/${tareaId}`);
+    return docData(tareaDocRef, { idField: 'id' }) as Observable<Tarea | undefined>;
   }
 
   async agregarTask(userId: string, tareaData: Partial<Tarea>): Promise<DocumentReference> {

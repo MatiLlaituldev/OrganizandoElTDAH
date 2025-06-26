@@ -13,9 +13,11 @@ import { Timestamp } from 'firebase/firestore';
 import { RegistroTarea } from 'src/app/models/registro-tarea.model';
 import { switchMap, tap } from 'rxjs/operators';
 
-// --- AÑADIDO ---
 import { Meta } from 'src/app/models/meta.model';
 import { GoalService } from 'src/app/services/goal.service';
+
+// --- AÑADIDO ---
+import { Router } from '@angular/router';
 
 // ViewModel que combina la Tarea con su Registro del día para facilitar su uso en la vista.
 export interface TareaViewModel extends Tarea {
@@ -60,7 +62,8 @@ export class TaskListPage implements OnInit, OnDestroy {
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
-    private goalService: GoalService // <--- NUEVO
+    private goalService: GoalService, // <--- NUEVO
+    private router: Router // <--- AÑADIDO
   ) {}
 
   ngOnInit() {
@@ -109,7 +112,6 @@ export class TaskListPage implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  // --- REEMPLAZADO ---
   aplicarFiltros() {
     const tareasConRegistro: TareaViewModel[] = this.todasLasTareas.map(tarea => ({
       ...tarea,
@@ -312,6 +314,7 @@ export class TaskListPage implements OnInit, OnDestroy {
     });
     await toast.present();
   }
+
   getPriorityClass(prioridad?: number): string {
     switch (prioridad) {
       case 3: return 'priority-high';
@@ -320,9 +323,17 @@ export class TaskListPage implements OnInit, OnDestroy {
       default: return '';
     }
   }
+
   getMetaTitulo(metaId: string | null | undefined, metas: Meta[] | null | undefined): string | null {
-  if (!metaId || !metas) return null;
-  const meta = metas.find(m => m.id === metaId);
-  return meta ? meta.titulo : null;
-}
+    if (!metaId || !metas) return null;
+    const meta = metas.find(m => m.id === metaId);
+    return meta ? meta.titulo : null;
+  }
+
+  // --- NUEVO: Navegación al detalle de tarea ---
+  verDetalleTarea(tarea: Tarea) {
+    if (tarea.id) {
+      this.router.navigate(['/task-detail', tarea.id]);
+    }
+  }
 }
