@@ -35,6 +35,20 @@ const routes: Routes = [
         (m) => m.TaskDetailPageModule
       ),
   },
+  {
+    path: 'task-stats',
+    loadChildren: () =>
+      import('./tasks/pages/task-stats/task-stats.module').then(
+        (m) => m.TaskStatsPageModule
+      ),
+  },
+   {
+    path: 'habit-stats',
+    loadChildren: () =>
+      import('./habits/pages/habit-stats/habit-stats.module').then(
+        (m) => m.HabitStatsPageModule
+      ),
+  },
 ];
 
 @NgModule({

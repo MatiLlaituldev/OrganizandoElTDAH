@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Estadísticas de hábitos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Histórico de hábitos completados -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Histórico de hábitos ({{ rango }})</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <apx-chart
+        [series]="historicoSeries"
+        [chart]="{ type: 'bar' }"
+        [xaxis]="{ categories: fechas }"
+        [labels]="fechas">
+      </apx-chart>
+      <p>Porcentaje de cumplimiento: {{ porcentajeCumplimiento }}%</p>
+      <p>Promedio completados/día: {{ promedioPorDia }}</p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Racha y progreso por hábito -->
+  <ion-card *ngFor="let habito of habitos">
+    <ion-card-header>
+      <ion-card-title>{{ habito.titulo }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Racha actual: {{ habito.rachaActual || 0 }} días</p>
+      <p>Mejor racha: {{ habito.mejorRacha || 0 }} días</p>
+      <p>Meta: {{ habito.metaRacha || 21 }} días</p>
+      <ion-progress-bar
+        [value]="estadisticasService.progresoMetaHabito(habito)"
+        color="tertiary">
+      </ion-progress-bar>
+      <small>
+        Progreso: {{ (estadisticasService.progresoMetaHabito(habito) * 100) | number:'1.0-0' }}%
+        ({{ habito.rachaActual || 0 }}/{{ habito.metaRacha || 21 }} días)
+      </small>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
