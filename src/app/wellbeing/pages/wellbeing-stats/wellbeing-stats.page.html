@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Estadísticas de Bienestar</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+
+  <h2>{{ title.text }}</h2>
+
+  <apx-chart
+    [series]="series"
+    [chart]="chartOptions"
+    [xaxis]="xaxis"
+    [yaxis]="yaxis">
+  </apx-chart>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Resumen</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p><strong>Promedio de ánimo:</strong> {{ promedioAnimo }}</p>
+      <p *ngIf="mejorDia">
+        <strong>Mejor día ánimo:</strong> {{ mejorDia.fecha }} ({{ getTextoAnimo(mejorDia.estadoAnimo) }} {{ getEmojiAnimo(mejorDia.estadoAnimo) }})
+      </p>
+      <p *ngIf="peorDia">
+        <strong>Peor día ánimo:</strong> {{ peorDia.fecha }} ({{ getTextoAnimo(peorDia.estadoAnimo) }} {{ getEmojiAnimo(peorDia.estadoAnimo) }})
+      </p>
+      <hr>
+      <p><strong>Promedio de energía:</strong> {{ promedioEnergia }}</p>
+      <p *ngIf="mejorEnergia">
+        <strong>Mejor día energía:</strong> {{ mejorEnergia.fecha }} ({{ getTextoEnergia(mejorEnergia.nivelEnergia) }} {{ getEmojiEnergia(mejorEnergia.nivelEnergia) }})
+      </p>
+      <p *ngIf="peorEnergia">
+        <strong>Peor día energía:</strong> {{ peorEnergia.fecha }} ({{ getTextoEnergia(peorEnergia.nivelEnergia) }} {{ getEmojiEnergia(peorEnergia.nivelEnergia) }})
+      </p>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

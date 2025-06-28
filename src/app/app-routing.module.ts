@@ -49,6 +49,21 @@ const routes: Routes = [
         (m) => m.HabitStatsPageModule
       ),
   },
+  {
+  path: 'wellbeing-stats',
+  loadChildren: () =>
+    import('./wellbeing/pages/wellbeing-stats/wellbeing-stats.module').then(
+      (m) => m.WellbeingStatsPageModule
+    ),
+},  {
+    path: 'goal-stats',
+    loadChildren: () => import('./goals/pages/goal-stats/goal-stats.module').then( m => m.GoalStatsPageModule)
+  },
+  {
+    path: 'informe-mensual',
+    loadChildren: () => import('./profile/pages/informe-mensual/informe-mensual.module').then( m => m.InformeMensualPageModule)
+  },
+
 ];
 
 @NgModule({

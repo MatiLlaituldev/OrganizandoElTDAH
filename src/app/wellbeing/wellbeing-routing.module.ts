@@ -7,7 +7,11 @@ const routes: Routes = [
   {
     path: '',
     component: WellbeingPage
+  },  {
+    path: 'wellbeing-stats',
+    loadChildren: () => import('./pages/wellbeing-stats/wellbeing-stats.module').then( m => m.WellbeingStatsPageModule)
   }
+
 ];
 
 @NgModule({

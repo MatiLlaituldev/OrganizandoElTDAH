@@ -1,0 +1,83 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Informe Mensual</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Mensaje de error -->
+  <ion-card *ngIf="errorCarga && !cargando">
+    <ion-card-content color="danger">
+      <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+      <span style="color: var(--ion-color-danger); font-weight: bold;">
+        Ocurrió un error al cargar el informe mensual.
+      </span>
+    </ion-card-content>
+  </ion-card>
+
+  <ng-container *ngIf="!cargando && !errorCarga; else loading">
+    <ng-container *ngIf="informeActual; else sinInforme">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            {{ informeActual.mes + 1 }}/{{ informeActual.anio }}
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p style="font-size: 0.9em; color: gray;">
+            Ejemplo: 8/10 (80%) significa 8 completadas de 10 posibles este mes.
+          </p>
+          <apx-chart
+            [series]="chartSeries"
+            [chart]="chartOptions"
+            [xaxis]="chartXAxis"
+            [yaxis]="chartYAxis">
+          </apx-chart>
+          <ion-list>
+            <ion-item>
+              <ion-label><strong>Tareas completadas:</strong></ion-label>
+              <ion-note slot="end">
+                {{ informeActual.tareasCompletadas }}/{{ informeActual.totalTareas }} ({{ informeActual.porcentajeTareas }}%)
+              </ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label><strong>Hábitos completados:</strong></ion-label>
+              <ion-note slot="end">
+                {{ informeActual.habitosCompletados }}/{{ informeActual.totalHabitos }} ({{ informeActual.porcentajeHabitos }}%)
+              </ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label><strong>Metas alcanzadas:</strong></ion-label>
+              <ion-note slot="end">
+                {{ informeActual.metasCompletadas }}/{{ informeActual.totalMetas }} ({{ informeActual.porcentajeMetas }}%)
+              </ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label><strong>Promedio ánimo:</strong></ion-label>
+              <ion-note slot="end">
+                {{ informeActual.promedioAnimo }} / 5 ({{ informeActual.promedioAnimo * 20 | number:'1.0-0' }}%)
+              </ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label><strong>Promedio energía:</strong></ion-label>
+              <ion-note slot="end">
+                {{ informeActual.promedioEnergia }} / 5 ({{ informeActual.promedioEnergia * 20 | number:'1.0-0' }}%)
+              </ion-note>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+    <ng-template #sinInforme>
+      <ion-card>
+        <ion-card-content>
+          <p>No hay informe mensual para este mes.</p>
+        </ion-card-content>
+      </ion-card>
+    </ng-template>
+  </ng-container>
+  <ng-template #loading>
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando informe mensual...</p>
+  </ng-template>
+</ion-content>
