@@ -37,7 +37,7 @@
       </ion-progress-bar>
       <small>
         Progreso: {{ (estadisticasService.progresoMetaHabito(habito) * 100) | number:'1.0-0' }}%
-        ({{ habito.rachaActual || 0 }}/{{ habito.metaRacha || 21 }} días)
+        ({{ habito.rachaActual  }}/{{ habito.metaRacha || 21 }} días)
       </small>
     </ion-card-content>
   </ion-card>

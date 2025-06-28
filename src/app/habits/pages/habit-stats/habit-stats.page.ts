@@ -33,6 +33,11 @@ export class HabitStatsPage implements OnInit {
     if (user) {
       this.fechas = this.estadisticasService.getFechasRango(this.rango);
 
+      // Traer todos los hábitos del usuario
+      this.habitoService.getHabitos(user.uid).subscribe((habitos: Habito[]) => {
+        this.habitos = habitos;
+      });
+
       // Traer todos los registros de hábitos del usuario
       this.habitoService.getTodosRegistrosHabitos(user.uid).subscribe((registros: RegistroHabito[]) => {
         this.registros = registros.filter(r => this.fechas.includes(r.fecha));
@@ -42,27 +47,7 @@ export class HabitStatsPage implements OnInit {
         ];
         this.porcentajeCumplimiento = this.estadisticasService.porcentajeCumplimientoHabitos(this.registros, this.fechas);
         this.promedioPorDia = this.estadisticasService.promedioHabitosPorDia(this.registros, this.fechas);
-
-        // Traer todos los hábitos del usuario y calcular la racha actual para cada uno
-        this.habitoService.getHabitos(user.uid).subscribe((habitos: Habito[]) => {
-          this.habitos = habitos.map(habito => {
-            const racha = habito.id
-              ? this.estadisticasService.rachaActualHabito(
-                  this.registros,
-                  this.fechas,
-                  habito.id
-                )
-              : 0;
-            return { ...habito, rachaActual: racha };
-          });
-        });
       });
     }
-  }
-
-  // Calcula el progreso de un hábito para la barra de progreso
-  progresoHabito(habito: Habito): number {
-    if (!habito.metaRacha) return 0;
-    return Math.min((habito.rachaActual || 0) / habito.metaRacha, 1);
   }
 }
