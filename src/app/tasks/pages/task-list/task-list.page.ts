@@ -19,9 +19,13 @@ import { GoalService } from 'src/app/services/goal.service';
 // --- AÑADIDO ---
 import { Router } from '@angular/router';
 
+// 🔥 ANIMACIONES ÉPICAS
+import { trigger, state, style, transition, animate } from '@angular/animations';
+
 // ViewModel que combina la Tarea con su Registro del día para facilitar su uso en la vista.
 export interface TareaViewModel extends Tarea {
   registro?: RegistroTarea;
+  showSubtasks?: boolean; // 🔥 NUEVA PROPIEDAD PARA EXPANDIR SUBTAREAS
 }
 
 interface Day {
@@ -35,6 +39,24 @@ interface Day {
   templateUrl: './task-list.page.html',
   styleUrls: ['./task-list.page.scss'],
   standalone: false,
+  // 🔥 ANIMACIONES ÉPICAS AGREGADAS
+  animations: [
+    trigger('slideDown', [
+      transition(':enter', [
+        style({ height: '0px', opacity: 0, overflow: 'hidden' }),
+        animate('300ms ease-out', style({ height: '*', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        style({ height: '*', opacity: 1, overflow: 'hidden' }),
+        animate('300ms ease-in', style({ height: '0px', opacity: 0 }))
+      ])
+    ]),
+    trigger('expandIcon', [
+      state('collapsed', style({ transform: 'rotate(0deg)' })),
+      state('expanded', style({ transform: 'rotate(180deg)' })),
+      transition('collapsed <=> expanded', animate('300ms ease-in-out'))
+    ])
+  ]
 })
 export class TaskListPage implements OnInit, OnDestroy {
 
@@ -115,7 +137,8 @@ export class TaskListPage implements OnInit, OnDestroy {
   aplicarFiltros() {
     const tareasConRegistro: TareaViewModel[] = this.todasLasTareas.map(tarea => ({
       ...tarea,
-      registro: this.getRegistroParaTarea(tarea)
+      registro: this.getRegistroParaTarea(tarea),
+      showSubtasks: false // 🔥 INICIALIZAR EN FALSE
     }));
 
     let tareasDelDia = tareasConRegistro.filter(t => this.esTareaDelDiaSeleccionado(t));
@@ -335,5 +358,27 @@ export class TaskListPage implements OnInit, OnDestroy {
     if (tarea.id) {
       this.router.navigate(['/task-detail', tarea.id]);
     }
+  }
+
+  // 🔥 MÉTODO PARA TOGGLE DE SUBTAREAS
+  toggleSubtasksView(tarea: TareaViewModel): void {
+    // Alternar el estado de showSubtasks
+    tarea.showSubtasks = !tarea.showSubtasks;
+  }
+
+  // 🔥 MÉTODO PARA CONTAR SUBTAREAS COMPLETADAS
+  getCompletedSubtasksCount(tarea: TareaViewModel): number {
+    if (!tarea.subtareas || tarea.subtareas.length === 0) {
+      return 0;
+    }
+
+    return tarea.subtareas.filter((subtarea: Subtarea) =>
+      this.estaSubtareaCompletada(subtarea, tarea.registro)
+    ).length;
+  }
+
+  // 🔥 MÉTODO AUXILIAR PARA ESTADO DE EXPANSIÓN DE ICONOS
+  getExpandIconState(tarea: TareaViewModel): string {
+    return tarea.showSubtasks ? 'expanded' : 'collapsed';
   }
 }

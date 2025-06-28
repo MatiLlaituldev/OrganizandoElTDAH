@@ -1,82 +1,310 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+  <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-menu-button class="menu-btn-epic"></ion-menu-button>
     </ion-buttons>
-    <ion-title>Mis Metas</ion-title>
+    <ion-title class="header-title">
+      <div class="title-container">
+        <ion-icon name="flag" class="title-icon"></ion-icon>
+        <span>Mis Metas</span>
+        <ion-badge *ngIf="(metas$ | async)?.length" color="warning" class="metas-count">
+          {{ (metas$ | async)?.length }}
+        </ion-badge>
+      </div>
+    </ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="abrirModalMeta()">
-        <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+      <ion-button (click)="abrirModalMeta()" class="add-btn-epic">
+        <ion-icon slot="icon-only" name="add-circle" class="add-icon"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="goal-list-content">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Mis Metas 🎯</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
-    <ion-refresher-content></ion-refresher-content>
+    <ion-refresher-content
+      pulling-icon="chevron-down-circle-outline"
+      pulling-text="Desliza para actualizar"
+      refreshing-spinner="crescent"
+      refreshing-text="Actualizando metas...">
+    </ion-refresher-content>
   </ion-refresher>
 
-  <div *ngIf="isLoading" class="state-container">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p>Cargando metas...</p>
-  </div>
-  <div *ngIf="!isLoading && !(metas$ | async)?.length" class="state-container empty-state">
-    <ion-icon name="flag-outline" class="empty-icon"></ion-icon>
-    <p>¡Aún no tienes metas! Crea tu primera meta para empezar a organizar tus sueños.</p>
-    <ion-button fill="outline" (click)="abrirModalMeta()" class="add-first-button">
-      <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-      Crear mi primera meta
-    </ion-button>
+  <!-- 🔥 HERO STATS SECTION - Solo si hay metas -->
+  <div class="hero-stats-section" *ngIf="(metas$ | async)?.length">
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-icon">
+          <ion-icon name="flag"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ (metas$ | async)?.length || 0 }}</span>
+          <span class="stat-label">Metas Activas</span>
+        </div>
+      </div>
+
+      <div class="stat-card progress">
+        <div class="stat-icon">
+          <ion-icon name="trending-up"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">85%</span>
+          <span class="stat-label">Progreso</span>
+        </div>
+      </div>
+
+      <div class="stat-card tasks">
+        <div class="stat-icon">
+          <ion-icon name="checkmark-circle"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">12</span>
+          <span class="stat-label">Tareas</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <ion-button
+        fill="outline"
+        size="small"
+        (click)="abrirModalMeta()"
+        class="quick-action-btn">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Nueva Meta
+      </ion-button>
+
+      <ion-button
+        fill="outline"
+        size="small"
+        routerLink="/goal-stats"
+        class="quick-action-btn">
+        <ion-icon name="bar-chart" slot="start"></ion-icon>
+        Estadísticas
+      </ion-button>
+    </div>
   </div>
 
-  <div class="goals-container" *ngIf="metas$ | async as metas">
+  <!-- 🔥 LOADING STATE ÉPICO -->
+  <div *ngIf="isLoading" class="state-container loading-epic">
+    <div class="loading-animation">
+      <div class="spinner-container">
+        <ion-spinner name="crescent" class="epic-spinner"></ion-spinner>
+        <div class="loading-pulse"></div>
+      </div>
+      <h3>✨ Cargando tus metas</h3>
+      <p>Preparando tu camino al éxito...</p>
+    </div>
+  </div>
+
+  <!-- 🔥 EMPTY STATE ÉPICO -->
+  <div *ngIf="!isLoading && !(metas$ | async)?.length" class="state-container empty-state-epic">
+    <div class="empty-illustration">
+      <div class="empty-icon-container">
+        <ion-icon name="flag-outline" class="empty-icon-main"></ion-icon>
+        <div class="sparkles">
+          <div class="sparkle sparkle-1">✨</div>
+          <div class="sparkle sparkle-2">⭐</div>
+          <div class="sparkle sparkle-3">🌟</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-content">
+      <h2 class="empty-title">¡Comienza tu Viaje! 🚀</h2>
+      <p class="empty-description">
+        Las grandes cosas empiezan con pequeños pasos.
+        <strong>Crea tu primera meta</strong> y convierte tus sueños en realidad.
+      </p>
+
+      <div class="empty-features">
+        <div class="feature-item">
+          <ion-icon name="target" color="primary"></ion-icon>
+          <span>Define objetivos claros</span>
+        </div>
+        <div class="feature-item">
+          <ion-icon name="trending-up" color="success"></ion-icon>
+          <span>Rastrea tu progreso</span>
+        </div>
+        <div class="feature-item">
+          <ion-icon name="trophy" color="warning"></ion-icon>
+          <span>Celebra tus logros</span>
+        </div>
+      </div>
+
+      <ion-button
+        expand="block"
+        size="large"
+        (click)="abrirModalMeta()"
+        class="create-first-meta-btn">
+        <ion-icon slot="start" name="rocket"></ion-icon>
+        <strong>🎯 Crear Mi Primera Meta</strong>
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- 🔥 METAS CONTAINER ÉPICO -->
+  <div class="goals-container-epic" *ngIf="metas$ | async as metas">
     <ng-container *ngIf="tareas$ | async as tareas">
       <ng-container *ngIf="habitos$ | async as habitos">
-        <ion-item-sliding *ngFor="let meta of metas" class="goal-item-sliding">
-          <ion-item-options side="end">
-            <ion-item-option color="light" (click)="editarMeta(meta)">
-              <ion-icon slot="icon-only" name="create-outline"></ion-icon>
-            </ion-item-option>
-            <ion-item-option color="danger" (click)="eliminarMeta(meta)">
-              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-            </ion-item-option>
-          </ion-item-options>
 
-          <ion-item lines="none" class="goal-panel-wrapper" detail="false" (click)="verDetalleMeta(meta)">
-            <div class="goal-panel">
-              <div class="panel-header">
-                <h2 class="panel-title">{{ meta.titulo }}</h2>
-                <div class="progress-ring"
-                     [style.--progress]="getProgresoMeta(meta, tareas, habitos)"
-                     [style.--goal-color]="meta.color || 'var(--theme-accent-alt)'">
-                  <span class="progress-ring-text">{{ getProgresoMeta(meta, tareas, habitos) | number:'1.0-0' }}%</span>
-                </div>
-              </div>
+        <!-- 🔥 TOOLBAR DE METAS -->
+        <div class="goals-toolbar">
+          <div class="toolbar-left">
+            <h3 class="section-title">
+              <ion-icon name="list"></ion-icon>
+              Tus Metas ({{ metas.length }})
+            </h3>
+          </div>
+        </div>
 
-              <div class="panel-content">
-                <p class="panel-description" *ngIf="meta.descripcion">{{ meta.descripcion }}</p>
+        <!-- 🔥 GRID DE METAS ÉPICO -->
+        <div class="metas-grid">
+          <div
+            *ngFor="let meta of metas"
+            class="meta-card-wrapper"
+            [class.completed]="getProgresoMeta(meta, tareas, habitos) === 100">
 
-                <div class="card-stats">
-                  <div class="stat-item">
-                    <ion-icon name="checkbox-outline"></ion-icon>
-                    <span>{{ getTaskCountForMeta(meta, tareas) }} Tareas</span>
+            <ion-item-sliding class="meta-sliding goal-item-sliding">
+              <!-- 🔥 OPCIONES DE DESLIZAMIENTO -->
+              <ion-item-options side="end">
+                <ion-item-option color="light" (click)="editarMeta(meta)">
+                  <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+                </ion-item-option>
+                <ion-item-option color="danger" (click)="eliminarMeta(meta)">
+                  <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                </ion-item-option>
+              </ion-item-options>
+
+              <!-- 🔥 ION-ITEM QUE ENVUELVE LA CARD -->
+              <ion-item class="meta-item-wrapper" button (click)="verDetalleMeta(meta)">
+                <!-- 🔥 NUEVA ESTRUCTURA DE CARD ÉPICA -->
+                <div class="meta-card">
+                  <!-- Header -->
+                  <div class="meta-header">
+                    <div class="meta-category">
+                      <ion-chip
+                        color="primary"
+                        size="small"
+                        class="category-chip">
+                        <ion-icon name="bookmark" slot="start"></ion-icon>
+                        <ion-label>Meta</ion-label>
+                      </ion-chip>
+                    </div>
+
+                    <div class="meta-priority">
+                      <ion-badge
+                        [color]="meta.color || 'primary'"
+                        class="priority-badge">
+                        Activa
+                      </ion-badge>
+                    </div>
                   </div>
-                  <div class="stat-item">
-                    <ion-icon name="flame-outline"></ion-icon>
-                    <span>{{ getHabitCountForMeta(meta, habitos) }} Hábitos</span>
+
+                  <!-- Contenido Principal -->
+                  <div class="meta-content">
+                    <h3 class="meta-title">{{ meta.titulo }}</h3>
+                    <p class="meta-description" *ngIf="meta.descripcion">
+                      {{ meta.descripcion }}
+                    </p>
+
+                    <!-- 🔥 PROGRESO ÉPICO CON TU LÓGICA EXISTENTE -->
+                    <div class="progress-section">
+                      <div class="progress-header">
+                        <span class="progress-label">Progreso</span>
+                        <span class="progress-percentage">
+                          {{ getProgresoMeta(meta, tareas, habitos) | number:'1.0-0' }}%
+                        </span>
+                      </div>
+
+                      <div class="progress-bar-container">
+                        <div class="progress-bar-bg">
+                          <div
+                            class="progress-bar-fill"
+                            [style.width.%]="getProgresoMeta(meta, tareas, habitos)"
+                            [style.background]="meta.color || 'linear-gradient(90deg, #667eea, #764ba2)'">
+                          </div>
+                        </div>
+
+                        <!-- Confetti si está al 100% -->
+                        <div
+                          *ngIf="getProgresoMeta(meta, tareas, habitos) === 100"
+                          class="confetti-container">
+                          <div class="confetti">🎉</div>
+                          <div class="confetti">🎊</div>
+                          <div class="confetti">✨</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 🔥 ESTADÍSTICAS CON TU LÓGICA EXISTENTE -->
+                    <div class="meta-stats">
+                      <div class="stat-item">
+                        <ion-icon name="checkbox-outline" color="primary"></ion-icon>
+                        <span>{{ getTaskCountForMeta(meta, tareas) }} tareas</span>
+                      </div>
+                      <div class="stat-item">
+                        <ion-icon name="flame-outline" color="danger"></ion-icon>
+                        <span>{{ getHabitCountForMeta(meta, habitos) }} hábitos</span>
+                      </div>
+                    </div>
+
+                    <!-- 🔥 RESUMEN CON TU LÓGICA EXISTENTE -->
+                    <div class="meta-summary">
+                      <p class="summary-text">{{ getResumenMeta(meta, tareas, habitos) }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Footer -->
+                  <div class="meta-footer">
+                    <div class="footer-left">
+                      <ion-chip
+                        *ngIf="getProgresoMeta(meta, tareas, habitos) === 100"
+                        color="success"
+                        class="completed-chip">
+                        <ion-icon name="trophy" slot="start"></ion-icon>
+                        <ion-label>¡Completada!</ion-label>
+                      </ion-chip>
+
+                      <span
+                        *ngIf="getProgresoMeta(meta, tareas, habitos) < 100"
+                        class="updated-date">
+                        En progreso
+                      </span>
+                    </div>
+
+                    <div class="footer-right">
+                      <ion-button
+                        fill="clear"
+                        size="small"
+                        class="view-details-btn"
+                        (click)="verDetalleMeta(meta); $event.stopPropagation()">
+                        <ion-icon name="arrow-forward" slot="end"></ion-icon>
+                        Ver detalles
+                      </ion-button>
+                    </div>
                   </div>
                 </div>
+              </ion-item>
+            </ion-item-sliding>
+          </div>
+        </div>
 
-                <div class="summary-text">{{ getResumenMeta(meta, tareas, habitos) }}</div>
-              </div>
-            </div>
-          </ion-item>
-        </ion-item-sliding>
       </ng-container>
     </ng-container>
   </div>
-  <ion-button routerLink="/goal-stats" expand="block" color="primary">
-  Ver estadísticas de metas
-</ion-button>
+
+  <!-- 🔥 FLOATING ACTION BUTTON -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="(metas$ | async)?.length">
+    <ion-fab-button class="main-fab" (click)="abrirModalMeta()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

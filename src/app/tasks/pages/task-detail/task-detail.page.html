@@ -1,44 +1,87 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Gestor de subtareas</ion-title>
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary" class="epic-header">
+    <ion-buttons slot="start">
+      <ion-back-button class="epic-back-btn" defaultHref="/tabs/tasks"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="epic-title">Gestor de subtareas</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-card *ngIf="tarea">
-    <ion-card-header>
-      <ion-card-title>{{ tarea.titulo }}</ion-card-title>
-      <ion-card-subtitle>{{ tarea.descripcion }}</ion-card-subtitle>
+<ion-content [fullscreen]="true" class="epic-content">
+
+  <!-- 🔥 CARD PRINCIPAL ÉPICA -->
+  <ion-card *ngIf="tarea" class="main-task-card-epic">
+    <ion-card-header class="epic-card-header">
+      <ion-card-title class="epic-card-title">{{ tarea.titulo }}</ion-card-title>
+      <ion-card-subtitle class="epic-card-subtitle">{{ tarea.descripcion }}</ion-card-subtitle>
     </ion-card-header>
   </ion-card>
 
-  <ion-list>
-    <ion-list-header>Subtareas</ion-list-header>
-    <ion-item *ngFor="let subtarea of subtareas">
+  <!-- 🔥 LISTA ÉPICA -->
+  <ion-list class="epic-subtasks-list">
+    <ion-list-header class="epic-list-header">
+      <div class="header-content-epic">
+        <ion-icon name="list-outline" class="header-icon"></ion-icon>
+        <span class="header-text">Subtareas</span>
+      </div>
+    </ion-list-header>
+
+    <ion-item *ngFor="let subtarea of subtareas" class="epic-subtask-item">
       <ion-checkbox
         slot="start"
         [(ngModel)]="subtarea.completada"
-        (ionChange)="actualizarEstadoSubtarea(subtarea)">
+        (ionChange)="actualizarEstadoSubtarea(subtarea)"
+        class="epic-checkbox">
       </ion-checkbox>
-      <ion-label>{{ subtarea.titulo }}</ion-label>
+      <ion-label class="epic-label" [class.completed-label]="subtarea.completada">
+        {{ subtarea.titulo }}
+      </ion-label>
       <ion-button
         fill="clear"
         color="danger"
         slot="end"
         [disabled]="!subtarea.id"
-        (click)="subtarea.id && eliminarSubtarea(subtarea.id)">
-        Eliminar
+        (click)="subtarea.id && eliminarSubtarea(subtarea.id)"
+        class="epic-delete-btn">
+        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-item>
   </ion-list>
 
-  <div *ngIf="subtareas.length === 0" class="ion-text-center ion-padding">
-    <ion-icon name="list-outline" size="large" color="medium"></ion-icon>
-    <p>No hay subtareas aún. Usa el campo de abajo para agregar la primera subtarea.</p>
+  <!-- 🔥 EMPTY STATE ÉPICO -->
+  <div *ngIf="subtareas.length === 0" class="empty-state-epic">
+    <div class="empty-icon-container">
+      <ion-icon name="list-outline" class="empty-icon-main"></ion-icon>
+      <div class="sparkles-empty">
+        <div class="sparkle">✨</div>
+        <div class="sparkle">📝</div>
+        <div class="sparkle">💫</div>
+      </div>
+    </div>
+    <p class="empty-description">No hay subtareas aún. Usa el campo de abajo para agregar la primera subtarea.</p>
   </div>
 
-  <ion-item>
-    <ion-input [(ngModel)]="nuevoTitulo" placeholder="Nueva subtarea"></ion-input>
-    <ion-button (click)="agregarSubtarea()">Agregar</ion-button>
+  <!-- 🔥 INPUT PARA AGREGAR ÉPICO -->
+  <ion-item class="epic-add-item">
+    <ion-input
+      [(ngModel)]="nuevoTitulo"
+      placeholder="Nueva subtarea"
+      class="epic-input"
+      clearInput="true">
+    </ion-input>
+    <ion-button
+      (click)="agregarSubtarea()"
+      fill="solid"
+      shape="round"
+      class="epic-add-btn">
+      <ion-icon name="add-outline" slot="start"></ion-icon>
+      Agregar
+    </ion-button>
   </ion-item>
+
+  <!-- 🔥 CEREBRITO DE FONDO -->
+  <div class="background-cerebrito-epic">
+    <img src="./assets/images/C3.png" alt="Cerebrito C3" class="cerebrito-background" />
+  </div>
+
 </ion-content>

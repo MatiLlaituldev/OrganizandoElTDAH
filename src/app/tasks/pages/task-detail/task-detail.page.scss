@@ -1,0 +1,574 @@
+/* ======================================================
+   CSS ÉPICO para Task Detail - Estilo Wellbeing
+   ====================================================== */
+
+// --- Variables Épicas ---
+:host {
+  --theme-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --glass-bg: rgba(255, 255, 255, 0.12);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.18);
+  --panel-bg: rgba(255, 255, 255, 0.95);
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --text-light: rgba(255, 255, 255, 0.95);
+  --border-radius: 20px;
+  --shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  --shadow-hover: 0 12px 40px rgba(31, 38, 135, 0.5);
+  --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --success-color: #2ed573;
+  --danger-color: #ff4757;
+}
+
+// --- Content Principal ---
+.epic-content {
+  --background: var(--theme-bg);
+  --color: var(--text-light);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+// --- Header Épico ---
+.epic-header {
+  --background: transparent;
+  --color: var(--text-light);
+  backdrop-filter: blur(20px);
+  border-bottom: var(--glass-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+  .epic-back-btn {
+    --color: var(--text-light);
+    --border-radius: 12px;
+    transition: var(--transition);
+
+    &:hover {
+      transform: scale(1.1);
+      --background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .epic-title {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text-light);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+// --- Card Principal Épica ---
+.main-task-card-epic {
+  margin: 20px;
+  border-radius: var(--border-radius);
+  background: var(--panel-bg);
+  border: var(--glass-border);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  // 🔥 EFECTO DE BRILLO
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: var(--transition);
+  }
+
+  &:hover::before {
+    left: 100%;
+  }
+
+  .epic-card-header {
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+
+    .epic-card-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .epic-card-subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      font-weight: 500;
+    }
+  }
+}
+
+// --- Lista de Subtareas Épica ---
+.epic-subtasks-list {
+  margin: 20px;
+  border-radius: var(--border-radius);
+  background: var(--panel-bg);
+  border: var(--glass-border);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+
+  .epic-list-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 20px;
+    border: none;
+
+    .header-content-epic {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .header-icon {
+        font-size: 24px;
+        color: white;
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+      }
+
+      .header-text {
+        font-size: 18px;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+    }
+  }
+
+  .epic-subtask-item {
+    --background: transparent;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --inner-border-width: 0 0 1px 0;
+    --padding-start: 20px;
+    --padding-end: 20px;
+    --min-height: 72px;
+    transition: var(--transition);
+    position: relative;
+
+    &:hover {
+      --background: rgba(102, 126, 234, 0.05);
+      transform: translateX(4px);
+    }
+
+    &:last-child {
+      --inner-border-width: 0;
+    }
+
+    .epic-checkbox {
+      --size: 24px;
+      --checkmark-width: 3px;
+      --border-radius: 8px;
+      --background-checked: var(--success-color);
+      --border-color-checked: var(--success-color);
+      --checkmark-color: white;
+      margin-right: 16px;
+      transition: var(--transition);
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+
+    .epic-label {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: var(--transition);
+      line-height: 1.4;
+
+      &.completed-label {
+        text-decoration: line-through;
+        color: var(--success-color);
+        opacity: 0.7;
+      }
+    }
+
+    .epic-delete-btn {
+      --border-radius: 12px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+      --color: var(--danger-color);
+      margin-left: 8px;
+      transition: var(--transition);
+
+      &:hover {
+        --background: rgba(255, 71, 87, 0.1);
+        transform: scale(1.1);
+      }
+
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+
+    // 🔥 EFECTO DE COMPLETADO
+    &:has(.epic-checkbox[checked]) {
+      background: linear-gradient(90deg, transparent, rgba(46, 213, 115, 0.1), transparent);
+
+      &::after {
+        content: '🎉';
+        position: absolute;
+        right: 60px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+        opacity: 0.7;
+        animation: celebration 1s ease-out;
+      }
+    }
+  }
+}
+
+// --- Empty State Épico ---
+.empty-state-epic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+
+  .empty-icon-container {
+    position: relative;
+    margin-bottom: 24px;
+
+    .empty-icon-main {
+      font-size: 64px;
+      color: rgba(255, 255, 255, 0.7);
+      filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3));
+      animation: pulseIcon 2s ease-in-out infinite;
+    }
+
+    .sparkles-empty {
+      position: absolute;
+      top: -16px;
+      left: -16px;
+      right: -16px;
+      bottom: -16px;
+      pointer-events: none;
+
+      .sparkle {
+        position: absolute;
+        font-size: 16px;
+        animation: sparkleFloat 3s ease-in-out infinite;
+
+        &:nth-child(1) {
+          top: 0;
+          right: 0;
+          animation-delay: 0s;
+        }
+
+        &:nth-child(2) {
+          bottom: 0;
+          left: 0;
+          animation-delay: 1s;
+        }
+
+        &:nth-child(3) {
+          top: 30%;
+          left: -8px;
+          animation-delay: 2s;
+        }
+      }
+    }
+  }
+
+  .empty-description {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.5;
+    margin: 0;
+    font-weight: 500;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+}
+
+// --- Input para Agregar Épico ---
+.epic-add-item {
+  --background: var(--panel-bg);
+  --border-color: transparent;
+  --inner-border-width: 0;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --min-height: 80px;
+  margin: 20px;
+  border-radius: var(--border-radius);
+  border: var(--glass-border);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  position: relative;
+  z-index: 2;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .epic-input {
+    --background: transparent;
+    --color: var(--text-primary);
+    --placeholder-color: var(--text-secondary);
+    --padding-start: 0;
+    --padding-end: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    flex: 1;
+
+    &::part(native) {
+      background: transparent;
+    }
+  }
+
+  .epic-add-btn {
+    --background: linear-gradient(45deg, #667eea, #764ba2);
+    --color: white;
+    --border-radius: 16px;
+    --padding-start: 20px;
+    --padding-end: 20px;
+    --box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    height: 48px;
+    font-weight: 700;
+    margin-left: 12px;
+    transition: var(--transition);
+
+    &:hover {
+      --box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    ion-icon {
+      margin-right: 8px;
+      font-size: 18px;
+    }
+  }
+}
+
+// --- Cerebrito de Fondo ---
+.background-cerebrito-epic {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 1;
+  opacity: 0.3;
+  pointer-events: none;
+  animation: floatBackground 8s ease-in-out infinite;
+
+  .cerebrito-background {
+    width: 150px;
+    height: 150px;
+    filter: drop-shadow(0 8px 24px rgba(102, 126, 234, 0.3));
+    transition: var(--transition);
+  }
+}
+
+// --- Animaciones ---
+@keyframes floatBackground {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-15px) translateX(8px) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-20px) translateX(0px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-10px) translateX(-8px) rotate(-1deg);
+  }
+}
+
+@keyframes sparkleFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(-8px) rotate(90deg) scale(1.2);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-12px) rotate(180deg) scale(0.8);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(-6px) rotate(270deg) scale(1.1);
+    opacity: 0.9;
+  }
+}
+
+@keyframes pulseIcon {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+@keyframes celebration {
+  0% {
+    transform: translateY(-50%) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-50%) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50%) scale(1);
+    opacity: 0.7;
+  }
+}
+
+// --- Responsive ---
+@media (max-width: 768px) {
+  .main-task-card-epic,
+  .epic-subtasks-list,
+  .epic-add-item {
+    margin: 16px;
+  }
+
+  .epic-card-header {
+    padding: 20px;
+
+    .epic-card-title {
+      font-size: 20px;
+    }
+
+    .epic-card-subtitle {
+      font-size: 14px;
+    }
+  }
+
+  .epic-list-header {
+    padding: 16px;
+
+    .header-content-epic {
+      .header-icon {
+        font-size: 20px;
+      }
+
+      .header-text {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .epic-subtask-item {
+    --min-height: 64px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+
+    .epic-label {
+      font-size: 15px;
+    }
+  }
+
+  .epic-add-item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --min-height: 72px;
+
+    .epic-add-btn {
+      height: 44px;
+      --padding-start: 16px;
+      --padding-end: 16px;
+    }
+  }
+
+  .background-cerebrito-epic {
+    bottom: 60px;
+    right: 16px;
+
+    .cerebrito-background {
+      width: 120px;
+      height: 120px;
+    }
+  }
+}
+
+// --- Dark Mode ---
+@media (prefers-color-scheme: dark) {
+  :host {
+    --theme-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --panel-bg: rgba(255, 255, 255, 0.08);
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+  }
+}
+
+// --- Efectos adicionales ---
+.epic-subtask-item {
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, transparent, var(--success-color), transparent);
+    opacity: 0;
+    transition: var(--transition);
+  }
+
+  &:hover::before {
+    opacity: 0.6;
+  }
+
+  &:has(.epic-checkbox[checked])::before {
+    opacity: 1;
+    background: linear-gradient(180deg, var(--success-color), #26d665, var(--success-color));
+  }
+}
+
+// --- Mejoras en focus ---
+.epic-input {
+  &:focus-within {
+    --border-color: rgba(102, 126, 234, 0.6);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  }
+}
+
+.epic-add-btn {
+  &:focus {
+    outline: 3px solid rgba(102, 126, 234, 0.3);
+    outline-offset: 2px;
+  }
+}

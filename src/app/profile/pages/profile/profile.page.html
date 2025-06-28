@@ -4,44 +4,184 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <!-- Información del Usuario -->
-  <div class="ion-padding" *ngIf="userData">
-    <ion-avatar>
-      <img [src]="userData.photoURL" alt="Foto de perfil" />
-    </ion-avatar>
-    <h3>{{ userData.displayName }}</h3>
-    <p>{{ userData.email }}</p>
+<ion-content class="profile-content">
+  <!-- Hero Section del Usuario -->
+  <div class="user-hero-section" *ngIf="userData">
+    <div class="user-avatar-container">
+      <ion-avatar class="user-avatar">
+        <img [src]="userData.photoURL || 'assets/default-avatar.png'" alt="Foto de perfil" />
+      </ion-avatar>
+      <div class="avatar-badge">
+        <ion-icon name="checkmark" color="success"></ion-icon>
+      </div>
+    </div>
+    <div class="user-info">
+      <h2 class="user-name">{{ userData.displayName || 'Usuario' }}</h2>
+      <p class="user-email">{{ userData.email }}</p>
+      <div class="user-stats">
+        <div class="stat-item">
+          <span class="stat-number">12</span>
+          <span class="stat-label">Días activo</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">3</span>
+          <span class="stat-label">Recordatorios</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <ion-list>
-    <!-- Opción para Editar Perfil -->
-    <ion-item button detail>
-      <ion-icon name="person-circle-outline" slot="start"></ion-icon>
-      <ion-label>Editar Perfil</ion-label>
-    </ion-item>
+  <!-- 🔥 RECORDATORIOS - CARD ÉPICA FUNCIONAL -->
+  <div class="featured-section">
+    <ion-card class="recordatorios-hero-card" button (click)="irARecordatorios()">
+      <div class="card-gradient-bg"></div>
+      <ion-card-content>
+        <div class="hero-card-content">
+          <div class="icon-container">
+            <ion-icon name="alarm" class="main-icon"></ion-icon>
+            <div class="pulse-ring" *ngIf="proximoRecordatorio"></div>
+            <ion-badge
+              color="danger"
+              class="notification-badge"
+              *ngIf="proximoRecordatorio">
+              1
+            </ion-badge>
+          </div>
 
-    <!-- Gestión de Etiquetas -->
-    <ion-item button detail [routerLink]="['/tabs/gestion-etiquetas']">
-      <ion-icon name="pricetags-outline" slot="start"></ion-icon>
-      <ion-label>Gestionar Etiquetas</ion-label>
-    </ion-item>
+          <div class="content-info">
+            <h3 class="card-title">🔔 Recordatorios</h3>
 
-    <!-- Informe Mensual -->
-    <ion-item button detail [routerLink]="['/informe-mensual']">
-      <ion-icon name="bar-chart-outline" slot="start"></ion-icon>
-      <ion-label>Informe Mensual</ion-label>
-    </ion-item>
+            <!-- 🔥 LOADING STATE -->
+            <div *ngIf="cargandoRecordatorio" class="loading-state">
+              <ion-spinner name="dots" color="primary"></ion-spinner>
+              <p>Cargando...</p>
+            </div>
 
-    <!-- Opción de Configuración -->
-    <ion-item button detail>
-      <ion-icon name="settings-outline" slot="start"></ion-icon>
-      <ion-label>Configuración</ion-label>
-    </ion-item>
-  </ion-list>
+            <!-- 🔥 SI HAY PRÓXIMO RECORDATORIO -->
+            <div *ngIf="!cargandoRecordatorio && proximoRecordatorio" class="next-event-container">
+              <p class="next-event">
+                <strong>Próximo:</strong> {{ proximoRecordatorio.titulo }}
+              </p>
+              <div class="time-info">
+                <ion-chip
+                  [color]="tiempoHastaProximo === 'Vencido' ? 'danger' : 'warning'"
+                  class="time-chip">
+                  <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                  <ion-label>{{ tiempoHastaProximo }}</ion-label>
+                </ion-chip>
+                <ion-chip
+                  [color]="proximoRecordatorio.prioridad === 'alta' ? 'danger' :
+                           proximoRecordatorio.prioridad === 'media' ? 'warning' : 'success'"
+                  class="priority-chip"
+                  size="small">
+                  <ion-label>{{ proximoRecordatorio.prioridad }}</ion-label>
+                </ion-chip>
+              </div>
 
-  <!-- Botón para Cerrar Sesión -->
-  <ion-button expand="full" color="danger" (click)="presentLogoutConfirm()">
-    Cerrar Sesión
-  </ion-button>
+              <!-- 🔥 BOTÓN COMPLETAR RÁPIDO -->
+              <ion-button
+                fill="clear"
+                size="small"
+                color="success"
+                (click)="completarRecordatorioDesdePerfil(); $event.stopPropagation()"
+                class="quick-complete-btn">
+                <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+                Completar
+              </ion-button>
+            </div>
+
+            <!-- 🔥 SI NO HAY RECORDATORIOS -->
+            <div *ngIf="!cargandoRecordatorio && !proximoRecordatorio" class="no-reminders">
+              <p class="next-event">
+                <strong>¡Todo al día!</strong> 🎉
+              </p>
+              <div class="time-info">
+                <ion-chip color="success" class="time-chip">
+                  <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+                  <ion-label>Sin recordatorios pendientes</ion-label>
+                </ion-chip>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-arrow">
+            <ion-icon name="chevron-forward" class="arrow-icon"></ion-icon>
+          </div>
+        </div>
+
+        <!-- 🔥 MINI PREVIEW FUNCIONAL -->
+        <div class="preview-reminders">
+          <div class="reminder-dot" [class.active]="proximoRecordatorio"></div>
+          <div class="reminder-dot" [class.active]="!proximoRecordatorio"></div>
+          <div class="reminder-dot"></div>
+          <span class="reminder-text">
+            {{ proximoRecordatorio ? 'Ver todos los recordatorios' : 'Crear primer recordatorio' }}
+          </span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Menu Principal -->
+  <div class="main-menu">
+    <ion-list class="menu-list">
+
+      <!-- Quick Actions Grid -->
+      <div class="quick-actions-grid">
+        <ion-card class="quick-action-card" button>
+          <ion-card-content>
+            <ion-icon name="person-circle-outline" color="primary"></ion-icon>
+            <span>Editar Perfil</span>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="quick-action-card" button routerLink="/tabs/gestion-etiquetas">
+          <ion-card-content>
+            <ion-icon name="pricetags-outline" color="secondary"></ion-icon>
+            <span>Etiquetas</span>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="quick-action-card" button routerLink="/informe-mensual">
+          <ion-card-content>
+            <ion-icon name="bar-chart-outline" color="tertiary"></ion-icon>
+            <span>Informes</span>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="quick-action-card" button>
+          <ion-card-content>
+            <ion-icon name="settings-outline" color="medium"></ion-icon>
+            <span>Config</span>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Other Options -->
+      <div class="other-options">
+        <ion-item button routerLink="/feedback" class="feedback-item">
+          <ion-icon name="chatbubbles-outline" slot="start" color="primary"></ion-icon>
+          <ion-label>
+            <h3>Enviar Feedback</h3>
+            <p>Comparte tu opinión sobre la app</p>
+          </ion-label>
+          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+        </ion-item>
+      </div>
+    </ion-list>
+  </div>
+
+  <!-- Botón de Cerrar Sesión -->
+  <div class="logout-section">
+    <ion-button
+      expand="block"
+      fill="outline"
+      color="danger"
+      class="logout-button"
+      (click)="presentLogoutConfirm()">
+      <ion-icon name="log-out-outline" slot="start"></ion-icon>
+      Cerrar Sesión
+    </ion-button>
+  </div>
 </ion-content>

@@ -1,90 +1,292 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+  <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-menu-button class="menu-btn-epic"></ion-menu-button>
     </ion-buttons>
-    <ion-title>Mis Hábitos</ion-title>
+    <ion-title class="header-title">
+      <div class="title-container">
+        <ion-icon name="leaf" class="title-icon"></ion-icon>
+        <span>Mis Hábitos</span>
+        <ion-badge *ngIf="(habitosConEstado$ | async)?.length" color="tertiary" class="habits-count">
+          {{ (habitosConEstado$ | async)?.length }}
+        </ion-badge>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="abrirModalHabito()" class="add-btn-epic">
+        <ion-icon slot="icon-only" name="add-circle" class="add-icon"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="habits-list-content">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Mis Hábitos 🌱</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
-    <ion-refresher-content></ion-refresher-content>
+    <ion-refresher-content
+      pulling-icon="chevron-down-circle-outline"
+      pulling-text="Desliza para actualizar"
+      refreshing-spinner="crescent"
+      refreshing-text="Actualizando hábitos...">
+    </ion-refresher-content>
   </ion-refresher>
 
-  <div *ngIf="isLoading && !(habitosConEstado$ | async)?.length" class="loading-state">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p>Cargando hábitos...</p>
-  </div>
+  <!-- 🔥 HERO STATS SECTION - Solo si hay hábitos -->
+  <div class="hero-stats-section" *ngIf="(habitosConEstado$ | async)?.length">
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-icon">
+          <ion-icon name="leaf"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ (habitosConEstado$ | async)?.length || 0 }}</span>
+          <span class="stat-label">Hábitos Activos</span>
+        </div>
+      </div>
 
-  <div *ngIf="!isLoading && !(habitosConEstado$ | async)?.length" class="empty-state">
-    <ion-icon name="leaf-outline" class="empty-icon"></ion-icon>
-    <p>¡Empieza a construir buenos hábitos! Todavía no has añadido ninguno.</p>
-    <ion-button fill="outline" (click)="abrirModalHabito()" class="add-first-button">
-      <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-      Crear mi primer hábito
-    </ion-button>
-  </div>
+      <div class="stat-card streak">
+        <div class="stat-icon">
+          <ion-icon name="flame"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">5</span>
+          <span class="stat-label">Racha Máxima</span>
+        </div>
+      </div>
 
-  <div class="habits-grid" *ngIf="(habitosConEstado$ | async)?.length">
-    <div *ngFor="let habito of (habitosConEstado$ | async); trackBy: trackHabitoById">
-      <ion-item-sliding class="habit-sliding-item" #slidingItem>
-        <ion-item lines="none" class="habit-card-wrapper" detail="false">
-          <div class="habit-card" (click)="abrirModalHabito(habito)">
-            <div class="habit-icon-wrapper" [style.backgroundColor]="habito.color || 'var(--ion-color-primary)'">
-              <ion-icon [name]="habito.icono || 'sparkles-outline'"></ion-icon>
-            </div>
+      <div class="stat-card today">
+        <div class="stat-icon">
+          <ion-icon name="checkmark-circle"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">3</span>
+          <span class="stat-label">Hoy Completados</span>
+        </div>
+      </div>
+    </div>
 
-            <h2 class="habit-title">{{ habito.titulo }}</h2>
+    <div class="quick-actions">
+      <ion-button
+        fill="outline"
+        size="small"
+        (click)="abrirModalHabito()"
+        class="quick-action-btn">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Nuevo Hábito
+      </ion-button>
 
-            <!-- CHIP DE META ASOCIADA -->
-            <ng-container *ngIf="habito.metaId">
-              <ng-container *ngIf="metas$ | async as metas">
-                <ion-chip color="primary" *ngIf="getMetaTitulo(habito.metaId, metas)">
-                  <ion-icon name="flag-outline" color="primary" slot="start"></ion-icon>
-                  {{ getMetaTitulo(habito.metaId, metas) }}
-                </ion-chip>
-              </ng-container>
-            </ng-container>
-            <!-- FIN CHIP DE META -->
-
-            <p class="habit-racha" *ngIf="habito.rachaActual !== undefined && habito.rachaActual > 0">
-              <ion-icon name="flame" [style.color]="habito.color || 'var(--ion-color-tertiary)'"></ion-icon>
-              Racha: {{ habito.rachaActual }} {{ habito.rachaActual === 1 ? 'día' : 'días' }}
-            </p>
-            <p class="habit-racha" *ngIf="habito.rachaActual === 0">
-              ¡Empieza tu racha!
-            </p>
-
-            <ion-button expand="full"
-                        class="check-in-button"
-                        [class.completado]="habito.completadoHoy"
-                        (click)="toggleCompletadoHoy(habito, $event)">
-              <ion-icon *ngIf="habito.completadoHoy" name="checkmark-circle" slot="start"></ion-icon>
-              {{ habito.completadoHoy ? '¡Hecho Hoy!' : 'Marcar Hoy' }}
-            </ion-button>
-          </div>
-        </ion-item>
-
-        <ion-item-options side="end">
-          <ion-item-option color="light" (click)="abrirModalHabito(habito); slidingItem.close()">
-            <ion-icon slot="icon-only" name="create-outline"></ion-icon>
-          </ion-item-option>
-          <ion-item-option color="danger" (click)="confirmarEliminar(habito, $event); slidingItem.close()">
-            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-          </ion-item-option>
-        </ion-item-options>
-      </ion-item-sliding>
+      <ion-button
+        fill="outline"
+        size="small"
+        routerLink="/habit-stats"
+        class="quick-action-btn">
+        <ion-icon name="bar-chart" slot="start"></ion-icon>
+        Estadísticas
+      </ion-button>
     </div>
   </div>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="abrirModalHabito()" color="tertiary">
+  <!-- 🔥 LOADING STATE ÉPICO -->
+  <div *ngIf="isLoading && !(habitosConEstado$ | async)?.length" class="state-container loading-epic">
+    <div class="loading-animation">
+      <div class="spinner-container">
+        <ion-spinner name="crescent" class="epic-spinner"></ion-spinner>
+        <div class="loading-pulse"></div>
+      </div>
+      <h3>🌱 Cargando tus hábitos</h3>
+      <p>Preparando tu rutina diaria...</p>
+    </div>
+  </div>
+
+  <!-- 🔥 EMPTY STATE ÉPICO -->
+  <div *ngIf="!isLoading && !(habitosConEstado$ | async)?.length" class="state-container empty-state-epic">
+    <div class="empty-illustration">
+      <div class="empty-icon-container">
+        <ion-icon name="leaf-outline" class="empty-icon-main"></ion-icon>
+        <div class="sparkles">
+          <div class="sparkle sparkle-1">🌟</div>
+          <div class="sparkle sparkle-2">✨</div>
+          <div class="sparkle sparkle-3">🌿</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-content">
+      <h2 class="empty-title">¡Construye Buenos Hábitos! 🌱</h2>
+      <p class="empty-description">
+        Los hábitos son la base del éxito.
+        <strong>Crea tu primer hábito</strong> y comienza a transformar tu vida día a día.
+      </p>
+
+      <div class="empty-features">
+        <div class="feature-item">
+          <ion-icon name="calendar" color="tertiary"></ion-icon>
+          <span>Rutinas diarias</span>
+        </div>
+        <div class="feature-item">
+          <ion-icon name="flame" color="danger"></ion-icon>
+          <span>Mantén tu racha</span>
+        </div>
+        <div class="feature-item">
+          <ion-icon name="trending-up" color="success"></ion-icon>
+          <span>Progreso constante</span>
+        </div>
+      </div>
+
+      <ion-button
+        expand="block"
+        size="large"
+        (click)="abrirModalHabito()"
+        class="create-first-habit-btn">
+        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+        <strong>🌿 Crear Mi Primer Hábito</strong>
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- 🔥 HÁBITOS CONTAINER ÉPICO -->
+  <div class="habits-container-epic" *ngIf="(habitosConEstado$ | async)?.length">
+
+    <!-- 🔥 TOOLBAR DE HÁBITOS -->
+    <div class="habits-toolbar">
+      <div class="toolbar-left">
+        <h3 class="section-title">
+          <ion-icon name="list"></ion-icon>
+          Tus Hábitos ({{ (habitosConEstado$ | async)?.length }})
+        </h3>
+      </div>
+    </div>
+
+    <!-- 🔥 GRID DE HÁBITOS ÉPICO -->
+    <div class="habits-grid">
+      <div
+        *ngFor="let habito of (habitosConEstado$ | async); trackBy: trackHabitoById"
+        class="habit-card-wrapper"
+        [class.completado-hoy]="habito.completadoHoy">
+
+        <ion-item-sliding class="habit-sliding-item" #slidingItem>
+          <!-- 🔥 OPCIONES DE DESLIZAMIENTO -->
+          <ion-item-options side="end">
+            <ion-item-option color="light" (click)="abrirModalHabito(habito); slidingItem.close()">
+              <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+            </ion-item-option>
+            <ion-item-option color="danger" (click)="confirmarEliminar(habito, $event); slidingItem.close()">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
+
+          <!-- 🔥 ION-ITEM QUE ENVUELVE LA CARD -->
+          <ion-item lines="none" class="habit-item-wrapper" detail="false">
+            <!-- 🔥 NUEVA ESTRUCTURA DE CARD ÉPICA -->
+            <div class="habit-card" (click)="abrirModalHabito(habito)">
+
+              <!-- 🔥 HEADER CON ÍCONO Y STATUS -->
+              <div class="habit-header">
+                <div class="habit-icon-wrapper" [style.backgroundColor]="habito.color || 'var(--ion-color-tertiary)'">
+                  <ion-icon [name]="habito.icono || 'sparkles-outline'" class="habit-icon"></ion-icon>
+
+                  <!-- 🔥 BADGE DE COMPLETADO HOY -->
+                  <div class="completion-badge" *ngIf="habito.completadoHoy">
+                    <ion-icon name="checkmark" class="completion-icon"></ion-icon>
+                  </div>
+                </div>
+
+                <div class="habit-status">
+                  <ion-chip
+                    [color]="habito.completadoHoy ? 'success' : 'medium'"
+                    size="small"
+                    class="status-chip">
+                    <ion-icon [name]="habito.completadoHoy ? 'checkmark-circle' : 'time'" slot="start"></ion-icon>
+                    <ion-label>{{ habito.completadoHoy ? 'Completado' : 'Pendiente' }}</ion-label>
+                  </ion-chip>
+                </div>
+              </div>
+
+              <!-- 🔥 CONTENIDO PRINCIPAL -->
+              <div class="habit-content">
+                <h2 class="habit-title">{{ habito.titulo }}</h2>
+
+                <!-- 🔥 CHIP DE META ASOCIADA -->
+                <ng-container *ngIf="habito.metaId">
+                  <ng-container *ngIf="metas$ | async as metas">
+                    <ion-chip color="primary" *ngIf="getMetaTitulo(habito.metaId, metas)" class="meta-chip">
+                      <ion-icon name="flag-outline" slot="start"></ion-icon>
+                      <ion-label>{{ getMetaTitulo(habito.metaId, metas) }}</ion-label>
+                    </ion-chip>
+                  </ng-container>
+                </ng-container>
+
+                <!-- 🔥 INFORMACIÓN DE RACHA -->
+                <div class="habit-streak-info">
+                  <div class="streak-container" *ngIf="habito.rachaActual !== undefined && habito.rachaActual > 0">
+                    <div class="streak-icon">
+                      <ion-icon name="flame" [style.color]="habito.color || 'var(--ion-color-tertiary)'"></ion-icon>
+                    </div>
+                    <div class="streak-text">
+                      <span class="streak-number">{{ habito.rachaActual }}</span>
+                      <span class="streak-label">{{ habito.rachaActual === 1 ? 'día' : 'días' }} de racha</span>
+                    </div>
+                  </div>
+
+                  <div class="streak-empty" *ngIf="habito.rachaActual === 0">
+                    <ion-icon name="leaf-outline" color="medium"></ion-icon>
+                    <span>¡Empieza tu racha!</span>
+                  </div>
+                </div>
+
+                <!-- 🔥 PROGRESO VISUAL -->
+                <div class="habit-progress">
+                  <div class="progress-rings">
+                    <div class="progress-ring" [class.completed]="habito.completadoHoy">
+                      <div class="ring-fill" [style.background]="habito.color || 'var(--ion-color-tertiary)'"></div>
+                      <div class="ring-center">
+                        <ion-icon
+                          [name]="habito.completadoHoy ? 'checkmark' : 'ellipse-outline'"
+                          [style.color]="habito.completadoHoy ? '#4caf50' : '#ccc'">
+                        </ion-icon>
+                      </div>
+                    </div>
+                    <span class="progress-label">Hoy</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 🔥 BOTÓN DE ACCIÓN PRINCIPAL -->
+              <div class="habit-action" (click)="$event.stopPropagation()">
+                <ion-button
+                  expand="block"
+                  class="check-in-button"
+                  [class.completado]="habito.completadoHoy"
+                  [color]="habito.completadoHoy ? 'success' : 'tertiary'"
+                  (click)="toggleCompletadoHoy(habito, $event)">
+                  <ion-icon
+                    [name]="habito.completadoHoy ? 'checkmark-circle' : 'radio-button-off'"
+                    slot="start">
+                  </ion-icon>
+                  {{ habito.completadoHoy ? '¡Hecho Hoy!' : 'Marcar Hoy' }}
+                </ion-button>
+              </div>
+
+            </div>
+          </ion-item>
+        </ion-item-sliding>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔥 BOTÓN DE ESTADÍSTICAS MEJORADO -->
+
+
+  <!-- 🔥 FLOATING ACTION BUTTON -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="(habitosConEstado$ | async)?.length">
+    <ion-fab-button class="main-fab" (click)="abrirModalHabito()" color="tertiary">
       <ion-icon name="add-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-<ion-item routerLink="/habit-stats">
-  <ion-icon name="bar-chart-outline" slot="start"></ion-icon>
-  Estadísticas de hábitos
-</ion-item>
+
 </ion-content>

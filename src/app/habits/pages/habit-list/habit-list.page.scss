@@ -1,188 +1,800 @@
 /* ======================================================
-   CSS Definitivo para Lista de Hábitos
-   (Incluye el fix v3 para altura uniforme de tarjetas)
+   CSS ÉPICO para Habit List 🌱
    ====================================================== */
 
-// --- Paleta de Colores y Variables ---
+// --- Variables para Hábitos ---
 :host {
-  --theme-bg: #f4f5f8;
-  --theme-card-bg: #ffffff;
-  --theme-primary: #7F00FF;
-  --theme-primary-tint: rgba(127, 0, 255, 0.1);
-  --theme-text-title: #333333;
-  --theme-text-secondary: #666666;
-  --theme-border: #e0e6ed;
-  --theme-success: #2dd36f;
-  --card-border-radius: 16px;
-  --card-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+  --theme-bg: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+  --panel-bg: rgba(255, 255, 255, 0.95);
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --text-light: rgba(255, 255, 255, 0.9);
+  --border-radius: 16px;
+  --shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  --tertiary-color: #4dd0e1;
+  --success-glow: rgba(76, 175, 80, 0.3);
 }
 
-// --- Estructura General y Fondo ---
-ion-content.habits-list-content {
+// --- Content Principal ---
+.habits-list-content {
   --background: var(--theme-bg);
+  --color: var(--text-light);
+}
 
-  &::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    height: 50%;
-    background: url('/assets/images/C3.png') no-repeat center bottom / contain;
-    opacity: 0.05;
-    z-index: 0;
+// --- Header Epic ---
+.header-toolbar {
+  --background: transparent;
+  --color: var(--text-light);
+  backdrop-filter: blur(20px);
+  border-bottom: var(--glass-border);
+
+  .title-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .title-icon {
+      font-size: 1.4rem;
+      color: #4dd0e1;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+
+    .habits-count {
+      --background: rgba(77, 208, 225, 0.2);
+      --color: #4dd0e1;
+      border: 1px solid #4dd0e1;
+      font-weight: 600;
+    }
+  }
+
+  .menu-btn-epic,
+  .add-btn-epic {
+    --color: var(--text-light);
+
+    .add-icon {
+      font-size: 1.8rem;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
   }
 }
 
-// --- Cuadrícula de Hábitos ---
-.habits-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-  padding: 16px;
-  position: relative;
-  z-index: 1;
-  // Propiedad clave: le dice a los items de la fila que se estiren.
-  align-items: stretch;
+// --- Hero Stats Section ---
+.hero-stats-section {
+  padding: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border-bottom: var(--glass-border);
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+
+    .stat-card {
+      background: var(--panel-bg);
+      border-radius: var(--border-radius);
+      padding: 16px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      border: var(--glass-border);
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+      }
+
+      &.total .stat-icon ion-icon {
+        color: var(--ion-color-tertiary);
+      }
+
+      &.streak .stat-icon ion-icon {
+        color: #ff6b35;
+        animation: flame-flicker 2s ease-in-out infinite;
+      }
+
+      &.today .stat-icon ion-icon {
+        color: var(--ion-color-success);
+      }
+
+      .stat-icon {
+        margin-bottom: 8px;
+
+        ion-icon {
+          font-size: 2rem;
+          filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+      }
+
+      .stat-number {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+
+  .quick-actions {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+
+    .quick-action-btn {
+      --border-color: rgba(255, 255, 255, 0.3);
+      --color: var(--text-light);
+      border-radius: 20px;
+      height: 36px;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+
+      &:hover {
+        --background: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
 }
 
-// --- Contenedor de la Tarjeta ---
-// Forzamos a toda la cadena de elementos a ser flexibles y estirarse.
-.habits-grid > div,
-.habits-grid ion-item-sliding,
-.habit-card-wrapper {
+// --- States ---
+.state-container {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
-}
-
-.habit-card-wrapper {
-  --padding-start: 0;
-  --padding-end: 0;
-  --inner-padding-start: 0;
-  --inner-padding-end: 0;
-  --background: transparent;
-}
-
-
-// --- Tarjeta de Hábito ---
-.habit-card {
-  background: var(--theme-card-bg);
-  border-radius: var(--card-border-radius);
-  box-shadow: var(--card-box-shadow);
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column; // Mantenemos la dirección de columna
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
   text-align: center;
-  overflow: hidden;
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  min-height: 400px;
+}
+
+.loading-epic {
+  .loading-animation {
+    .spinner-container {
+      position: relative;
+      margin-bottom: 30px;
+
+      .epic-spinner {
+        --color: #11998e;
+        transform: scale(1.5);
+      }
+
+      .loading-pulse {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 60px;
+        height: 60px;
+        border: 2px solid rgba(17, 153, 142, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse 2s infinite;
+      }
+    }
+
+    h3 {
+      color: var(--text-light);
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+    }
+  }
+}
+
+.empty-state-epic {
+  .empty-illustration {
+    margin-bottom: 30px;
+
+    .empty-icon-container {
+      position: relative;
+      display: inline-block;
+
+      .empty-icon-main {
+        font-size: 5rem;
+        color: rgba(255, 255, 255, 0.6);
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+      }
+
+      .sparkles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        .sparkle {
+          position: absolute;
+          font-size: 1.5rem;
+          animation: float 3s ease-in-out infinite;
+
+          &.sparkle-1 {
+            top: -10px;
+            right: -10px;
+            animation-delay: 0s;
+          }
+
+          &.sparkle-2 {
+            bottom: -10px;
+            left: -10px;
+            animation-delay: 1s;
+          }
+
+          &.sparkle-3 {
+            top: 20%;
+            left: -20px;
+            animation-delay: 2s;
+          }
+        }
+      }
+    }
+  }
+
+  .empty-content {
+    .empty-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-bottom: 16px;
+    }
+
+    .empty-description {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.5;
+      margin-bottom: 30px;
+      max-width: 300px;
+
+      strong {
+        color: #4dd0e1;
+      }
+    }
+
+    .empty-features {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 30px;
+
+      .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--glass-bg);
+        border-radius: 12px;
+        border: var(--glass-border);
+
+        ion-icon {
+          font-size: 1.2rem;
+        }
+
+        span {
+          color: var(--text-light);
+          font-size: 0.9rem;
+        }
+      }
+    }
+
+    .create-first-habit-btn {
+      --background: linear-gradient(45deg, #11998e, #38ef7d);
+      --color: white;
+      border-radius: var(--border-radius);
+      height: 50px;
+      font-size: 1rem;
+      box-shadow: var(--shadow);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(17, 153, 142, 0.3);
+      }
+    }
+  }
+}
+
+// --- Habits Container ---
+.habits-container-epic {
+  padding: 20px;
+
+  .habits-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-light);
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 0;
+
+      ion-icon {
+        font-size: 1.4rem;
+        color: #4dd0e1;
+      }
+    }
+  }
+
+  .habits-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+
+    .habit-card-wrapper {
+      transition: all 0.3s ease;
+
+      &.completado-hoy {
+        .habit-card {
+          background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05));
+          border: 1px solid rgba(76, 175, 80, 0.3);
+          box-shadow: 0 8px 32px var(--success-glow);
+        }
+
+        .habit-icon-wrapper {
+          box-shadow: 0 0 20px var(--success-glow);
+        }
+      }
+
+      .habit-sliding-item {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+
+        &:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+        }
+      }
+
+      .habit-item-wrapper {
+        --background: transparent;
+        --inner-padding-start: 0;
+        --inner-padding-end: 0;
+        --padding-start: 0;
+        --padding-end: 0;
+        --min-height: auto;
+        --border-radius: var(--border-radius);
+
+        .habit-card {
+          width: 100%;
+          margin: 0;
+          background: var(--panel-bg);
+          border-radius: var(--border-radius);
+          border: var(--glass-border);
+          cursor: pointer;
+          transition: all 0.3s ease;
+          overflow: hidden;
+          padding: 20px;
+
+          .habit-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+
+            .habit-icon-wrapper {
+              position: relative;
+              width: 60px;
+              height: 60px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+              transition: all 0.3s ease;
+
+              .habit-icon {
+                font-size: 1.8rem;
+                color: white;
+                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+              }
+
+              .completion-badge {
+                position: absolute;
+                top: -4px;
+                right: -4px;
+                width: 24px;
+                height: 24px;
+                background: var(--ion-color-success);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 3px solid white;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+                animation: bounce-in 0.5s ease;
+
+                .completion-icon {
+                  font-size: 12px;
+                  color: white;
+                  font-weight: 700;
+                }
+              }
+            }
+
+            .habit-status {
+              flex-grow: 1;
+
+              .status-chip {
+                --background: rgba(77, 208, 225, 0.1);
+                border: 1px solid rgba(77, 208, 225, 0.3);
+                font-size: 0.8rem;
+
+                &[color="success"] {
+                  --background: rgba(76, 175, 80, 0.1);
+                  --color: var(--ion-color-success);
+                  border-color: var(--ion-color-success);
+                  animation: success-pulse 2s infinite;
+                }
+              }
+            }
+          }
+
+          .habit-content {
+            margin-bottom: 20px;
+
+            .habit-title {
+              font-size: 1.3rem;
+              font-weight: 600;
+              color: var(--text-primary);
+              margin: 0 0 12px 0;
+              line-height: 1.3;
+            }
+
+            .meta-chip {
+              --background: rgba(102, 126, 234, 0.1);
+              --color: var(--ion-color-primary);
+              border: 1px solid rgba(102, 126, 234, 0.3);
+              font-size: 0.8rem;
+              margin-bottom: 12px;
+            }
+
+            .habit-streak-info {
+              margin-bottom: 16px;
+
+              .streak-container {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px;
+                background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 107, 53, 0.05));
+                border-radius: 12px;
+                border: 1px solid rgba(255, 107, 53, 0.2);
+
+                .streak-icon {
+                  width: 32px;
+                  height: 32px;
+                  border-radius: 50%;
+                  background: rgba(255, 107, 53, 0.2);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+
+                  ion-icon {
+                    font-size: 1.2rem;
+                    animation: flame-flicker 2s ease-in-out infinite;
+                  }
+                }
+
+                .streak-text {
+                  .streak-number {
+                    font-size: 1.2rem;
+                    font-weight: 700;
+                    color: #ff6b35;
+                    margin-right: 4px;
+                  }
+
+                  .streak-label {
+                    font-size: 0.85rem;
+                    color: var(--text-secondary);
+                  }
+                }
+              }
+
+              .streak-empty {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 12px;
+                background: rgba(0, 0, 0, 0.02);
+                border-radius: 12px;
+                border: 1px solid #e0e0e0;
+
+                ion-icon {
+                  font-size: 1.2rem;
+                }
+
+                span {
+                  font-size: 0.85rem;
+                  color: var(--text-secondary);
+                  font-style: italic;
+                }
+              }
+            }
+
+            .habit-progress {
+              display: flex;
+              justify-content: center;
+              margin-bottom: 16px;
+
+              .progress-rings {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+
+                .progress-ring {
+                  position: relative;
+                  width: 50px;
+                  height: 50px;
+                  border-radius: 50%;
+                  border: 3px solid #e0e0e0;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  transition: all 0.3s ease;
+
+                  &.completed {
+                    border-color: var(--ion-color-success);
+                    box-shadow: 0 0 20px var(--success-glow);
+                    animation: completion-pulse 1s ease;
+
+                    .ring-fill {
+                      position: absolute;
+                      top: -3px;
+                      left: -3px;
+                      right: -3px;
+                      bottom: -3px;
+                      border-radius: 50%;
+                      opacity: 0.3;
+                    }
+                  }
+
+                  .ring-center {
+                    z-index: 2;
+
+                    ion-icon {
+                      font-size: 1.5rem;
+                      transition: all 0.3s ease;
+                    }
+                  }
+                }
+
+                .progress-label {
+                  font-size: 0.8rem;
+                  color: var(--text-secondary);
+                  font-weight: 500;
+                }
+              }
+            }
+          }
+
+          .habit-action {
+            .check-in-button {
+              border-radius: 12px;
+              height: 44px;
+              font-weight: 600;
+              transition: all 0.3s ease;
+
+              &.completado {
+                --background: var(--ion-color-success);
+                --color: white;
+                box-shadow: 0 4px 16px var(--success-glow);
+
+                &:hover {
+                  transform: translateY(-1px);
+                  box-shadow: 0 6px 20px var(--success-glow);
+                }
+              }
+
+              &:not(.completado) {
+                --background: var(--ion-color-tertiary);
+                --color: white;
+
+                &:hover {
+                  --background: #26a69a;
+                  transform: translateY(-1px);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// --- Stats Button ---
+.stats-button-container {
+  padding: 20px;
+  margin-top: 20px;
+
+  .stats-item-epic {
+    --background: var(--glass-bg);
+    --color: var(--text-light);
+    border-radius: var(--border-radius);
+    backdrop-filter: blur(20px);
+    border: var(--glass-border);
+    margin-bottom: 0;
+
+    ion-label {
+      h3 {
+        color: var(--text-light);
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+
+      p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+      }
+    }
+
+    &:hover {
+      --background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// --- Floating Actions ---
+.main-fab {
+  --background: linear-gradient(45deg, #11998e, #38ef7d);
+  --color: white;
+  box-shadow: 0 8px 32px rgba(17, 153, 142, 0.4);
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
   }
 }
 
-/* ============================================================
-   LA SOLUCIÓN DEFINITIVA ESTÁ AQUÍ 👇
-   ============================================================ */
-
-// Contenido superior (icono, título, racha)
-.habit-content {
-  padding: 20px 16px 12px;
-  cursor: pointer;
-  flex-grow: 1; // <--- ESTA LÍNEA ES LA MAGIA.
-                 // Obliga a esta sección a crecer y ocupar todo el espacio
-                 // disponible, empujando el botón hacia abajo.
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-// Botón de Check-in
-.check-in-button {
-  flex-shrink: 0; // <--- ESTA LÍNEA ES EL COMPLEMENTO.
-                  // Evita que el botón se encoja.
-  --border-radius: 0;
-  height: 48px;
-  font-weight: 600;
-  text-transform: none;
-  font-size: 1rem;
-  margin: 0;
-
-  --background: var(--theme-primary-tint);
-  --color: var(--theme-primary);
-
-  &.completado {
-    --background: var(--theme-success);
-    --color: #ffffff;
-    font-weight: 700;
+// --- Animaciones ---
+@keyframes pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
   }
 }
 
-// --- Resto de los estilos internos (se mantienen igual) ---
-
-.habit-icon-wrapper {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto 16px;
-  flex-shrink: 0; // Para que el ícono no se encoja
-  background-color: var(--ion-color-primary);
-
-  ion-icon {
-    font-size: 36px;
-    color: #ffffff;
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
   }
 }
 
-.habit-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--theme-text-title);
-  margin: 0 0 8px 0;
-  line-height: 1.3;
-  width: 100%;
-  min-height: 2.6em; // Altura mínima para 2 líneas
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.habit-racha {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--theme-text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  margin-top: auto; // Empuja la racha hacia el final del contenido
-
-  ion-icon {
-    color: var(--ion-color-warning);
+@keyframes flame-flicker {
+  0%, 100% {
+    transform: scale(1) rotate(-2deg);
+  }
+  25% {
+    transform: scale(1.05) rotate(2deg);
+  }
+  50% {
+    transform: scale(0.95) rotate(-1deg);
+  }
+  75% {
+    transform: scale(1.02) rotate(1deg);
   }
 }
 
-// --- Estados de Carga y Vacío ---
-.loading-state, .empty-state {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  padding: 20px;
-  color: var(--theme-text-secondary);
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes success-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(76, 175, 80, 0);
+  }
+}
+
+@keyframes completion-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// --- Responsive ---
+@media (max-width: 768px) {
+  .hero-stats-section {
+    padding: 16px;
+
+    .stats-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+
+      .stat-card {
+        padding: 12px;
+
+        .stat-icon ion-icon {
+          font-size: 1.5rem;
+        }
+
+        .stat-number {
+          font-size: 1.2rem;
+        }
+
+        .stat-label {
+          font-size: 0.7rem;
+        }
+      }
+    }
+  }
+
+  .habits-container-epic {
+    padding: 16px;
+
+    .habits-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+
+  .stats-button-container {
+    padding: 16px;
+  }
+}
+
+// --- Dark Mode ---
+@media (prefers-color-scheme: dark) {
+  :host {
+    --theme-bg: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    --panel-bg: rgba(255, 255, 255, 0.05);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+  }
+
+  .habit-card {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .streak-empty {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
 }
