@@ -126,6 +126,16 @@ export class HabitoService {
     return collectionData(q, { idField: 'id' });
   }
 
+  // Obtener todos los registros de hábitos de un usuario
+  getTodosRegistrosHabitos(userId: string): Observable<RegistroHabito[]> {
+    if (!userId) {
+      return of([]);
+    }
+    const registrosCollectionRef = collection(this.firestore, `usuarios/${userId}/registrosHabitos`) as CollectionReference<RegistroHabito>;
+    const q = query(registrosCollectionRef, orderBy('fecha', 'desc'));
+    return collectionData(q, { idField: 'id' });
+  }
+
   // Actualizar la racha actual y mejor racha de un hábito
   async actualizarRachaHabito(userId: string, habitoId: string): Promise<void> {
     const registros$ = this.getRegistrosDeUnHabito(userId, habitoId);

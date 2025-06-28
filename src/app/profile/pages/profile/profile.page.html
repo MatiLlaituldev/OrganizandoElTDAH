@@ -21,12 +21,17 @@
       <ion-label>Editar Perfil</ion-label>
     </ion-item>
 
-    <!-- --- PASO 2: AÑADIR ESTE ITEM PARA GESTIONAR ETIQUETAS --- -->
+    <!-- Gestión de Etiquetas -->
     <ion-item button detail [routerLink]="['/tabs/gestion-etiquetas']">
       <ion-icon name="pricetags-outline" slot="start"></ion-icon>
       <ion-label>Gestionar Etiquetas</ion-label>
     </ion-item>
-    <!-- -------------------------------------------------------- -->
+
+    <!-- Informe Mensual -->
+    <ion-item button detail [routerLink]="['/informe-mensual']">
+      <ion-icon name="bar-chart-outline" slot="start"></ion-icon>
+      <ion-label>Informe Mensual</ion-label>
+    </ion-item>
 
     <!-- Opción de Configuración -->
     <ion-item button detail>

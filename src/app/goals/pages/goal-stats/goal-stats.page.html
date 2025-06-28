@@ -1,0 +1,25 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Estadísticas de Metas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <apx-chart
+    [series]="chartSeries"
+    [chart]="chartOptions"
+    [xaxis]="chartXAxis"
+    [yaxis]="chartYAxis">
+  </apx-chart>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Resumen</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p><strong>Metas completadas este mes:</strong> {{ metasCompletadasMes }}</p>
+      <p><strong>Porcentaje de metas completadas:</strong> {{ porcentajeMetasCompletadas }}%</p>
+      <p><strong>Metas activas:</strong> {{ metasActivas }}</p>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
