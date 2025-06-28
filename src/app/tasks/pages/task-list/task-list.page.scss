@@ -1,359 +1,1256 @@
-/* ============================
-   📄 Estilos de la Página de Tareas (task-list.page.scss)
-============================ */
+/* ======================================================
+   CSS ÉPICO COMPLETO para Task List - Estilo Final
+   ====================================================== */
 
-/* Este archivo utiliza variables definidas en tu global.scss */
-
-// Variables específicas de esta página
+// --- Variables Épicas ---
 :host {
-  --page-task-list-background-image: url('../../../../assets/images/C3.png'); /* Ajusta la ruta si es necesario */
-
-  // === Colores para la barra de días sobre fondo morado oscuro ===
-  --days-toolbar-text-color: var(--app-color-text-on-dark-transparent); /* Texto blanco semitransparente */
-  --days-toolbar-selected-bg: var(--app-card-background-primary);    /* Fondo CREMA para día seleccionado */
-  --days-toolbar-selected-text: var(--app-color-text);               /* Texto OSCURO para día seleccionado (sobre crema) */
-
-  // === Colores para los segmentos sobre fondo morado oscuro ===
-  --segment-button-text-color: var(--app-color-text-on-dark-transparent); /* Texto blanco semitransparente */
-  --segment-button-checked-text-color: var(--app-color-text-on-dark);       /* Texto blanco opaco para activo */
-  --segment-button-indicator-color: var(--app-card-background-primary);   /* Indicador CREMA */
-
-  --day-button-letter-size: 0.8em;
-  --day-button-number-size: 1em;
+  --theme-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --glass-bg: rgba(255, 255, 255, 0.12);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.18);
+  --panel-bg: rgba(255, 255, 255, 0.95);
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --text-light: rgba(255, 255, 255, 0.95);
+  --border-radius: 20px;
+  --shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  --shadow-hover: 0 12px 40px rgba(31, 38, 135, 0.5);
+  --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --priority-high: #ff4757;
+  --priority-medium: #ffa502;
+  --priority-low: #2ed573;
 }
 
-/* 🌐 Contenido Principal con Fondo */
-.task-list-content {
-  --background: var(--page-task-list-background-image) no-repeat center 90% / 80% auto; /* Ajusta posición y tamaño */
+// --- Content Principal ---
+.epic-content {
+  --background: var(--theme-bg);
+  --color: var(--text-light);
   position: relative;
+
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
 }
 
-/* 📅 Barra de Días de la Semana */
-.days-of-week-toolbar {
-  --background: var(--ion-color-primary); /* Fondo morado oscuro global */
-  --min-height: auto;
-  padding: 4px 0;
-  box-shadow: 0 2px 3px rgba(0,0,0,0.1); /* Sombra sutil */
-  /* No se necesita borde inferior si la siguiente barra es del mismo color */
+// --- Header Épico ---
+.epic-header {
+  --background: transparent;
+  --color: var(--text-light);
+  backdrop-filter: blur(20px);
+  border-bottom: var(--glass-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 
-  .days-container {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
-    padding: 0 4px;
+  .epic-menu-btn {
+    --color: var(--text-light);
+    --border-radius: 12px;
+    transition: var(--transition);
+
+    &:hover {
+      transform: scale(1.1);
+      --background: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+// --- Calendario Épico ---
+.epic-calendar {
+  display: flex;
+  gap: 10px;
+  padding: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
   }
 
-  .day-button {
-    background-color: transparent;
-    color: var(--days-toolbar-text-color); /* Texto blanco semitransparente */
-    border-radius: var(--app-border-radius-small); /* Radio de borde global */
-    width: auto;
-    min-width: 40px;
-    height: 48px;
+  .epic-day-btn {
+    min-width: 55px;
+    height: 68px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: none;
-    padding: 4px 6px;
-    margin: 0 1px;
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    transition: var(--transition);
     cursor: pointer;
+    box-shadow: 0 4px 20px rgba(31, 38, 135, 0.2);
 
-    .day-letter {
-      font-size: var(--day-button-letter-size);
-      font-weight: 500;
-      text-transform: uppercase;
-      line-height: 1.1;
-    }
-
-    .day-number {
-      font-size: var(--day-button-number-size);
-      font-weight: 600;
-      line-height: 1.1;
-    }
-
-    &:active {
-        background-color: rgba(255,255,255,0.1); /* Efecto de presión sobre fondo oscuro */
-    }
-  }
-
-  .day-button.selected-day {
-    background-color: var(--days-toolbar-selected-bg); /* Fondo CREMA */
-    color: var(--days-toolbar-selected-text); /* Texto OSCURO */
-    box-shadow: 0px 1px 4px rgba(0,0,0,0.15); /* Sombra para el botón crema */
-  }
-}
-
-/* 📊 Segmentos (Pendientes/Completadas) */
-ion-toolbar ion-segment {
-  --background: var(--ion-color-primary); /* Fondo morado oscuro global, IGUAL que la barra de días */
-  /* No se necesita borde superior si la barra anterior es del mismo color */
-  padding-top: 2px;
-  padding-bottom: 2px;
-
-  ion-segment-button {
-    --color: var(--segment-button-text-color); /* Texto blanco semitransparente */
-    --color-checked: var(--segment-button-checked-text-color); /* Texto blanco opaco */
-    --indicator-color: var(--segment-button-indicator-color); /* Indicador CREMA */
-    --indicator-height: 3px;
-    font-weight: 500;
-    text-transform: none;
-    font-size: 0.95em;
-    --ripple-color: var(--app-card-background-primary); /* Ripple crema */
-
-    &.segment-button-checked {
+    .epic-day-letter {
+      font-size: 11px;
       font-weight: 700;
-    }
-  }
-}
-
-
-/* ⏳ Contenedor de Carga */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 50vh;
-  text-align: center;
-  color: var(--app-color-text-subtle);
-  ion-spinner {
-    --color: var(--ion-color-primary);
-    width: 50px;
-    height: 50px;
-    margin-bottom: 15px;
-  }
-  p { font-size: 1.1em; }
-}
-
-/* 🤷‍♂️ Estado Vacío */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 40px 20px;
-  min-height: 60vh;
-  .empty-icon {
-    font-size: 5rem;
-    color: var(--ion-color-secondary);
-    margin-bottom: 20px;
-  }
-  p {
-    font-size: 1.1em;
-    color: var(--app-color-text-subtle);
-    margin-bottom: 25px;
-    max-width: 300px;
-  }
-  .add-first-task-button {
-    --color: var(--ion-color-primary);
-    --border-color: var(--ion-color-primary);
-    --ripple-color: var(--ion-color-primary);
-    font-weight: 600;
-    text-transform: none;
-    --border-radius: var(--app-border-radius-medium);
-    ion-icon { margin-right: 8px; }
-  }
-}
-
-/* 📋 Lista de Tareas */
-.task-list {
-  background: transparent;
-  padding: 8px 0;
-}
-
-ion-item-sliding ion-item {
-  --padding-start: 16px;
-  --inner-padding-end: 16px;
-  --background: var(--app-card-background-secondary);
-  margin: 8px 16px;
-  border-radius: var(--app-border-radius-medium);
-  box-shadow: var(--app-box-shadow-soft);
-  --detail-icon-color: var(--app-color-text-subtle);
-
-  ion-checkbox {
-    --size: 22px;
-    --checkmark-color: var(--app-color-text-on-dark);
-    --background-checked: var(--ion-color-primary);
-    --border-color-checked: var(--ion-color-primary);
-    --border-color: var(--app-color-text-subtle);
-    margin-right: 16px;
-  }
-
-  ion-label {
-    h2 {
-      font-size: 1.15em;
-      font-weight: 600;
-      color: var(--app-color-text);
+      color: rgba(255, 255, 255, 0.8);
+      text-transform: uppercase;
+      letter-spacing: 1px;
       margin-bottom: 4px;
     }
-    p {
-      font-size: 0.9em;
-      color: var(--app-color-text-subtle);
-      margin-bottom: 6px;
-      white-space: normal;
+
+    .epic-day-number {
+      font-size: 18px;
+      font-weight: 800;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
-    .fecha-vencimiento {
-      display: flex;
-      align-items: center;
-      font-size: 0.8em;
-      color: var(--app-color-text-subtle);
-      opacity: 0.9;
-      .fecha-icon {
-        margin-right: 5px;
-        font-size: 1.1em;
+
+    &:hover, &.epic-day-active, &.selected-day {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.6);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.3);
+    }
+  }
+}
+
+// --- Segments Épicos TOTALMENTE RENOVADOS ---
+.epic-segments-toolbar {
+  padding: 16px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+
+  .epic-segment {
+    --background: transparent;
+    border: none;
+    padding: 0;
+
+    .epic-segment-btn {
+      border-radius: 16px;
+      margin: 0 4px;
+      transition: var(--transition);
+      --color: var(--text-light);
+      height: 56px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+
+      .segment-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 16px;
+
+        .segment-badge {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: var(--transition);
+
+          .segment-icon {
+            font-size: 18px;
+            color: white;
+          }
+
+          &.pending {
+            background: linear-gradient(45deg, #ffa502, #ff6b35);
+            box-shadow: 0 4px 12px rgba(255, 165, 2, 0.4);
+          }
+
+          &.completed {
+            background: linear-gradient(45deg, #2ed573, #17c671);
+            box-shadow: 0 4px 12px rgba(46, 213, 115, 0.4);
+          }
+        }
+
+        .segment-text {
+          font-weight: 700;
+          font-size: 14px;
+          letter-spacing: 0.5px;
+          color: var(--text-light);
+        }
+      }
+
+      &.segment-button-checked {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(15px);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.3);
+        transform: scale(1.02);
+
+        .segment-badge {
+          transform: scale(1.1);
+
+          &.pending {
+            box-shadow: 0 6px 20px rgba(255, 165, 2, 0.6);
+          }
+
+          &.completed {
+            box-shadow: 0 6px 20px rgba(46, 213, 115, 0.6);
+          }
+        }
+
+        .segment-text {
+          color: white;
+          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+      }
+
+      &:hover:not(.segment-button-checked) {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+
+        .segment-badge {
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+}
+
+// --- Filtros Épicos CON SCROLL HORIZONTAL ---
+.epic-filters {
+  padding: 16px;
+  overflow-x: auto;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // 🔥 CONTENEDOR PARA SCROLL HORIZONTAL
+  display: flex;
+  gap: 12px;
+  white-space: nowrap;
+
+  .epic-chip {
+    --background: rgba(255, 255, 255, 0.15);
+    --color: var(--text-light);
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+    border: var(--glass-border);
+    transition: var(--transition);
+    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.2);
+    height: 40px;
+    font-weight: 600;
+    flex-shrink: 0; // 🔥 EVITA QUE SE COMPRIMAN
+    min-width: fit-content;
+
+    .epic-chip-icon {
+      margin-right: 8px;
+      font-size: 18px;
+    }
+
+    .epic-color-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      margin-right: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .epic-chip-label {
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+    }
+
+    &.epic-chip-active, &:not([outline]) {
+      --background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(31, 38, 135, 0.3);
+    }
+
+    &:hover {
+      transform: scale(1.08);
+      --background: rgba(255, 255, 255, 0.25);
+    }
+  }
+
+  .epic-add-chip {
+    --background: rgba(255, 193, 7, 0.25);
+    --color: #ffd700;
+    border-color: rgba(255, 193, 7, 0.4);
+
+    .epic-add-icon {
+      animation: pulseAdd 2s ease-in-out infinite;
+    }
+  }
+}
+
+// --- Hero Section Épica ---
+.hero-tasks-section {
+  padding: 30px 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border-bottom: var(--glass-border);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(31, 38, 135, 0.2);
+  position: relative;
+  z-index: 2;
+
+  .cerebrito-hero-container {
+    position: relative;
+    flex-shrink: 0;
+
+    .cerebrito-hero {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      filter: drop-shadow(0 8px 24px rgba(103, 58, 183, 0.4));
+      animation: heroFloat 4s ease-in-out infinite;
+      transition: var(--transition);
+
+      &:hover {
+        transform: scale(1.1);
+        filter: drop-shadow(0 12px 32px rgba(103, 58, 183, 0.6));
+      }
+    }
+
+    .sparkles-hero {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      pointer-events: none;
+
+      .sparkle {
+        position: absolute;
+        font-size: 16px;
+        animation: sparkleHero 3s ease-in-out infinite;
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+
+        &.spark-1 {
+          top: 0;
+          right: 0;
+          animation-delay: 0s;
+        }
+
+        &.spark-2 {
+          bottom: 0;
+          left: 0;
+          animation-delay: 1s;
+        }
+
+        &.spark-3 {
+          top: 20%;
+          left: -5px;
+          animation-delay: 2s;
+        }
+
+        &.spark-4 {
+          bottom: 20%;
+          right: -5px;
+          animation-delay: 1.5s;
+        }
       }
     }
   }
 
-  &.task-completada {
-    --background: rgba(230, 230, 230, 0.7);
-    ion-label h2, ion-label p {
-      text-decoration: line-through;
-      color: var(--app-color-text-completed);
+  .hero-content {
+    flex: 1;
+
+    .hero-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-light);
+      margin-bottom: 8px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(45deg, #fff, #e3f2fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .prioridad-indicator { display: none; }
+
+    .hero-subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    .mini-stats {
+      display: flex;
+      gap: 16px;
+
+      .mini-stat {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+
+        .stat-icon {
+          font-size: 16px;
+          color: #ffd700;
+        }
+      }
+    }
   }
 }
 
-.prioridad-indicator {
+// --- Empty State Épico ---
+.empty-state-epic {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-left: 8px;
-  ion-icon { font-size: 1.5em; }
-}
+  padding: 60px 20px;
+  text-align: center;
+  min-height: 50vh;
+  position: relative;
+  z-index: 2;
 
-/* 🔧 Opciones al deslizar el item */
-ion-item-options {
-  ion-item-option {
-    font-size: 0.9em;
-    text-transform: none;
-    &:first-of-type { border-top-left-radius: 0px; border-bottom-left-radius: 0px; border-top-right-radius: var(--app-border-radius-medium); border-bottom-right-radius: var(--app-border-radius-medium); }
-    &:last-of-type { border-top-left-radius: 0px; border-bottom-left-radius: 0px; border-top-right-radius: var(--app-border-radius-medium); border-bottom-right-radius: var(--app-border-radius-medium); }
-  }
-  ion-item-option[color="light"] {
-    --background: #f0f0f0;
-    --color: var(--app-color-text);
-  }
-}
+  .empty-illustration {
+    margin-bottom: 30px;
 
+    .empty-icon-container {
+      position: relative;
+      display: inline-block;
 
-ion-fab-button[color="tertiary"] {
-  --background: var(--ion-color-tertiary);
-  --background-activated: var(--ion-color-tertiary-shade);
-  --background-hover: var(--ion-color-tertiary-tint);
-  --color: var(--ion-color-tertiary-contrast);
-  --box-shadow: var(--app-box-shadow-strong);
-  ion-icon { font-size: 1.8em; }
-}
+      .empty-icon-main {
+        font-size: 80px;
+        color: var(--text-light);
+        opacity: 0.7;
+        animation: pulseIcon 2s ease-in-out infinite;
+        filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3));
+      }
 
-/* 🔄 Refresher */
-ion-refresher ion-refresher-content {
-  --color: var(--ion-color-primary);
-  --icon-color: var(--ion-color-primary);
-  --text-color: var(--ion-color-primary);
-}
-/*
-  Estilos ADICIONALES para la página de lista de tareas.
-  Añadir al final de tu archivo SCSS existente.
-*/
+      .sparkles-empty {
+        position: absolute;
+        top: -20px;
+        left: -20px;
+        right: -20px;
+        bottom: -20px;
+        pointer-events: none;
 
-// --- Contenedor de Filtros de Etiquetas (CORREGIDO) ---
-.filter-chips-container {
-  display: flex;
-  flex-wrap: nowrap; // CORRECCIÓN CLAVE: Evita que los filtros se apilen.
-  overflow-x: auto;  // Permite el deslizamiento horizontal.
-  gap: 8px;
-  // Se ajusta el padding para que se alinee con el resto del contenido.
-  padding: 8px 16px;
-  // Se elimina el color de fondo para que se integre con el fondo del contenido.
-  background: var(--ion-color-light, #f4f5f8);
+        .sparkle {
+          position: absolute;
+          font-size: 20px;
+          animation: sparkleEmpty 3s ease-in-out infinite;
 
-  // Oculta la barra de scroll para un look más limpio
-  &::-webkit-scrollbar {
-    display: none;
-  }
-  scrollbar-width: none; // Para Firefox
-}
+          &.sparkle-1 {
+            top: 0;
+            right: 0;
+            animation-delay: 0s;
+          }
 
-// --- Estilo de los Chips de Filtro (CORREGIDO) ---
-.filter-chips-container ion-chip {
-  flex-shrink: 0; // Evita que los chips se encojan.
-  transition: all 0.2s ease-in-out;
-  height: 36px;
-  border-radius: 18px; // Un radio más suave.
-  font-weight: 500;
+          &.sparkle-2 {
+            bottom: 0;
+            left: 0;
+            animation-delay: 1s;
+          }
 
-  // Estilo para el chip NO seleccionado (con borde)
-  &[outline="true"] {
-    --background: var(--ion-background-color, #ffffff);
-    --border-color: var(--ion-color-step-400, #cccccc);
-    --color: var(--ion-text-color, #000000);
+          &.sparkle-3 {
+            top: 30%;
+            left: -10px;
+            animation-delay: 2s;
+          }
+        }
+      }
+    }
   }
 
-  // Estilo para el chip SELECCIONADO (sólido)
-  &[outline="false"] {
-    --background: var(--ion-color-tertiary);
-    --color: var(--ion-color-tertiary-contrast, #000000);
-    --border-color: transparent;
-    transform: translateY(-2px); // Efecto sutil de "pop"
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  .empty-content {
+    .empty-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-light);
+      margin-bottom: 16px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .empty-description {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 30px;
+      line-height: 1.5;
+
+      strong {
+        color: #ffd700;
+        font-weight: 700;
+      }
+    }
+
+    .start-journey-btn {
+      --background: linear-gradient(45deg, #667eea, #764ba2);
+      --color: white;
+      --border-radius: 25px;
+      --padding-start: 24px;
+      --padding-end: 24px;
+      --box-shadow: var(--shadow);
+      font-weight: 700;
+      transition: var(--transition);
+      height: 50px;
+      font-size: 16px;
+
+      &:hover {
+        --box-shadow: var(--shadow-hover);
+        transform: translateY(-2px) scale(1.02);
+      }
+
+      ion-icon {
+        margin-right: 8px;
+        animation: rotateAdd 2s linear infinite;
+      }
+    }
+  }
+}
+
+// --- Tasks Grid Container ---
+.tasks-grid-container {
+  position: relative;
+  z-index: 2;
+  padding: 20px;
+
+  .tasks-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr;
   }
 
-  .chip-color-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-right: 8px;
+  .task-card-wrapper {
+    position: relative;
   }
 }
 
-// --- Estilos para las Etiquetas DENTRO de cada Tarea (Tu código) ---
-.etiquetas-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
+// --- Task Card Épica CON SLIDING FUNCIONANDO ---
+.epic-sliding-item {
+  border-radius: var(--border-radius);
+  overflow: hidden; // 🔥 CLAVE PARA EL SLIDING
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  background: transparent;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  // 🔥 OPCIONES DE SLIDING MEJORADAS Y FUNCIONALES
+  .epic-item-options {
+    ion-item-option {
+      &.epic-edit-option {
+        --background: linear-gradient(45deg, #3498db, #2980b9);
+        --color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .epic-option-icon {
+          color: white;
+          font-size: 24px;
+        }
+      }
+
+      &.epic-delete-option {
+        --background: linear-gradient(45deg, #e74c3c, #c0392b);
+        --color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .epic-option-icon {
+          color: white;
+          font-size: 24px;
+        }
+      }
+    }
+  }
+  // En el CSS, agregar después de .epic-sliding-item:
+.epic-item {
+  --background: transparent;
+  --border-color: transparent;
+  --inner-border-width: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  --min-height: auto;
 }
 
-.etiqueta-chip {
-  --color: #ffffff;
-  height: 22px;
-  font-size: 12px;
-  border-radius: 6px;
-  margin: 0;
-  padding-left: 8px;
-  padding-right: 8px;
-}
-// Estilos para el indicador de prioridad de la tarea
-.priority-indicator {
-  width: 5px;
-  height: 25px; // Puedes ajustar la altura
-  border-radius: 3px;
-  margin-right: 10px; // Espacio entre el indicador y el checkbox
+  .task-card-epic {
+    background: var(--panel-bg);
+    border: var(--glass-border);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: var(--transition);
+    backdrop-filter: blur(20px);
+    cursor: pointer;
+    width: 100%; // 🔥 ASEGURAR ANCHO COMPLETO
+    position: relative; // 🔥 POSICIÓN RELATIVA PARA EL SLIDING
+
+    // 🔥 ESTADO COMPLETADO MÁS CLARO
+    &.task-completed {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.1));
+      border: 2px solid rgba(76, 175, 80, 0.5);
+      transform: scale(0.98);
+      opacity: 0.85;
+
+      .task-title-epic {
+        text-decoration: line-through;
+        opacity: 0.7;
+        color: #2ed573;
+      }
+
+      .task-description-epic {
+        opacity: 0.6;
+      }
+
+      // 🔥 BADGE DE COMPLETADO
+      &::before {
+        content: '✓ COMPLETADA';
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: linear-gradient(45deg, #2ed573, #26d665);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(46, 213, 115, 0.4);
+      }
+    }
+
+    // 🔥 ESTADO PENDIENTE MÁS CLARO
+    &:not(.task-completed) {
+      &::before {
+        content: '⏳ PENDIENTE';
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: linear-gradient(45deg, #ffa502, #ff9500);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(255, 165, 2, 0.4);
+      }
+    }
+
+    .task-header-epic {
+      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      position: relative;
+      padding-top: 50px; // 🔥 ESPACIO PARA EL BADGE
+
+      .priority-semaforo {
+        width: 6px;
+        height: 100%;
+        min-height: 60px;
+        border-radius: 3px;
+        flex-shrink: 0;
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+        .priority-dot {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+          animation: priorityPulse 2s ease-in-out infinite;
+        }
+
+        &.priority-high {
+          background: linear-gradient(180deg, var(--priority-high), #ff3742);
+
+          .priority-dot {
+            background: var(--priority-high);
+            box-shadow: 0 0 16px rgba(255, 71, 87, 0.6);
+          }
+        }
+
+        &.priority-medium {
+          background: linear-gradient(180deg, var(--priority-medium), #ff9500);
+
+          .priority-dot {
+            background: var(--priority-medium);
+            box-shadow: 0 0 16px rgba(255, 165, 2, 0.6);
+          }
+        }
+
+        &.priority-low {
+          background: linear-gradient(180deg, var(--priority-low), #26d665);
+
+          .priority-dot {
+            background: var(--priority-low);
+            box-shadow: 0 0 16px rgba(46, 213, 115, 0.6);
+          }
+        }
+      }
+
+      .checkbox-container {
+        flex-shrink: 0;
+
+        .epic-checkbox {
+          --size: 26px;
+          --checkmark-width: 3px;
+          --border-radius: 8px;
+          --background-checked: #2ed573;
+          --border-color-checked: #2ed573;
+          --checkmark-color: white;
+          transition: var(--transition);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+          &:hover {
+            transform: scale(1.1);
+          }
+        }
+      }
+
+      .task-main-content {
+        flex: 1;
+        min-width: 0;
+
+        .task-title-epic {
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 8px;
+          line-height: 1.3;
+          transition: var(--transition);
+
+          &.completed-title {
+            color: #2ed573;
+          }
+        }
+
+        .task-description-epic {
+          font-size: 14px;
+          color: var(--text-secondary);
+          line-height: 1.5;
+          margin: 0;
+        }
+      }
+
+      .progress-indicator {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+
+        &:hover {
+          transform: scale(1.05);
+        }
+
+        .progress-circle {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: linear-gradient(45deg, #667eea, #764ba2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+
+          .progress-text {
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+          }
+        }
+
+        .expand-icon {
+          font-size: 16px;
+          color: var(--text-secondary);
+          transition: var(--transition);
+
+          &.rotated {
+            transform: rotate(180deg);
+          }
+        }
+      }
+    }
+
+    .meta-section {
+      padding: 0 20px 12px;
+
+      .meta-chip-epic {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+        .meta-icon {
+          font-size: 14px;
+        }
+
+        .meta-text {
+          font-weight: 600;
+        }
+      }
+    }
+
+    // 🔥 TAGS MEJORADAS CON MEJOR ESPACIADO
+    .tags-section {
+      padding: 0 20px 16px;
+
+      .tags-container-epic {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+
+        .tag-epic {
+          padding: 6px 12px;
+          border-radius: 16px;
+          font-size: 12px;
+          font-weight: 600;
+          color: white;
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          transition: var(--transition);
+
+          &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          }
+        }
+
+        .more-tags-epic {
+          padding: 6px 10px;
+          background: rgba(0, 0, 0, 0.15);
+          border-radius: 16px;
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--text-secondary);
+          border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+
+    .progress-section {
+      padding: 0 20px 12px;
+
+      .progress-bar-epic {
+        height: 8px;
+        background: rgba(102, 126, 234, 0.15);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #667eea, #764ba2);
+          border-radius: 10px;
+          transition: var(--transition);
+          position: relative;
+
+          &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+          }
+        }
+      }
+    }
+
+    .date-section {
+      padding: 0 20px 12px;
+
+      .date-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+
+        .date-icon {
+          font-size: 16px;
+          color: var(--text-secondary);
+        }
+
+        .date-text {
+          font-size: 13px;
+          color: var(--text-secondary);
+          font-weight: 500;
+        }
+
+        &.overdue {
+          background: rgba(255, 71, 87, 0.1);
+          border: 1px solid rgba(255, 71, 87, 0.3);
+
+          .date-icon {
+            color: var(--priority-high);
+            animation: shake 1s ease-in-out infinite;
+          }
+
+          .date-text {
+            color: var(--priority-high);
+            font-weight: 700;
+          }
+        }
+      }
+    }
+
+    .subtasks-section {
+      padding: 16px 20px 20px;
+      background: rgba(0, 0, 0, 0.02);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+
+      .subtasks-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+
+        .subtasks-icon {
+          font-size: 16px;
+          color: var(--text-secondary);
+        }
+
+        .subtasks-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+      }
+
+      .subtasks-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .subtask-item-epic {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 8px 0;
+
+          .subtask-checkbox {
+            --size: 20px;
+            --border-radius: 6px;
+            --background-checked: #2ed573;
+            --border-color-checked: #2ed573;
+          }
+
+          .subtask-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: var(--transition);
+
+            &.completed {
+              text-decoration: line-through;
+              color: #2ed573;
+              opacity: 0.7;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
-.priority-high {
-  background-color: var(--ion-color-danger); // Rojo
+// --- FAB Épico ---
+.epic-fab {
+  .epic-fab-button {
+    --background: linear-gradient(45deg, #667eea, #764ba2);
+    --box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    --border-radius: 20px;
+    width: 64px;
+    height: 64px;
+    transition: var(--transition);
+
+    &:hover {
+      --box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+      transform: scale(1.1) translateY(-2px);
+    }
+
+    .epic-fab-icon {
+      font-size: 32px;
+      color: white;
+      animation: rotateAdd 4s linear infinite;
+    }
+  }
 }
 
-.priority-medium {
-  background-color: var(--ion-color-warning); // Amarillo
+// --- Stats Button Épico Estilo Wellbeing ---
+.stats-button-container {
+  padding: 20px;
+  position: relative;
+  z-index: 2;
+
+  .stats-card-epic {
+    background: var(--panel-bg);
+    border: var(--glass-border);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .stats-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .stats-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+
+        .stats-icon {
+          font-size: 24px;
+          color: white;
+          animation: pulse 2s ease-in-out infinite;
+        }
+      }
+
+      .stats-info {
+        flex: 1;
+
+        h3 {
+          font-size: 16px;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 4px;
+        }
+
+        p {
+          font-size: 13px;
+          color: var(--text-secondary);
+          margin: 0;
+        }
+      }
+
+      .arrow-icon {
+        font-size: 20px;
+        color: var(--text-secondary);
+        transition: var(--transition);
+      }
+    }
+
+    &:hover .arrow-icon {
+      transform: translateX(4px);
+    }
+  }
 }
 
-.priority-low {
-  background-color: var(--ion-color-success); // Verde
+// --- Cerebrito de Fondo Más Visible ---
+.background-cerebrito-epic {
+  position: fixed;
+  bottom: 120px;
+  right: 20px;
+  z-index: 1;
+  opacity: 0.4;
+  pointer-events: none;
+  animation: floatBackground 8s ease-in-out infinite;
+
+  .cerebrito-background {
+    width: 200px;
+    height: 200px;
+    filter: drop-shadow(0 12px 32px rgba(102, 126, 234, 0.3));
+    transition: var(--transition);
+  }
 }
-.priority-indicator {
-  width: 6px;
-  height: 32px;
-  border-radius: 3px;
-  margin-right: 12px;
+
+// --- Animaciones ---
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-5px) rotate(1deg); }
+  50% { transform: translateY(-8px) rotate(0deg); }
+  75% { transform: translateY(-3px) rotate(-1deg); }
 }
-.priority-high { background-color: var(--ion-color-danger); }
-.priority-medium { background-color: var(--ion-color-warning); }
-.priority-low { background-color: var(--ion-color-success); }
+
+@keyframes floatBackground {
+  0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+  25% { transform: translateY(-20px) translateX(10px) rotate(2deg); }
+  50% { transform: translateY(-30px) translateX(0px) rotate(0deg); }
+  75% { transform: translateY(-15px) translateX(-10px) rotate(-2deg); }
+}
+
+@keyframes sparkleHero {
+  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); opacity: 0.8; }
+  25% { transform: translateY(-8px) rotate(90deg) scale(1.2); opacity: 1; }
+  50% { transform: translateY(-12px) rotate(180deg) scale(0.8); opacity: 0.9; }
+  75% { transform: translateY(-6px) rotate(270deg) scale(1.1); opacity: 0.95; }
+}
+
+@keyframes sparkleEmpty {
+  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); opacity: 0.7; }
+  25% { transform: translateY(-10px) rotate(90deg) scale(1.3); opacity: 1; }
+  50% { transform: translateY(-15px) rotate(180deg) scale(0.7); opacity: 0.8; }
+  75% { transform: translateY(-8px) rotate(270deg) scale(1.2); opacity: 0.9; }
+}
+
+@keyframes priorityPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+}
+
+@keyframes pulseAdd {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+@keyframes rotateAdd {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulseIcon {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+// --- Responsive ---
+@media (max-width: 768px) {
+  .epic-calendar {
+    .epic-day-btn {
+      min-width: 50px;
+      height: 60px;
+
+      .epic-day-number {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .hero-tasks-section {
+    padding: 20px 16px;
+    gap: 16px;
+
+    .cerebrito-hero-container .cerebrito-hero {
+      width: 60px;
+      height: 60px;
+    }
+
+    .hero-content .hero-title {
+      font-size: 20px;
+    }
+  }
+
+  .tasks-grid-container {
+    padding: 16px;
+
+    .tasks-grid {
+      gap: 12px;
+    }
+  }
+
+  .background-cerebrito-epic {
+    bottom: 100px;
+    right: 10px;
+
+    .cerebrito-background {
+      width: 150px;
+      height: 150px;
+    }
+  }
+
+  .stats-button-container {
+    padding: 16px;
+  }
+
+  // 🔥 FILTROS RESPONSIVE
+  .epic-filters {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  // 🔥 SEGMENTS RESPONSIVE
+  .epic-segments-toolbar {
+    padding: 12px;
+
+    .epic-segment-btn {
+      height: 48px;
+
+      .segment-content {
+        gap: 8px;
+        padding: 6px 12px;
+
+        .segment-badge {
+          width: 28px;
+          height: 28px;
+
+          .segment-icon {
+            font-size: 16px;
+          }
+        }
+
+        .segment-text {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 769px) {
+  .tasks-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)) !important;
+  }
+}
+
+// --- Dark Mode ---
+@media (prefers-color-scheme: dark) {
+  :host {
+    --theme-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --panel-bg: rgba(255, 255, 255, 0.08);
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+  }
+}

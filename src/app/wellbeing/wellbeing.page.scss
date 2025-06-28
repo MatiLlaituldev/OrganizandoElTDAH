@@ -1,164 +1,1167 @@
 /* ======================================================
-   CSS Final para la Página de Bienestar
-   (con fix de scroll y selector de hora "pro")
+   CSS ÉPICO para Wellbeing Page 💙
    ====================================================== */
 
-// --- Paleta y Variables ---
+// --- Variables para Bienestar ---
 :host {
-  --theme-bg: #f4f5f8;
-  --theme-card-bg: #ffffff;
-  --theme-primary: #7F00FF;
-  --theme-text-title: #333333;
-  --theme-text-secondary: #666666;
-  --theme-border: #eef2f8;
-  --card-border-radius: 16px;
-  --card-box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  --theme-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+  --panel-bg: rgba(255, 255, 255, 0.95);
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --text-light: rgba(255, 255, 255, 0.9);
+  --border-radius: 16px;
+  --shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  --heart-color: #e91e63;
+  --mood-happy: #4caf50;
+  --mood-sad: #2196f3;
+  --energy-high: #ff9800;
+  --energy-low: #9c27b0;
 }
 
-// --- Header y Segmentos de Navegación ---
-.segment-toolbar {
-  --background: var(--theme-card-bg);
-  padding: 8px;
-  ion-segment {
-    border-radius: 12px;
-    background: var(--theme-bg);
-    ion-segment-button {
-      --color: var(--theme-text-secondary);
-      --color-checked: #ffffff;
-      --background-checked: var(--theme-primary);
-      --border-radius: 10px;
-      --indicator-color: transparent;
-      font-weight: 600;
-      ion-icon { margin-right: 8px; }
-    }
-  }
-}
-
-// --- Contenido de la Página ---
-.content-wrapper {
-  padding: 16px;
-}
-.page-view {
-  padding-bottom: 80px;
-}
-
-// --- Vista "Registrar Hoy" ---
-.welcome-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 24px;
-  .welcome-image { width: 60px; height: 60px; margin-right: 16px; }
-  .welcome-text {
-    h2 { font-weight: 700; margin: 0 0 4px; color: var(--theme-text-title); }
-    p { margin: 0; color: var(--theme-text-secondary); }
-  }
-}
-
-.form-card {
-  background: var(--theme-card-bg);
-  border-radius: var(--card-border-radius);
-  box-shadow: var(--card-box-shadow);
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--theme-text-body);
-  display: block;
-  margin-bottom: 16px;
-}
-
-// Segmentos de Ánimo y Energía con Scroll
-.mood-segment {
-  --background: transparent;
-  ion-segment-button {
-    min-width: 90px;
-    padding: 12px 8px;
-    border-radius: 12px;
-    background: var(--theme-bg);
-    height: auto;
-    --color: var(--theme-text-secondary);
-    --indicator-color: transparent;
-    transition: all 0.2s ease-out;
-
-    &.segment-button-checked {
-      background: var(--theme-primary);
-      --color: #ffffff;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(127, 0, 255, 0.3);
-      .emoji { transform: scale(1.2); }
-      ion-label { color: #ffffff !important; }
-    }
-    .emoji { font-size: 1.8rem; display: block; line-height: 1; }
-    ion-label { font-size: 0.8rem; margin-top: 8px; font-weight: 600; }
-  }
-}
-
-.notes-input {
+// --- Content Principal ---
+.wellbeing-content {
   --background: var(--theme-bg);
-  --padding-start: 12px;
-  --padding-end: 12px;
-  border-radius: 12px;
+  --color: var(--text-light);
 }
 
-.toggle-item {
-  --padding-start: 0;
-  --inner-padding-end: 0;
+// --- Header Epic ---
+.header-toolbar {
+  --background: transparent;
+  --color: var(--text-light);
+  backdrop-filter: blur(20px);
+  border-bottom: var(--glass-border);
+
+  .title-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .title-icon {
+      font-size: 1.4rem;
+      color: var(--heart-color);
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      animation: heart-beat 3s ease-in-out infinite;
+    }
+  }
+
+  .menu-btn-epic {
+    --color: var(--text-light);
+  }
 }
 
-/* ======================================================
-   NUEVO ESTILO para el Selector de Hora "Pro" 👇
-   ====================================================== */
-.time-input-container {
+.segment-toolbar {
+  --background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border-bottom: var(--glass-border);
+
+  .epic-segment {
+    --background: transparent;
+    margin: 8px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+
+    .segment-btn {
+      --color: rgba(255, 255, 255, 0.7);
+      --color-checked: var(--text-light);
+      --background-checked: rgba(255, 255, 255, 0.2);
+      --indicator-color: transparent;
+      border-radius: 8px;
+      margin: 4px;
+      transition: all 0.3s ease;
+
+      ion-icon {
+        font-size: 1.1rem;
+        margin-bottom: 2px;
+      }
+
+      ion-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      &.segment-button-checked {
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+}
+
+// --- Content Wrapper ---
+.content-wrapper {
+  min-height: 100vh;
+
+  .page-view {
+    animation: fade-in 0.5s ease;
+  }
+}
+
+// --- Hero Section con Cerebrito ---
+.hero-wellbeing-section {
+  padding: 30px 20px;
+  text-align: center;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border-bottom: var(--glass-border);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(233, 30, 99, 0.1), transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(103, 58, 183, 0.1), transparent 50%);
+    pointer-events: none;
+  }
+
+  .cerebrito-container {
+    position: relative;
+    margin-bottom: 20px;
+    display: inline-block;
+
+    .cerebrito-mascot {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.2));
+      animation: float 4s ease-in-out infinite;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: scale(1.1);
+        filter: drop-shadow(0 12px 32px rgba(233, 30, 99, 0.3));
+      }
+    }
+
+    .sparkles-mascot {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      .sparkle {
+        position: absolute;
+        font-size: 1.2rem;
+        animation: sparkle-float 3s ease-in-out infinite;
+        pointer-events: none;
+
+        &.spark-1 {
+          top: -10px;
+          right: -5px;
+          animation-delay: 0s;
+        }
+
+        &.spark-2 {
+          bottom: -5px;
+          left: -10px;
+          animation-delay: 1s;
+        }
+
+        &.spark-3 {
+          top: 10px;
+          left: -15px;
+          animation-delay: 2s;
+        }
+      }
+    }
+  }
+
+  .welcome-content {
+    position: relative;
+    z-index: 2;
+
+    .welcome-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-light);
+      margin: 0 0 8px 0;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .welcome-subtitle {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin: 0 0 20px 0;
+      line-height: 1.4;
+    }
+
+    .mini-stats {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+
+      .mini-stat {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+
+        .stat-icon {
+          font-size: 1rem;
+          color: #ffd54f;
+        }
+
+        span {
+          font-size: 0.85rem;
+          color: var(--text-light);
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+// --- Form Container ---
+.form-container {
+  padding: 20px;
+
+  .wellbeing-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .form-card {
+      background: var(--panel-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: var(--glass-border);
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+
+        .card-icon {
+          font-size: 1.5rem;
+          color: var(--heart-color);
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .card-title {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: var(--text-primary);
+          margin: 0;
+        }
+      }
+
+      // --- Mood Card Específico ---
+      &.mood-card {
+        .card-icon {
+          color: var(--mood-happy);
+        }
+
+        .mood-segment-epic {
+          --background: transparent;
+          border-radius: 12px;
+          padding: 8px;
+          background: rgba(76, 175, 80, 0.05);
+          border: 1px solid rgba(76, 175, 80, 0.1);
+
+          .mood-option {
+            --color: var(--text-secondary);
+            --color-checked: var(--mood-happy);
+            --background-checked: rgba(76, 175, 80, 0.1);
+            --indicator-color: transparent;
+            border-radius: 8px;
+            margin: 2px;
+            min-height: 60px;
+            transition: all 0.3s ease;
+
+            .mood-content {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 4px;
+              padding: 8px;
+
+              .emoji-large {
+                font-size: 1.8rem;
+                transition: all 0.3s ease;
+              }
+
+              .mood-label {
+                font-size: 0.8rem;
+                font-weight: 500;
+                text-align: center;
+              }
+            }
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 16px rgba(76, 175, 80, 0.2);
+
+              .emoji-large {
+                transform: scale(1.2);
+              }
+            }
+
+            &.segment-button-checked {
+              .emoji-large {
+                transform: scale(1.3);
+                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+              }
+            }
+          }
+        }
+      }
+
+      // --- Energy Card Específico ---
+      &.energy-card {
+        .card-icon {
+          color: var(--energy-high);
+        }
+
+        .energy-segment-epic {
+          --background: transparent;
+          border-radius: 12px;
+          padding: 8px;
+          background: rgba(255, 152, 0, 0.05);
+          border: 1px solid rgba(255, 152, 0, 0.1);
+
+          .energy-option {
+            --color: var(--text-secondary);
+            --color-checked: var(--energy-high);
+            --background-checked: rgba(255, 152, 0, 0.1);
+            --indicator-color: transparent;
+            border-radius: 8px;
+            margin: 2px;
+            min-height: 60px;
+            transition: all 0.3s ease;
+
+            .energy-content {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 4px;
+              padding: 8px;
+
+              .emoji-large {
+                font-size: 1.8rem;
+                transition: all 0.3s ease;
+              }
+
+              .energy-label {
+                font-size: 0.8rem;
+                font-weight: 500;
+                text-align: center;
+              }
+            }
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 16px rgba(255, 152, 0, 0.2);
+
+              .emoji-large {
+                transform: scale(1.2);
+              }
+            }
+
+            &.segment-button-checked {
+              .emoji-large {
+                transform: scale(1.3);
+                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+              }
+            }
+          }
+        }
+      }
+
+      // --- Notes Card ---
+      &.notes-card {
+        .notes-input-epic {
+          --background: rgba(0, 0, 0, 0.02);
+          --border-radius: 12px;
+          border: 1px solid #e0e0e0;
+          border-radius: 12px;
+          margin-top: 8px;
+
+          .custom-textarea {
+            --color: var(--text-primary);
+            --placeholder-color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            min-height: 80px;
+          }
+        }
+      }
+
+      // --- Reminder Card ---
+      &.reminder-card {
+        .toggle-item-epic {
+          --background: transparent;
+          --inner-padding-start: 0;
+          --inner-padding-end: 0;
+          --padding-start: 0;
+          --padding-end: 0;
+
+          .toggle-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 12px 0;
+
+            .toggle-info {
+              flex-grow: 1;
+
+              .toggle-label {
+                font-size: 1rem;
+                font-weight: 500;
+                color: var(--text-primary);
+                margin: 0;
+              }
+
+              .toggle-description {
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+                margin: 4px 0 0 0;
+              }
+            }
+
+            .custom-toggle {
+              --background: #e0e0e0;
+              --background-checked: var(--heart-color);
+              --handle-background: white;
+              --handle-background-checked: white;
+            }
+          }
+        }
+
+        .time-input-container-epic {
+          margin-top: 16px;
+          padding-top: 16px;
+          border-top: 1px solid #e0e0e0;
+
+          .time-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(233, 30, 99, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(233, 30, 99, 0.1);
+
+            .time-icon-wrapper {
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              background: rgba(233, 30, 99, 0.1);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+
+              .time-icon {
+                font-size: 1.2rem;
+                color: var(--heart-color);
+              }
+            }
+
+            .time-picker-wrapper {
+              flex-grow: 1;
+
+              .custom-datetime-button {
+                --background: transparent;
+                --color: var(--text-primary);
+                font-weight: 500;
+              }
+            }
+
+            .time-info {
+              .time-label {
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .save-button-container {
+      margin-top: 20px;
+
+      .save-button-epic {
+        --background: linear-gradient(45deg, var(--heart-color), #ad1457);
+        --color: white;
+        border-radius: var(--border-radius);
+        height: 50px;
+        font-size: 1rem;
+        box-shadow: 0 8px 32px rgba(233, 30, 99, 0.3);
+        transition: all 0.3s ease;
+
+        &:hover:not(.button-disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 40px rgba(233, 30, 99, 0.4);
+        }
+
+        &.button-disabled {
+          --background: #ccc;
+          --color: #999;
+          box-shadow: none;
+        }
+      }
+    }
+  }
+}
+
+// --- History View ---
+.history-view {
+  .history-header {
+    padding: 20px;
+    text-align: center;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border-bottom: var(--glass-border);
+
+    .history-title-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 8px;
+
+      .history-icon {
+        font-size: 1.8rem;
+        color: #64b5f6;
+      }
+
+      .history-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text-light);
+        margin: 0;
+      }
+    }
+
+    .history-subtitle {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin: 0;
+    }
+  }
+
+  .history-content {
+    padding: 20px;
+
+    .history-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+      .history-card-wrapper {
+        .history-card-epic {
+          background: var(--panel-bg);
+          border-radius: var(--border-radius);
+          padding: 20px;
+          box-shadow: var(--shadow);
+          border: var(--glass-border);
+          transition: all 0.3s ease;
+
+          &:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(31, 38, 135, 0.2);
+          }
+
+          .date-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e0e0e0;
+
+            .date-badge-epic {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              padding: 12px;
+              background: linear-gradient(135deg, #667eea, #764ba2);
+              border-radius: 12px;
+              color: white;
+              min-width: 60px;
+              box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+
+              .day-number {
+                font-size: 1.5rem;
+                font-weight: 700;
+                line-height: 1;
+              }
+
+              .month-name {
+                font-size: 0.8rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin: 2px 0;
+              }
+
+              .year-small {
+                font-size: 0.7rem;
+                opacity: 0.8;
+              }
+            }
+
+            .date-info {
+              flex-grow: 1;
+
+              .weekday {
+                display: block;
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: var(--text-primary);
+                text-transform: capitalize;
+                margin-bottom: 4px;
+              }
+
+              .full-date {
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+              }
+            }
+          }
+
+          .registro-content {
+            .mood-energy-display {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              margin-bottom: 16px;
+
+              .mood-display,
+              .energy-display {
+                padding: 16px;
+                border-radius: 12px;
+                text-align: center;
+
+                .display-header {
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 8px;
+                  margin-bottom: 12px;
+
+                  .display-icon {
+                    font-size: 1.2rem;
+                  }
+
+                  .display-label {
+                    font-size: 0.8rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    font-weight: 600;
+                  }
+                }
+
+                .display-value {
+                  .emoji-display {
+                    display: block;
+                    font-size: 2rem;
+                    margin-bottom: 8px;
+                  }
+
+                  .text-display {
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    color: var(--text-primary);
+                  }
+                }
+              }
+
+              .mood-display {
+                background: rgba(76, 175, 80, 0.05);
+                border: 1px solid rgba(76, 175, 80, 0.1);
+
+                .display-icon {
+                  color: var(--mood-happy);
+                }
+
+                .display-label {
+                  color: var(--mood-happy);
+                }
+              }
+
+              .energy-display {
+                background: rgba(255, 152, 0, 0.05);
+                border: 1px solid rgba(255, 152, 0, 0.1);
+
+                .display-icon {
+                  color: var(--energy-high);
+                }
+
+                .display-label {
+                  color: var(--energy-high);
+                }
+              }
+            }
+
+            .notes-display {
+              background: rgba(0, 0, 0, 0.02);
+              border-radius: 12px;
+              padding: 16px;
+              border: 1px solid #e0e0e0;
+
+              .notes-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 8px;
+
+                .notes-icon {
+                  font-size: 1.1rem;
+                  color: #757575;
+                }
+
+                .notes-label {
+                  font-size: 0.85rem;
+                  font-weight: 600;
+                  color: var(--text-secondary);
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                }
+              }
+
+              .notes-text {
+                font-size: 0.95rem;
+                color: var(--text-primary);
+                line-height: 1.5;
+                margin: 0;
+                font-style: italic;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// --- Stats Section ---
+.stats-section {
+  padding: 20px;
+  margin-top: 20px;
+
+  .stats-item-epic {
+    --background: var(--glass-bg);
+    --color: var(--text-light);
+    border-radius: var(--border-radius);
+    backdrop-filter: blur(20px);
+    border: var(--glass-border);
+    margin-bottom: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    &:hover {
+      --background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+    }
+
+    .stats-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 4px 0;
+
+      .stats-icon-wrapper {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: linear-gradient(45deg, var(--heart-color), #ad1457);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 16px rgba(233, 30, 99, 0.3);
+
+        .stats-icon {
+          font-size: 1.5rem;
+          color: white;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+      }
+
+      .stats-info {
+        flex-grow: 1;
+
+        h3 {
+          color: var(--text-light);
+          font-weight: 600;
+          font-size: 1.1rem;
+          margin: 0 0 4px 0;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        p {
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 0.9rem;
+          margin: 0;
+          line-height: 1.3;
+        }
+      }
+    }
+  }
+}
+
+// --- Empty States ---
+.empty-state-epic,
+.loading-state-epic {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  background: var(--theme-bg);
-  border-radius: 12px;
-  padding: 4px 12px;
-  margin-top: 8px;
-  border: 1px solid var(--theme-border);
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  min-height: 300px;
+}
 
-  ion-icon {
-    font-size: 1.5rem;
-    color: var(--theme-primary);
-    margin-right: 8px;
+.empty-state-epic {
+  .empty-illustration {
+    margin-bottom: 30px;
+
+    .empty-icon-container {
+      position: relative;
+      display: inline-block;
+
+      .empty-icon-main {
+        font-size: 4rem;
+        color: rgba(255, 255, 255, 0.6);
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+      }
+
+      .sparkles-empty {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        .sparkle {
+          position: absolute;
+          font-size: 1.2rem;
+          animation: sparkle-float 3s ease-in-out infinite;
+
+          &.sparkle-1 {
+            top: -10px;
+            right: -10px;
+            animation-delay: 0s;
+          }
+
+          &.sparkle-2 {
+            bottom: -10px;
+            left: -10px;
+            animation-delay: 1s;
+          }
+
+          &.sparkle-3 {
+            top: 20%;
+            left: -20px;
+            animation-delay: 2s;
+          }
+        }
+      }
+    }
   }
 
-  ion-datetime-button {
-    --color: var(--theme-text-title);
-    font-weight: 600;
-    font-size: 1.1rem;
-    flex-grow: 1;
-    justify-content: flex-start;
+  .empty-content {
+    .empty-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-light);
+      margin: 0 0 12px 0;
+    }
+
+    .empty-description {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.5;
+      margin: 0 0 30px 0;
+      max-width: 300px;
+
+      strong {
+        color: var(--heart-color);
+      }
+    }
+
+    .start-journey-btn {
+      --background: linear-gradient(45deg, var(--heart-color), #ad1457);
+      --color: white;
+      border-radius: var(--border-radius);
+      height: 44px;
+      font-size: 1rem;
+      box-shadow: 0 8px 32px rgba(233, 30, 99, 0.3);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(233, 30, 99, 0.4);
+      }
+    }
   }
 }
 
-// Estilos para el pop-up del reloj
-.custom-datetime-picker {
-  --background: #fbfaff;
-  --title-color: var(--theme-primary);
+.loading-state-epic {
+  .loading-animation {
+    .spinner-container {
+      position: relative;
+      margin-bottom: 30px;
 
-  .time-body {
-    background-color: #ffffff;
-    border: 10px solid #e8eaf6;
-  }
+      .epic-spinner {
+        --color: var(--heart-color);
+        transform: scale(1.5);
+      }
 
-  &::part(time-button) {
-    color: var(--theme-primary);
-    font-weight: bold;
-  }
+      .loading-pulse {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 60px;
+        height: 60px;
+        border: 2px solid rgba(233, 30, 99, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse 2s infinite;
+      }
+    }
 
-  &::part(buttons) {
-    color: var(--theme-primary);
-    font-weight: 600;
+    h3 {
+      color: var(--text-light);
+      font-size: 1.4rem;
+      margin: 0 0 8px 0;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+      margin: 0;
+    }
   }
 }
 
+// --- Animaciones ---
+@keyframes heart-beat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(1);
+  }
+  75% {
+    transform: scale(1.05);
+  }
+}
 
-// --- Resto de los estilos (Historial, FAB, etc.) ---
-ion-fab-button { --background: var(--theme-primary); }
-.history-list { background: transparent; padding: 0; }
-.history-card { /* ... estilos anteriores ... */ }
-.loading-state, .empty-state { /* ... estilos anteriores ... */ }
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes sparkle-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.7;
+  }
+  33% {
+    transform: translateY(-5px) rotate(120deg);
+    opacity: 1;
+  }
+  66% {
+    transform: translateY(-8px) rotate(240deg);
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// --- Responsive ---
+@media (max-width: 768px) {
+  .hero-wellbeing-section {
+    padding: 20px 16px;
+
+    .cerebrito-container .cerebrito-mascot {
+      width: 60px;
+      height: 60px;
+    }
+
+    .welcome-content {
+      .welcome-title {
+        font-size: 1.5rem;
+      }
+
+      .mini-stats {
+        gap: 8px;
+
+        .mini-stat {
+          padding: 6px 12px;
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+
+  .form-container {
+    padding: 16px;
+
+    .wellbeing-form {
+      gap: 16px;
+
+      .form-card {
+        padding: 16px;
+
+        .mood-segment-epic,
+        .energy-segment-epic {
+          .mood-option,
+          .energy-option {
+            min-height: 50px;
+
+            .mood-content,
+            .energy-content {
+              .emoji-large {
+                font-size: 1.5rem;
+              }
+
+              .mood-label,
+              .energy-label {
+                font-size: 0.75rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .history-content {
+    padding: 16px;
+
+    .history-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+
+      .history-card-epic {
+        padding: 16px;
+
+        .registro-content .mood-energy-display {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+      }
+    }
+  }
+
+  .stats-section {
+    padding: 16px;
+
+    .stats-item-epic .stats-content {
+      .stats-icon-wrapper {
+        width: 45px;
+        height: 45px;
+
+        .stats-icon {
+          font-size: 1.3rem;
+        }
+      }
+
+      .stats-info {
+        h3 {
+          font-size: 1rem;
+        }
+
+        p {
+          font-size: 0.85rem;
+        }
+      }
+    }
+  }
+}
+
+// --- Dark Mode ---
+@media (prefers-color-scheme: dark) {
+  :host {
+    --theme-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --panel-bg: rgba(255, 255, 255, 0.05);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+  }
+
+  .form-card {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    &.notes-card .notes-input-epic {
+      background: rgba(255, 255, 255, 0.02);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &.reminder-card .time-input-container-epic {
+      border-top-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .history-card-epic {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    .date-section {
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .notes-display {
+      background: rgba(255, 255, 255, 0.02);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .stats-item-epic {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+  }
+}

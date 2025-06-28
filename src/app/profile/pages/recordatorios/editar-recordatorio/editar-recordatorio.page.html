@@ -1,13 +1,229 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>editar-recordatorio</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/recordatorios"></ion-back-button>
+    </ion-buttons>
+    <ion-title>✏️ Editar Recordatorio</ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        (click)="confirmarEliminacion()"
+        color="danger"
+        fill="clear">
+        <ion-icon name="trash" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button
+        (click)="guardar()"
+        [disabled]="!recordatorio.titulo.trim()"
+        color="primary">
+        <ion-icon name="save" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="crear-content">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">editar-recordatorio</ion-title>
+      <ion-title size="large">✏️ Editar Recordatorio</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <!-- Loading mientras carga datos -->
+  <div *ngIf="cargando" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando recordatorio...</p>
+  </div>
+
+  <div class="crear-container" *ngIf="!cargando">
+
+    <!-- Título Épico -->
+    <div class="campo-grupo hero-input">
+      <div class="input-hero">
+        <ion-input
+          [(ngModel)]="recordatorio.titulo"
+          placeholder="¿Qué necesitas recordar? 🤔"
+          maxlength="100"
+          counter="true"
+          clearInput="true"
+          class="titulo-input">
+          <ion-icon name="bulb" slot="start" color="warning"></ion-icon>
+        </ion-input>
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="campo-grupo">
+      <div class="campo-label">
+        <ion-icon name="document-text"></ion-icon>
+        <span>Descripción</span>
+      </div>
+      <ion-item lines="none" class="campo-item">
+        <ion-textarea
+          [(ngModel)]="recordatorio.descripcion"
+          placeholder="Agrega más detalles (opcional) 📝"
+          rows="3"
+          maxlength="250"
+          counter="true"
+          autoGrow="true">
+        </ion-textarea>
+      </ion-item>
+    </div>
+
+    <!-- Fecha y Hora -->
+    <div class="campo-grupo">
+      <div class="campo-label">
+        <ion-icon name="calendar" color="primary"></ion-icon>
+        <span>¿Cuándo? ⏰</span>
+      </div>
+      <ion-item lines="none" class="campo-item datetime-item">
+        <ion-datetime
+          [(ngModel)]="fechaHoraISO"
+          presentation="date-time"
+          [locale]="'es-ES'"
+          [showDefaultButtons]="true"
+          cancelText="Cancelar"
+          doneText="¡Listo!"
+          class="datetime-epic">
+          <ion-icon name="time" slot="start" color="success"></ion-icon>
+        </ion-datetime>
+      </ion-item>
+    </div>
+
+    <!-- Categoría -->
+    <div class="campo-grupo">
+      <div class="campo-label">
+        <ion-icon name="folder-open" color="tertiary"></ion-icon>
+        <span>Categoría</span>
+      </div>
+      <div class="categorias-grid">
+        <ion-chip
+          *ngFor="let categoria of categorias"
+          [color]="recordatorio.categoria === categoria[0] ? 'primary' : 'medium'"
+          (click)="asignarCategoria(categoria[0])"
+          class="categoria-chip">
+          <span class="categoria-emoji">{{ categoria[1].emoji }}</span>
+          <ion-label>{{ categoria[1].label }}</ion-label>
+        </ion-chip>
+      </div>
+    </div>
+
+    <!-- Prioridad -->
+    <div class="campo-grupo">
+      <div class="campo-label">
+        <ion-icon name="flag" color="danger"></ion-icon>
+        <span>Prioridad</span>
+      </div>
+      <div class="prioridades-grid">
+        <ion-chip
+          *ngFor="let prioridad of prioridades"
+          [color]="recordatorio.prioridad === prioridad[0] ? prioridad[1].color : 'light'"
+          (click)="asignarPrioridad(prioridad[0])"
+          class="prioridad-chip">
+          <span class="prioridad-emoji">{{ prioridad[1].emoji }}</span>
+          <ion-label>{{ prioridad[1].label }}</ion-label>
+        </ion-chip>
+      </div>
+    </div>
+
+    <!-- Estado del recordatorio -->
+    <div class="campo-grupo">
+      <ion-item lines="none" class="campo-item toggle-item">
+        <ion-icon
+          [name]="recordatorio.completado ? 'checkmark-circle' : 'time'"
+          [color]="recordatorio.completado ? 'success' : 'warning'"
+          slot="start">
+        </ion-icon>
+        <ion-label>
+          <h3>Estado</h3>
+          <p>{{ recordatorio.completado ? '✅ Completado' : '⏳ Pendiente' }}</p>
+        </ion-label>
+        <ion-toggle
+          [(ngModel)]="recordatorio.completado"
+          slot="end"
+          [color]="recordatorio.completado ? 'success' : 'medium'">
+        </ion-toggle>
+      </ion-item>
+    </div>
+
+    <!-- Vista Previa -->
+    <div class="vista-previa animate__animated animate__fadeInUp" *ngIf="recordatorio.titulo.trim()">
+      <div class="preview-header">
+        <h4>✏️ Vista previa</h4>
+        <ion-badge color="warning">Editando</ion-badge>
+      </div>
+
+      <div class="preview-card">
+        <div class="preview-top">
+          <div class="preview-category">
+            <span class="cat-emoji">{{ categoriaSeleccionada.emoji }}</span>
+            <span class="cat-label">{{ categoriaSeleccionada.label }}</span>
+          </div>
+          <ion-chip [color]="prioridadSeleccionada.color" size="small" class="priority-chip">
+            {{ prioridadSeleccionada.emoji }} {{ prioridadSeleccionada.label }}
+          </ion-chip>
+        </div>
+
+        <h3 class="preview-title">{{ recordatorio.titulo }}</h3>
+        <p class="preview-desc" *ngIf="recordatorio.descripcion">{{ recordatorio.descripcion }}</p>
+
+        <div class="preview-bottom">
+          <div class="preview-time">
+            <ion-icon name="time-outline" color="primary"></ion-icon>
+            <span>{{ fechaFormateada }}</span>
+          </div>
+          <div class="preview-status">
+            <ion-icon
+              [name]="recordatorio.completado ? 'checkmark-circle' : 'time'"
+              [color]="recordatorio.completado ? 'success' : 'warning'">
+            </ion-icon>
+            <span>{{ recordatorio.completado ? 'Completado' : 'Pendiente' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="botones-container">
+      <ion-button
+        expand="block"
+        fill="outline"
+        color="medium"
+        size="large"
+        (click)="volver()"
+        class="btn-cancelar">
+        <ion-icon name="close-circle" slot="start"></ion-icon>
+        Cancelar
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        color="primary"
+        size="large"
+        (click)="guardar()"
+        [disabled]="!recordatorio.titulo.trim()"
+        class="btn-crear">
+        <ion-icon name="save" slot="start"></ion-icon>
+        <strong>💾 Guardar Cambios</strong>
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        fill="outline"
+        color="danger"
+        size="large"
+        (click)="confirmarEliminacion()"
+        class="btn-eliminar">
+        <ion-icon name="trash" slot="start"></ion-icon>
+        🗑️ Eliminar Recordatorio
+      </ion-button>
+    </div>
+
+    <!-- Información del recordatorio -->
+    <div class="info-edicion" *ngIf="recordatorio.fechaCreacion">
+      <ion-note color="medium">
+        <ion-icon name="information-circle" color="medium"></ion-icon>
+        Creado el {{ recordatorio.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}
+      </ion-note>
+    </div>
+  </div>
 </ion-content>

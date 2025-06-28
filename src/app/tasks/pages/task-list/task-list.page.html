@@ -1,162 +1,278 @@
 <ion-header [translucent]="true">
 
-  <ion-toolbar color="primary" class="days-of-week-toolbar">
+  <ion-toolbar color="primary" class="days-of-week-toolbar epic-header">
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-menu-button class="epic-menu-btn"></ion-menu-button>
     </ion-buttons>
-    <div class="days-container">
+    <div class="days-container epic-calendar">
       <button *ngFor="let day of weekDays"
-              class="day-button"
+              class="day-button epic-day-btn"
               [class.selected-day]="isDaySelected(day)"
+              [class.epic-day-active]="isDaySelected(day)"
               (click)="selectDay(day)">
-        <span class="day-letter">{{ day.letter }}</span>
-        <span class="day-number">{{ day.dayOfMonth }}</span>
+        <span class="day-letter epic-day-letter">{{ day.letter }}</span>
+        <span class="day-number epic-day-number">{{ day.dayOfMonth }}</span>
       </button>
     </div>
   </ion-toolbar>
 
-  <ion-toolbar color="primary">
-    <ion-segment [(ngModel)]="segmentoActual" (ionChange)="segmentChanged($event)" value="pendientes">
-      <ion-segment-button value="pendientes">
-        <ion-label>Pendientes</ion-label>
+  <!-- 🔥 SEGMENTS MEJORADOS CON MEJOR DISEÑO -->
+  <ion-toolbar color="primary" class="epic-segments-toolbar">
+    <ion-segment [(ngModel)]="segmentoActual" (ionChange)="segmentChanged($event)" value="pendientes" class="epic-segment">
+      <ion-segment-button value="pendientes" class="epic-segment-btn">
+        <div class="segment-content">
+          <div class="segment-badge pending">
+            <ion-icon name="time-outline" class="segment-icon"></ion-icon>
+          </div>
+          <span class="segment-text">Pendientes</span>
+        </div>
       </ion-segment-button>
-      <ion-segment-button value="completadas">
-        <ion-label>Completadas</ion-label>
+      <ion-segment-button value="completadas" class="epic-segment-btn">
+        <div class="segment-content">
+          <div class="segment-badge completed">
+            <ion-icon name="checkmark-outline" class="segment-icon"></ion-icon>
+          </div>
+          <span class="segment-text">Completadas</span>
+        </div>
       </ion-segment-button>
     </ion-segment>
   </ion-toolbar>
 
-  <div class="filter-chips-container ion-padding-horizontal" #filterContainer>
+  <div class="filter-chips-container ion-padding-horizontal epic-filters" #filterContainer>
     <ng-container *ngIf="etiquetas$ | async as etiquetas">
-      <ion-chip [outline]="etiquetaFiltroSeleccionada !== 'todas'" (click)="seleccionarFiltroEtiqueta('todas', $event)">
-        <ion-label>Todas</ion-label>
+      <ion-chip [outline]="etiquetaFiltroSeleccionada !== 'todas'"
+                (click)="seleccionarFiltroEtiqueta('todas', $event)"
+                class="epic-chip epic-chip-all"
+                [class.epic-chip-active]="etiquetaFiltroSeleccionada === 'todas'">
+        <ion-icon name="apps-outline" class="epic-chip-icon"></ion-icon>
+        <ion-label class="epic-chip-label">Todas</ion-label>
       </ion-chip>
       <ion-chip *ngFor="let etiqueta of etiquetas"
                 [outline]="etiquetaFiltroSeleccionada !== etiqueta.id"
-                (click)="seleccionarFiltroEtiqueta(etiqueta.id!, $event)">
-        <div class="chip-color-dot" [style.background-color]="etiqueta.color"></div>
-        <ion-label>{{ etiqueta.nombre }}</ion-label>
+                (click)="seleccionarFiltroEtiqueta(etiqueta.id!, $event)"
+                class="epic-chip epic-chip-tag"
+                [class.epic-chip-active]="etiquetaFiltroSeleccionada === etiqueta.id">
+        <div class="chip-color-dot epic-color-dot" [style.background-color]="etiqueta.color"></div>
+        <ion-label class="epic-chip-label">{{ etiqueta.nombre }}</ion-label>
       </ion-chip>
-      <ion-chip *ngIf="etiquetas.length === 0" class="add-tag-chip" routerLink="/tabs/gestion-etiquetas">
-        <ion-icon name="add-outline" class="add-tag-icon"></ion-icon>
-        <ion-label>Crear etiqueta</ion-label>
+      <ion-chip *ngIf="etiquetas.length === 0"
+                class="add-tag-chip epic-add-chip"
+                routerLink="/tabs/gestion-etiquetas">
+        <ion-icon name="add-outline" class="add-tag-icon epic-add-icon"></ion-icon>
+        <ion-label class="epic-chip-label">Crear etiqueta</ion-label>
       </ion-chip>
     </ng-container>
   </div>
 
 </ion-header>
 
-<ion-content [fullscreen]="true" class="task-list-content">
-  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+<ion-content [fullscreen]="true" class="task-list-content epic-content">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)" class="epic-refresher">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div *ngIf="!isLoading && tareasMostradas.length === 0" class="empty-state">
-    <ion-icon name="file-tray-stacked-outline" class="empty-icon"></ion-icon>
-    <p *ngIf="segmentoActual === 'pendientes'">No tienes tareas pendientes.</p>
-    <p *ngIf="segmentoActual === 'completadas'">Aún no has completado ninguna tarea.</p>
-    <ion-button fill="outline" (click)="abrirModalTarea()" class="add-first-task-button">
-      <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-      Crear una tarea
-    </ion-button>
+  <!-- 🔥 CEREBRITO HÉROE MÁS VISIBLE -->
+  <div class="hero-tasks-section">
+    <div class="cerebrito-hero-container">
+      <img src="./assets/images/C3.png" alt="Cerebrito C3" class="cerebrito-hero" />
+      <div class="sparkles-hero">
+        <div class="sparkle spark-1">✨</div>
+        <div class="sparkle spark-2">📝</div>
+        <div class="sparkle spark-3">💫</div>
+        <div class="sparkle spark-4">🎯</div>
+      </div>
+    </div>
+    <div class="hero-content">
+      <h2 class="hero-title">¡Organiza tu día!</h2>
+      <p class="hero-subtitle">Gestiona tus tareas con estilo</p>
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <ion-icon name="list-outline" class="stat-icon"></ion-icon>
+          <span>{{ tareasMostradas.length }} tareas</span>
+        </div>
+        <div class="mini-stat">
+          <ion-icon name="calendar-outline" class="stat-icon"></ion-icon>
+          <span>Hoy</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <ion-list *ngIf="tareasMostradas.length > 0" class="task-list">
-    <ion-accordion-group>
-      <ion-item-sliding *ngFor="let tarea of tareasMostradas; trackBy: trackTareaById" #slidingItem>
+  <!-- 🔥 EMPTY STATE ÉPICO -->
+  <div *ngIf="!isLoading && tareasMostradas.length === 0" class="empty-state-epic">
+    <div class="empty-illustration">
+      <div class="empty-icon-container">
+        <ion-icon name="file-tray-stacked-outline" class="empty-icon-main"></ion-icon>
+        <div class="sparkles-empty">
+          <div class="sparkle sparkle-1">✨</div>
+          <div class="sparkle sparkle-2">📝</div>
+          <div class="sparkle sparkle-3">💫</div>
+        </div>
+      </div>
+    </div>
+    <div class="empty-content">
+      <h2 class="empty-title">
+        <span *ngIf="segmentoActual === 'pendientes'">¡Momento perfecto para organizarte!</span>
+        <span *ngIf="segmentoActual === 'completadas'">¡Tu primera meta te espera!</span>
+      </h2>
+      <p class="empty-description">
+        <span *ngIf="segmentoActual === 'pendientes'">No tienes tareas pendientes. <strong>¡Crea tu primera tarea!</strong></span>
+        <span *ngIf="segmentoActual === 'completadas'">Aún no has completado ninguna tarea. <strong>¡El primer logro siempre es emocionante!</strong></span>
+      </p>
+      <ion-button fill="solid" (click)="abrirModalTarea()" class="start-journey-btn">
+        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+        Crear mi primera tarea
+      </ion-button>
+    </div>
+  </div>
 
-        <ion-item-options side="end">
-          <ion-item-option color="light" (click)="abrirModalTarea(tarea); slidingItem.close()">
-            <ion-icon slot="icon-only" name="create-outline"></ion-icon>
-          </ion-item-option>
-          <ion-item-option color="danger" (click)="confirmarEliminar(tarea, $event); slidingItem.close()">
-            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-          </ion-item-option>
-        </ion-item-options>
+  <!-- 🔥 LISTA DE TAREAS ÉPICA ESTILO WELLBEING -->
+  <div *ngIf="tareasMostradas.length > 0" class="tasks-grid-container">
+    <div class="tasks-grid">
+      <div *ngFor="let tarea of tareasMostradas; trackBy: trackTareaById"
+           class="task-card-wrapper">
 
-        <ion-accordion [toggleIcon]="(tarea.subtareas && tarea.subtareas.length > 0) ? 'chevron-down' : ''" toggleIconSlot="end">
+        <ion-item-sliding #slidingItem class="epic-sliding-item">
+          <!-- 🔥 OPCIONES DE SLIDING -->
+          <ion-item-options side="end" class="epic-item-options">
+            <ion-item-option color="light"
+                             (click)="abrirModalTarea(tarea); slidingItem.close()"
+                             class="epic-edit-option">
+              <ion-icon slot="icon-only" name="create-outline" class="epic-option-icon"></ion-icon>
+            </ion-item-option>
+            <ion-item-option color="danger"
+                             (click)="confirmarEliminar(tarea, $event); slidingItem.close()"
+                             class="epic-delete-option">
+              <ion-icon slot="icon-only" name="trash-outline" class="epic-option-icon"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
 
-          <ion-item slot="header" lines="inset" [ngClass]="{ 'task-completada': estaCompletadaHoy(tarea) }" (click)="verDetalleTarea(tarea)">
+          <!-- 🔥 ION-ITEM NECESARIO PARA EL SLIDING -->
+          <ion-item class="epic-item">
+            <!-- 🔥 CARD DE TAREA ÉPICA -->
+            <div class="task-card-epic"
+                 [class.task-completed]="estaCompletadaHoy(tarea)"
+                 (click)="verDetalleTarea(tarea)">
 
-            <div slot="start"
-                 *ngIf="tarea.prioridad && tarea.prioridad > 0"
-                 class="priority-indicator"
-                 [ngClass]="getPriorityClass(tarea.prioridad)">
-            </div>
-
-            <ion-checkbox
-              slot="start"
-              [checked]="estaCompletadaHoy(tarea)"
-              (ionChange)="toggleCompletada(tarea, $event)"
-              (click)="$event.stopPropagation()">
-            </ion-checkbox>
-
-            <ion-label>
-              <h2>{{ tarea.titulo }}</h2>
-              <p *ngIf="tarea.descripcion">{{ tarea.descripcion | slice:0:100 }}{{ tarea.descripcion && tarea.descripcion.length > 100 ? '...' : '' }}</p>
-
-              <!-- CHIP DE META ASOCIADA -->
-              <ng-container *ngIf="tarea.metaId">
-                <ng-container *ngIf="metas$ | async as metas">
-                  <ion-chip color="primary" *ngIf="getMetaTitulo(tarea.metaId, metas)">
-                    <ion-icon name="flag-outline" color="primary" slot="start"></ion-icon>
-                    {{ getMetaTitulo(tarea.metaId, metas) }}
-                  </ion-chip>
-                </ng-container>
-              </ng-container>
-              <!-- FIN CHIP DE META -->
-
-              <ion-progress-bar
-                *ngIf="tarea.subtareas && tarea.subtareas.length > 0"
-                [value]="calcularProgreso(tarea)"
-                class="ion-margin-top"
-                color="tertiary">
-              </ion-progress-bar>
-
-              <div class="etiquetas-container" *ngIf="tarea.etiquetas && tarea.etiquetas.length > 0">
-                  <ion-chip *ngFor="let etiqueta of tarea.etiquetas" class="etiqueta-chip" [style.--background]="etiqueta.color">
-                    <ion-label>{{ etiqueta.nombre }}</ion-label>
-                  </ion-chip>
+              <!-- 🔥 HEADER DE LA CARD -->
+              <div class="task-header-epic">
+                <!-- 🔥 SEMÁFORO DE PRIORIDAD -->
+                <div *ngIf="tarea.prioridad && tarea.prioridad > 0"
+                     class="priority-semaforo"
+                     [ngClass]="getPriorityClass(tarea.prioridad)">
+                  <div class="priority-dot"></div>
                 </div>
 
-              <p *ngIf="esVencida(tarea)" class="fecha-vencimiento overdue-text">
-                <ion-icon name="warning-outline" class="fecha-icon"></ion-icon>
-                ¡Esta tarea ha vencido!
-              </p>
-              <p *ngIf="tarea.recurrencia !== 'diaria' && tarea.fechaVencimiento && !esVencida(tarea)" class="fecha-vencimiento">
-                <ion-icon name="calendar-outline" class="fecha-icon"></ion-icon>
-                Vence: {{ getDisplayDateForPipe(tarea.fechaVencimiento) | date: 'dd/MM/yy HH:mm' }}
-              </p>
-            </ion-label>
-          </ion-item>
+                <div class="checkbox-container" (click)="$event.stopPropagation()">
+                  <ion-checkbox
+                    [checked]="estaCompletadaHoy(tarea)"
+                    (ionChange)="toggleCompletada(tarea, $event)"
+                    class="epic-checkbox">
+                  </ion-checkbox>
+                </div>
 
-          <div class="ion-padding" slot="content">
-            <ion-list *ngIf="tarea.subtareas && tarea.subtareas.length > 0">
-              <ion-item *ngFor="let subtarea of tarea.subtareas" lines="none">
-                <ion-checkbox
-                  slot="start"
-                  [checked]="estaSubtareaCompletada(subtarea, tarea.registro)"
-                  (ionChange)="toggleSubtareaCompletada(tarea, subtarea, $event)">
-                </ion-checkbox>
-                <ion-label>{{ subtarea.titulo }}</ion-label>
-              </ion-item>
-            </ion-list>
-            <div *ngIf="!tarea.subtareas || tarea.subtareas.length === 0">
-              <p class="ion-text-center ion-padding-top">Esta tarea no tiene subtareas definidas.</p>
+                <div class="task-main-content">
+                  <h3 class="task-title-epic" [class.completed-title]="estaCompletadaHoy(tarea)">
+                    {{ tarea.titulo }}
+                  </h3>
+                  <p *ngIf="tarea.descripcion" class="task-description-epic">
+                    {{ tarea.descripcion | slice:0:80 }}{{ tarea.descripcion && tarea.descripcion.length > 80 ? '...' : '' }}
+                  </p>
+                </div>
+
+                <!-- 🔥 PROGRESO SIMPLE SIN EXPANDIR -->
+                <div *ngIf="tarea.subtareas && tarea.subtareas.length > 0"
+                     class="progress-indicator-simple">
+                  <div class="progress-circle">
+                    <span class="progress-text">{{ getCompletedSubtasksCount(tarea) }}/{{ tarea.subtareas.length }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 🔥 META ASOCIADA -->
+              <div *ngIf="tarea.metaId && (metas$ | async) as metas" class="meta-section">
+                <div class="meta-chip-epic">
+                  <ion-icon name="flag-outline" class="meta-icon"></ion-icon>
+                  <span class="meta-text">{{ getMetaTitulo(tarea.metaId, metas) }}</span>
+                </div>
+              </div>
+
+              <!-- 🔥 ETIQUETAS ÉPICAS -->
+              <div *ngIf="tarea.etiquetas && tarea.etiquetas.length > 0" class="tags-section">
+                <div class="tags-container-epic">
+                  <div *ngFor="let etiqueta of (tarea.etiquetas || []) | slice:0:3"
+                       class="tag-epic"
+                       [style.background-color]="etiqueta.color">
+                    {{ etiqueta.nombre }}
+                  </div>
+                  <div *ngIf="(tarea.etiquetas.length || 0) > 3" class="more-tags-epic">
+                    +{{ (tarea.etiquetas.length || 0) - 3 }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- 🔥 PROGRESS BAR -->
+              <div *ngIf="tarea.subtareas && tarea.subtareas.length > 0" class="progress-section">
+                <div class="progress-bar-epic">
+                  <div class="progress-fill" [style.width.%]="calcularProgreso(tarea) * 100"></div>
+                </div>
+              </div>
+
+              <!-- 🔥 FECHA DE VENCIMIENTO -->
+              <div *ngIf="tarea.fechaVencimiento && tarea.recurrencia !== 'diaria'" class="date-section">
+                <div class="date-info" [class.overdue]="esVencida(tarea)">
+                  <ion-icon [name]="esVencida(tarea) ? 'warning-outline' : 'calendar-outline'"
+                            class="date-icon"></ion-icon>
+                  <span class="date-text">
+                    <span *ngIf="esVencida(tarea)">¡Vencida!</span>
+                    <span *ngIf="!esVencida(tarea)">{{ getDisplayDateForPipe(tarea.fechaVencimiento) | date: 'dd/MM HH:mm' }}</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- 🔥 SUBTAREAS SIN EXPANDIR - SOLO LISTA -->
+              <div *ngIf="tarea.subtareas && tarea.subtareas.length > 0"
+                   class="subtasks-list-simple">
+                <div *ngFor="let subtarea of tarea.subtareas" class="subtask-item-epic">
+                  <span class="subtask-text"
+                        [class.completed]="estaSubtareaCompletada(subtarea, tarea.registro)">
+                    {{ subtarea.titulo }}
+                  </span>
+                </div>
+              </div>
+
             </div>
-          </div>
+          </ion-item>
+        </ion-item-sliding>
+      </div>
+    </div>
+  </div>
 
-        </ion-accordion>
-
-      </ion-item-sliding>
-    </ion-accordion-group>
-  </ion-list>
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="abrirModalTarea()" color="tertiary">
-      <ion-icon name="add-outline"></ion-icon>
+  <!-- 🔥 FAB ÉPICO -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="epic-fab">
+    <ion-fab-button (click)="abrirModalTarea()" color="tertiary" class="epic-fab-button">
+      <ion-icon name="add-outline" class="epic-fab-icon"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-  <ion-button routerLink="/task-stats" expand="block" color="tertiary">
-  Ver estadísticas de subtareas
-</ion-button>
+
+  <!-- 🔥 BOTÓN ESTADÍSTICAS ÉPICO ESTILO WELLBEING -->
+  <div class="stats-button-container">
+    <div class="stats-card-epic" routerLink="/task-stats">
+      <div class="stats-content">
+        <div class="stats-icon-wrapper">
+          <ion-icon name="bar-chart-outline" class="stats-icon"></ion-icon>
+        </div>
+        <div class="stats-info">
+          <h3>Estadísticas de Subtareas</h3>
+          <p>Analiza tu progreso y productividad</p>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔥 CEREBRITO DE FONDO MÁS VISIBLE -->
+  <div class="background-cerebrito-epic">
+    <img src="./assets/images/C3.png" alt="Cerebrito C3" class="cerebrito-background" />
+  </div>
 </ion-content>

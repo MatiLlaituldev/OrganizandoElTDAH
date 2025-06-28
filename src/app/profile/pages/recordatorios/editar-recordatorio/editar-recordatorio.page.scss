@@ -1,0 +1,314 @@
+.crear-content {
+  --background: var(--ion-background-color, #f8f9fa);
+  --color: var(--ion-text-color);
+}
+
+.crear-container {
+  padding: 16px;
+  max-width: 100%;
+
+  .campo-grupo {
+    margin-bottom: 20px;
+
+    .campo-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--ion-color-primary);
+      font-size: 16px;
+
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+
+    .campo-item {
+      --background: var(--ion-item-background);
+      --border-radius: 12px;
+      --padding-start: 16px;
+      --padding-end: 16px;
+      --border-color: var(--ion-color-light);
+      border: 1px solid var(--ion-color-light);
+
+      ion-input, ion-textarea {
+        --color: var(--ion-text-color);
+        --placeholder-color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+// 🔥 TÍTULO SIMPLE
+.hero-input {
+  .input-hero {
+    .titulo-input {
+      --background: var(--ion-item-background);
+      --border-radius: 12px;
+      --padding-start: 16px;
+      --padding-end: 16px;
+      --color: var(--ion-text-color);
+      --placeholder-color: var(--ion-color-medium);
+      font-size: 16px;
+      font-weight: 500;
+      border: 2px solid var(--ion-color-light);
+
+      &:focus {
+        --border-color: var(--ion-color-primary);
+      }
+    }
+  }
+}
+
+// 🎯 CATEGORÍAS MÓVIL
+.categorias-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+
+  .categoria-chip {
+    --background: var(--ion-color-light);
+    --color: var(--ion-text-color);
+    height: 48px;
+    cursor: pointer;
+    border-radius: 12px;
+
+    .categoria-emoji {
+      font-size: 18px;
+      margin-right: 6px;
+    }
+
+    &[color="primary"] {
+      --background: var(--ion-color-primary);
+      --color: white;
+    }
+  }
+}
+
+// 🚩 PRIORIDADES MÓVIL
+.prioridades-grid {
+  display: flex;
+  gap: 8px;
+
+  .prioridad-chip {
+    flex: 1;
+    height: 40px;
+    cursor: pointer;
+    border-radius: 20px;
+
+    .prioridad-emoji {
+      font-size: 16px;
+      margin-right: 4px;
+    }
+  }
+}
+
+// 📅 DATETIME SIMPLE
+.datetime-item {
+  .datetime-epic {
+    width: 100%;
+  }
+}
+
+// 🔔 TOGGLE SIMPLE
+.toggle-item {
+  --background: var(--ion-item-background);
+  --border-radius: 12px;
+  border: 1px solid var(--ion-color-light);
+
+  ion-label {
+    h3 {
+      color: var(--ion-text-color);
+      margin: 0;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    p {
+      color: var(--ion-color-medium);
+      margin: 4px 0 0 0;
+      font-size: 14px;
+    }
+  }
+}
+
+// ✨ VISTA PREVIA MÓVIL
+.vista-previa {
+  background: var(--ion-color-light);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+  border: 1px solid var(--ion-color-medium);
+
+  .preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    h4 {
+      color: var(--ion-text-color);
+      margin: 0;
+      font-weight: 600;
+      font-size: 16px;
+    }
+  }
+
+  .preview-card {
+    background: var(--ion-item-background);
+    border-radius: 8px;
+    padding: 12px;
+
+    .preview-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+
+      .preview-category {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .cat-emoji {
+          font-size: 16px;
+        }
+
+        .cat-label {
+          color: var(--ion-text-color);
+          font-weight: 500;
+          font-size: 14px;
+        }
+      }
+    }
+
+    .preview-title {
+      color: var(--ion-text-color);
+      font-weight: 600;
+      margin: 8px 0;
+      font-size: 16px;
+    }
+
+    .preview-desc {
+      color: var(--ion-color-medium);
+      margin: 6px 0;
+      font-size: 14px;
+    }
+
+    .preview-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+
+      .preview-time, .preview-notification {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--ion-color-medium);
+        font-size: 12px;
+
+        ion-icon {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}
+
+// 🚀 BOTONES MÓVIL
+.botones-container {
+  display: flex;
+  gap: 12px;
+  margin: 24px 0 16px 0;
+  padding: 0 4px;
+
+  .btn-cancelar {
+    --border-radius: 12px;
+    height: 48px;
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .btn-crear {
+    --border-radius: 12px;
+    height: 48px;
+    font-weight: 600;
+    flex: 2;
+
+    &[disabled] {
+      --opacity: 0.5;
+    }
+  }
+}
+
+// 💡 TIP MÓVIL
+.tip-motivacional {
+  background: var(--ion-color-warning-tint);
+  border: 1px solid var(--ion-color-warning);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+
+  ion-icon {
+    font-size: 20px;
+    color: var(--ion-color-warning);
+  }
+
+  p {
+    color: var(--ion-text-color);
+    margin: 0;
+    font-size: 14px;
+
+    strong {
+      color: var(--ion-color-warning);
+    }
+  }
+}
+
+// 📱 RESPONSIVE REAL
+@media (max-width: 480px) {
+  .crear-container {
+    padding: 12px;
+  }
+
+  .categorias-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prioridades-grid {
+    flex-direction: column;
+  }
+
+  .botones-container {
+    flex-direction: column;
+    gap: 8px;
+
+    .btn-cancelar, .btn-crear {
+      flex: none;
+    }
+  }
+}
+
+// ✨ ANIMACIONES SUTILES
+.btn-crear:not([disabled]) {
+  animation: pulse-subtle 3s infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.vista-previa {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

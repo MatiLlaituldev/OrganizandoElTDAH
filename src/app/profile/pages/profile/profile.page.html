@@ -32,28 +32,76 @@
     </div>
   </div>
 
-  <!-- 🔔 RECORDATORIOS - CARD ÉPICA -->
+  <!-- 🔥 RECORDATORIOS - CARD ÉPICA FUNCIONAL -->
   <div class="featured-section">
-    <ion-card class="recordatorios-hero-card" button routerLink="/recordatorios">
+    <ion-card class="recordatorios-hero-card" button (click)="irARecordatorios()">
       <div class="card-gradient-bg"></div>
       <ion-card-content>
         <div class="hero-card-content">
           <div class="icon-container">
             <ion-icon name="alarm" class="main-icon"></ion-icon>
-            <div class="pulse-ring"></div>
-            <ion-badge color="danger" class="notification-badge">3</ion-badge>
+            <div class="pulse-ring" *ngIf="proximoRecordatorio"></div>
+            <ion-badge
+              color="danger"
+              class="notification-badge"
+              *ngIf="proximoRecordatorio">
+              1
+            </ion-badge>
           </div>
 
           <div class="content-info">
             <h3 class="card-title">🔔 Recordatorios</h3>
-            <p class="next-event">
-              <strong>Próximo:</strong> Defensa de Título
-            </p>
-            <div class="time-info">
-              <ion-chip color="warning" class="time-chip">
-                <ion-icon name="calendar-outline" slot="start"></ion-icon>
-                <ion-label>5 Julio - 12 días</ion-label>
-              </ion-chip>
+
+            <!-- 🔥 LOADING STATE -->
+            <div *ngIf="cargandoRecordatorio" class="loading-state">
+              <ion-spinner name="dots" color="primary"></ion-spinner>
+              <p>Cargando...</p>
+            </div>
+
+            <!-- 🔥 SI HAY PRÓXIMO RECORDATORIO -->
+            <div *ngIf="!cargandoRecordatorio && proximoRecordatorio" class="next-event-container">
+              <p class="next-event">
+                <strong>Próximo:</strong> {{ proximoRecordatorio.titulo }}
+              </p>
+              <div class="time-info">
+                <ion-chip
+                  [color]="tiempoHastaProximo === 'Vencido' ? 'danger' : 'warning'"
+                  class="time-chip">
+                  <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                  <ion-label>{{ tiempoHastaProximo }}</ion-label>
+                </ion-chip>
+                <ion-chip
+                  [color]="proximoRecordatorio.prioridad === 'alta' ? 'danger' :
+                           proximoRecordatorio.prioridad === 'media' ? 'warning' : 'success'"
+                  class="priority-chip"
+                  size="small">
+                  <ion-label>{{ proximoRecordatorio.prioridad }}</ion-label>
+                </ion-chip>
+              </div>
+
+              <!-- 🔥 BOTÓN COMPLETAR RÁPIDO -->
+              <ion-button
+                fill="clear"
+                size="small"
+                color="success"
+                (click)="completarRecordatorioDesdePerfil(); $event.stopPropagation()"
+                class="quick-complete-btn">
+                <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+                Completar
+              </ion-button>
+            </div>
+
+            <!-- 🔥 SI NO HAY RECORDATORIOS -->
+            <div *ngIf="!cargandoRecordatorio && !proximoRecordatorio" class="no-reminders">
+              <p class="next-event">
+                <strong>¡Todo al día!</strong> 🎉
+              </p>
+              <div class="time-info">
+                <ion-chip color="success" class="time-chip">
+                  <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+                  <ion-label>Sin recordatorios pendientes</ion-label>
+                </ion-chip>
+              </div>
             </div>
           </div>
 
@@ -62,12 +110,14 @@
           </div>
         </div>
 
-        <!-- Mini preview de recordatorios -->
+        <!-- 🔥 MINI PREVIEW FUNCIONAL -->
         <div class="preview-reminders">
-          <div class="reminder-dot active"></div>
+          <div class="reminder-dot" [class.active]="proximoRecordatorio"></div>
+          <div class="reminder-dot" [class.active]="!proximoRecordatorio"></div>
           <div class="reminder-dot"></div>
-          <div class="reminder-dot"></div>
-          <span class="reminder-text">Ver todos los recordatorios</span>
+          <span class="reminder-text">
+            {{ proximoRecordatorio ? 'Ver todos los recordatorios' : 'Crear primer recordatorio' }}
+          </span>
         </div>
       </ion-card-content>
     </ion-card>

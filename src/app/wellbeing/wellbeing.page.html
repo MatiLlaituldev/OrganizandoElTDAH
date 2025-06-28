@@ -1,18 +1,23 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+  <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-menu-button class="menu-btn-epic"></ion-menu-button>
     </ion-buttons>
-    <ion-title>Mi Bienestar Diario</ion-title>
+    <ion-title class="header-title">
+      <div class="title-container">
+        <ion-icon name="heart" class="title-icon"></ion-icon>
+        <span>Mi Bienestar Diario</span>
+      </div>
+    </ion-title>
   </ion-toolbar>
 
   <ion-toolbar class="segment-toolbar">
-    <ion-segment [(ngModel)]="vistaActual" (ionChange)="segmentChanged($event)" value="registrar" mode="md">
-      <ion-segment-button value="registrar">
+    <ion-segment [(ngModel)]="vistaActual" (ionChange)="segmentChanged($event)" value="registrar" mode="md" class="epic-segment">
+      <ion-segment-button value="registrar" class="segment-btn">
         <ion-icon name="create-outline"></ion-icon>
         <ion-label>Registrar Hoy</ion-label>
       </ion-segment-button>
-      <ion-segment-button value="historial">
+      <ion-segment-button value="historial" class="segment-btn">
         <ion-icon name="time-outline"></ion-icon>
         <ion-label>Mi Historial</ion-label>
       </ion-segment-button>
@@ -20,110 +25,313 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="wellbeing-content">
   <div class="content-wrapper">
 
-    <div *ngIf="vistaActual === 'registrar'" class="page-view">
-      <div class="welcome-header">
-        <img src="assets/images/cerebrito.png" alt="Cerebrito Bienestar" class="welcome-image" />
-        <div class="welcome-text">
-          <h2>¿Cómo te sientes hoy?</h2>
-          <p>Tómate un momento para conectar contigo.</p>
-        </div>
-      </div>
+    <!-- 🔥 VISTA REGISTRAR ÉPICA -->
+    <div *ngIf="vistaActual === 'registrar'" class="page-view register-view">
 
-      <form [formGroup]="wellbeingForm" (ngSubmit)="guardarRegistro()" *ngIf="wellbeingForm">
-
-        <div class="form-card">
-          <ion-label class="card-title">Tu Estado de Ánimo</ion-label>
-          <ion-segment formControlName="estadoAnimo" class="mood-segment" scrollable="true">
-            <ion-segment-button *ngFor="let opcion of opcionesAnimo" [value]="opcion.valor">
-              <span class="emoji">{{ opcion.emoji }}</span>
-              <ion-label>{{ opcion.texto }}</ion-label>
-            </ion-segment-button>
-          </ion-segment>
-        </div>
-
-        <div class="form-card">
-          <ion-label class="card-title">Tu Nivel de Energía</ion-label>
-          <ion-segment formControlName="nivelEnergia" class="mood-segment" scrollable="true">
-            <ion-segment-button *ngFor="let opcion of opcionesEnergia" [value]="opcion.valor">
-              <span class="emoji">{{ opcion.emoji }}</span>
-              <ion-label>{{ opcion.texto }}</ion-label>
-            </ion-segment-button>
-          </ion-segment>
-        </div>
-
-        <div class="form-card">
-          <ion-label class="card-title">Notas Adicionales</ion-label>
-          <ion-item class="notes-input" lines="none">
-            <ion-textarea formControlName="notas" autoGrow="true" placeholder="Escribe algo sobre tu día..."></ion-textarea>
-          </ion-item>
-        </div>
-
-        <div class="form-card">
-          <ion-label class="card-title">Recordatorio</ion-label>
-          <ion-item lines="none" class="toggle-item">
-            <ion-label>Activar recordatorio diario</ion-label>
-            <ion-toggle slot="end" [(ngModel)]="recordatorioActivo" [ngModelOptions]="{standalone: true}"></ion-toggle>
-          </ion-item>
-
-          <div class="time-input-container" *ngIf="recordatorioActivo">
-            <ion-icon name="alarm-outline"></ion-icon>
-            <ion-datetime-button datetime="reminderTime"></ion-datetime-button>
-            <ion-datetime
-              id="reminderTime"
-              class="custom-datetime-picker"
-              presentation="time"
-              [(ngModel)]="horaRecordatorio"
-              [ngModelOptions]="{standalone: true}"
-              [min]="minHora"
-              [max]="maxHora"
-              hour-cycle="h23">
-            </ion-datetime>
+      <!-- 🔥 HERO SECTION CON CEREBRITO -->
+      <div class="hero-wellbeing-section">
+        <div class="cerebrito-container">
+          <img src="assets/images/cerebrito.png" alt="Cerebrito Bienestar" class="cerebrito-mascot" />
+          <div class="sparkles-mascot">
+            <div class="sparkle spark-1">✨</div>
+            <div class="sparkle spark-2">💙</div>
+            <div class="sparkle spark-3">🌟</div>
           </div>
         </div>
 
-        <ion-button expand="block" type="submit" [disabled]="!wellbeingForm || wellbeingForm.invalid">
-          Guardar
-        </ion-button>
-      </form>
+        <div class="welcome-content">
+          <h2 class="welcome-title">¿Cómo te sientes hoy?</h2>
+          <p class="welcome-subtitle">Tómate un momento para conectar contigo.</p>
+
+          <!-- 🔥 STATS MINI SIMPLES -->
+          <div class="mini-stats">
+            <div class="mini-stat">
+              <ion-icon name="calendar" class="stat-icon"></ion-icon>
+              <span>Hoy</span>
+            </div>
+            <div class="mini-stat">
+              <ion-icon name="sunny" class="stat-icon"></ion-icon>
+              <span>Tu registro diario</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔥 FORMULARIO ÉPICO -->
+      <div class="form-container">
+        <form [formGroup]="wellbeingForm" (ngSubmit)="guardarRegistro()" *ngIf="wellbeingForm" class="wellbeing-form">
+
+          <!-- 🔥 ESTADO DE ÁNIMO ÉPICO -->
+          <div class="form-card mood-card">
+            <div class="card-header">
+              <ion-icon name="happy-outline" class="card-icon"></ion-icon>
+              <ion-label class="card-title">Tu Estado de Ánimo</ion-label>
+            </div>
+
+            <div class="mood-selector">
+              <ion-segment formControlName="estadoAnimo" class="mood-segment-epic" scrollable="true">
+                <ion-segment-button *ngFor="let opcion of opcionesAnimo" [value]="opcion.valor" class="mood-option">
+                  <div class="mood-content">
+                    <span class="emoji-large">{{ opcion.emoji }}</span>
+                    <ion-label class="mood-label">{{ opcion.texto }}</ion-label>
+                  </div>
+                </ion-segment-button>
+              </ion-segment>
+            </div>
+          </div>
+
+          <!-- 🔥 NIVEL DE ENERGÍA ÉPICO -->
+          <div class="form-card energy-card">
+            <div class="card-header">
+              <ion-icon name="flash-outline" class="card-icon"></ion-icon>
+              <ion-label class="card-title">Tu Nivel de Energía</ion-label>
+            </div>
+
+            <div class="energy-selector">
+              <ion-segment formControlName="nivelEnergia" class="energy-segment-epic" scrollable="true">
+                <ion-segment-button *ngFor="let opcion of opcionesEnergia" [value]="opcion.valor" class="energy-option">
+                  <div class="energy-content">
+                    <span class="emoji-large">{{ opcion.emoji }}</span>
+                    <ion-label class="energy-label">{{ opcion.texto }}</ion-label>
+                  </div>
+                </ion-segment-button>
+              </ion-segment>
+            </div>
+          </div>
+
+          <!-- 🔥 NOTAS ÉPICAS -->
+          <div class="form-card notes-card">
+            <div class="card-header">
+              <ion-icon name="document-text-outline" class="card-icon"></ion-icon>
+              <ion-label class="card-title">Notas Adicionales</ion-label>
+            </div>
+
+            <div class="notes-container">
+              <ion-item class="notes-input-epic" lines="none">
+                <ion-textarea
+                  formControlName="notas"
+                  autoGrow="true"
+                  placeholder="Escribe algo sobre tu día... 💭"
+                  class="custom-textarea">
+                </ion-textarea>
+              </ion-item>
+            </div>
+          </div>
+
+          <!-- 🔥 RECORDATORIO ÉPICO -->
+          <div class="form-card reminder-card">
+            <div class="card-header">
+              <ion-icon name="notifications-outline" class="card-icon"></ion-icon>
+              <ion-label class="card-title">Recordatorio</ion-label>
+            </div>
+
+            <div class="reminder-container">
+              <ion-item lines="none" class="toggle-item-epic">
+                <div class="toggle-content">
+                  <div class="toggle-info">
+                    <ion-label class="toggle-label">Activar recordatorio diario</ion-label>
+                    <p class="toggle-description">Te ayudaremos a mantener el hábito</p>
+                  </div>
+                  <ion-toggle
+                    slot="end"
+                    [(ngModel)]="recordatorioActivo"
+                    [ngModelOptions]="{standalone: true}"
+                    class="custom-toggle">
+                  </ion-toggle>
+                </div>
+              </ion-item>
+
+              <!-- 🔥 SELECTOR DE HORA ÉPICO (TU LÓGICA EXACTA) -->
+              <div class="time-input-container-epic" *ngIf="recordatorioActivo">
+                <div class="time-selector">
+                  <div class="time-icon-wrapper">
+                    <ion-icon name="alarm-outline" class="time-icon"></ion-icon>
+                  </div>
+
+                  <div class="time-picker-wrapper">
+                    <ion-datetime-button datetime="reminderTime" class="custom-datetime-button"></ion-datetime-button>
+                    <ion-datetime
+                      id="reminderTime"
+                      class="custom-datetime-picker"
+                      presentation="time"
+                      [(ngModel)]="horaRecordatorio"
+                      [ngModelOptions]="{standalone: true}"
+                      [min]="minHora"
+                      [max]="maxHora"
+                      hour-cycle="h23">
+                    </ion-datetime>
+                  </div>
+
+                  <div class="time-info">
+                    <span class="time-label">Hora del recordatorio</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔥 BOTÓN GUARDAR ÉPICO -->
+          <div class="save-button-container">
+            <ion-button
+              expand="block"
+              type="submit"
+              [disabled]="!wellbeingForm || wellbeingForm.invalid"
+              class="save-button-epic"
+              size="large">
+              <ion-icon name="heart" slot="start"></ion-icon>
+              <strong>💙 Guardar mi bienestar</strong>
+            </ion-button>
+          </div>
+
+        </form>
+      </div>
     </div>
 
-    <div *ngIf="vistaActual === 'historial'" class="page-view">
-      <div *ngIf="(historialAnimo$ | async) as historial; else loadingHistory">
-        <div *ngIf="historial.length > 0; else noHistory" class="history-list">
-          <ion-item *ngFor="let registro of historial" lines="none" class="history-card">
-            <div class="date-badge" slot="start">
-              <span class="day">{{ registro.fecha | date:'dd' }}</span>
-              <span class="month">{{ registro.fecha | date:'MMM' }}</span>
-            </div>
-            <ion-label>
-              <div class="mood-energy-container">
-                <span class="mood-item">{{ getEmojiAnimo(registro.estadoAnimo) }} {{ getTextoAnimo(registro.estadoAnimo) }}</span>
-                <span class="energy-item">{{ getEmojiEnergia(registro.nivelEnergia) }} {{ getTextoEnergia(registro.nivelEnergia) }}</span>
-              </div>
-              <p *ngIf="registro.notas" class="notes-history">{{ registro.notas }}</p>
-            </ion-label>
-          </ion-item>
+    <!-- 🔥 VISTA HISTORIAL ÉPICA -->
+    <div *ngIf="vistaActual === 'historial'" class="page-view history-view">
+
+      <!-- 🔥 HEADER DEL HISTORIAL -->
+      <div class="history-header">
+        <div class="history-title-container">
+          <ion-icon name="time" class="history-icon"></ion-icon>
+          <h2 class="history-title">Mi Historial de Bienestar</h2>
         </div>
-        <ng-template #noHistory>
-          <div class="empty-state">
-            <ion-icon name="receipt-outline" class="empty-icon"></ion-icon>
-            <p>Aún no tienes registros.</p>
+        <p class="history-subtitle">Revisa tu progreso emocional</p>
+      </div>
+
+      <!-- 🔥 CONTENIDO DEL HISTORIAL -->
+      <div class="history-content">
+        <div *ngIf="(historialAnimo$ | async) as historial; else loadingHistory">
+
+          <!-- 🔥 GRID DE REGISTROS ÉPICO -->
+          <div *ngIf="historial.length > 0; else noHistory" class="history-grid">
+            <div *ngFor="let registro of historial" class="history-card-wrapper">
+              <div class="history-card-epic">
+
+                <!-- 🔥 FECHA ÉPICA -->
+                <div class="date-section">
+                  <div class="date-badge-epic">
+                    <span class="day-number">{{ registro.fecha | date:'dd' }}</span>
+                    <span class="month-name">{{ registro.fecha | date:'MMM' }}</span>
+                    <span class="year-small">{{ registro.fecha | date:'yyyy' }}</span>
+                  </div>
+
+                  <div class="date-info">
+                    <span class="weekday">{{ registro.fecha | date:'EEEE' }}</span>
+                    <span class="full-date">{{ registro.fecha | date:'longDate' }}</span>
+                  </div>
+                </div>
+
+                <!-- 🔥 CONTENIDO DEL REGISTRO -->
+                <div class="registro-content">
+
+                  <!-- 🔥 MOOD & ENERGY DISPLAY CON TUS MÉTODOS EXISTENTES -->
+                  <div class="mood-energy-display">
+                    <div class="mood-display">
+                      <div class="display-header">
+                        <ion-icon name="happy-outline" class="display-icon"></ion-icon>
+                        <span class="display-label">Estado de ánimo</span>
+                      </div>
+                      <div class="display-value">
+                        <span class="emoji-display">{{ getEmojiAnimo(registro.estadoAnimo) }}</span>
+                        <span class="text-display">{{ getTextoAnimo(registro.estadoAnimo) }}</span>
+                      </div>
+                    </div>
+
+                    <div class="energy-display">
+                      <div class="display-header">
+                        <ion-icon name="flash-outline" class="display-icon"></ion-icon>
+                        <span class="display-label">Nivel de energía</span>
+                      </div>
+                      <div class="display-value">
+                        <span class="emoji-display">{{ getEmojiEnergia(registro.nivelEnergia) }}</span>
+                        <span class="text-display">{{ getTextoEnergia(registro.nivelEnergia) }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 🔥 NOTAS SI EXISTEN -->
+                  <div class="notes-display" *ngIf="registro.notas">
+                    <div class="notes-header">
+                      <ion-icon name="document-text-outline" class="notes-icon"></ion-icon>
+                      <span class="notes-label">Mis notas</span>
+                    </div>
+                    <p class="notes-text">{{ registro.notas }}</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔥 EMPTY STATE ÉPICO -->
+          <ng-template #noHistory>
+            <div class="empty-state-epic">
+              <div class="empty-illustration">
+                <div class="empty-icon-container">
+                  <ion-icon name="receipt-outline" class="empty-icon-main"></ion-icon>
+                  <div class="sparkles-empty">
+                    <div class="sparkle sparkle-1">💙</div>
+                    <div class="sparkle sparkle-2">✨</div>
+                    <div class="sparkle sparkle-3">🌸</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="empty-content">
+                <h2 class="empty-title">¡Tu viaje de bienestar comienza! 🌸</h2>
+                <p class="empty-description">
+                  Aún no tienes registros de bienestar.
+                  <strong>Empieza hoy</strong> y construye un hábito hermoso de autoconocimiento.
+                </p>
+
+                <ion-button
+                  fill="outline"
+                  (click)="vistaActual = 'registrar'"
+                  class="start-journey-btn">
+                  <ion-icon name="heart" slot="start"></ion-icon>
+                  Comenzar mi registro
+                </ion-button>
+              </div>
+            </div>
+          </ng-template>
+
+        </div>
+
+        <!-- 🔥 LOADING STATE ÉPICO -->
+        <ng-template #loadingHistory>
+          <div class="loading-state-epic">
+            <div class="loading-animation">
+              <div class="spinner-container">
+                <ion-spinner name="crescent" class="epic-spinner"></ion-spinner>
+                <div class="loading-pulse"></div>
+              </div>
+              <h3>💙 Cargando tu historial</h3>
+              <p>Revisando tu progreso emocional...</p>
+            </div>
           </div>
         </ng-template>
       </div>
-      <ng-template #loadingHistory>
-        <div class="loading-state">
-          <ion-spinner name="dots"></ion-spinner>
-          <p>Cargando historial...</p>
-        </div>
-      </ng-template>
+
+      <!-- 🔥 BOTÓN DE ESTADÍSTICAS ÉPICO -->
+      <div class="stats-section">
+        <ion-item routerLink="/wellbeing-stats" class="stats-item-epic" button lines="none">
+          <div class="stats-content">
+            <div class="stats-icon-wrapper">
+              <ion-icon name="bar-chart-outline" class="stats-icon"></ion-icon>
+            </div>
+            <div class="stats-info">
+              <h3>📊 Estadísticas de Bienestar</h3>
+              <p>Analiza tus patrones emocionales y tendencias</p>
+            </div>
+            <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+          </div>
+        </ion-item>
+      </div>
     </div>
-    <ion-item routerLink="/wellbeing-stats">
-  <ion-icon name="bar-chart-outline" slot="start"></ion-icon>
-  Estadísticas de bienestar
-</ion-item>
 
   </div>
+</ion-content>
