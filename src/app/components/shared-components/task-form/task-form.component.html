@@ -90,24 +90,6 @@
     </div>
 
     <!-- Subtareas -->
-    <div class="form-card">
-      <div class="card-header">
-        <ion-icon name="list-outline"></ion-icon>
-        <h2 class="card-title">Subtareas</h2>
-      </div>
-      <div formArrayName="subtareas">
-        <ion-item class="form-input subtask-item" *ngFor="let subtask of subtareas.controls; let i = index" [formGroupName]="i">
-          <ion-input labelPlacement="floating" [label]="'Subtarea ' + (i + 1)" formControlName="titulo" placeholder="Describe la subtarea"></ion-input>
-          <ion-button (click)="removeSubtask(i)" fill="clear" color="danger" slot="end">
-            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-          </ion-button>
-        </ion-item>
-      </div>
-      <ion-button (click)="addSubtask()" expand="block" fill="clear" class="add-button">
-        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-        Añadir Subtarea
-      </ion-button>
-    </div>
 
     <!-- Etiquetas -->
     <div class="form-card">
@@ -129,5 +111,5 @@
     </ion-button>
 
   </form>
-  <pre>{{ tareaForm.status }} - {{ tareaForm.errors | json }}</pre>
+
 </ion-content>
