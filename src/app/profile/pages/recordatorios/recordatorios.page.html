@@ -1,0 +1,128 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/profile"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Recordatorios</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="crearRecordatorio()">
+        <ion-icon name="add" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Recordatorios</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Pull to refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="refrescar($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-circle-outline"
+      pullingText="Desliza para actualizar"
+      refreshingSpinner="circles"
+      refreshingText="Actualizando...">
+    </ion-refresher-content>
+  </ion-refresher>
+
+  <div class="recordatorios-container">
+
+    <!-- Header con stats -->
+    <div class="stats-header">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number">{{ recordatoriosHoy.length }}</span>
+          <span class="stat-label">Hoy</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">{{ recordatoriosProximos.length }}</span>
+          <span class="stat-label">Próximos</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">{{ recordatoriosPendientes }}</span>
+          <span class="stat-label">Pendientes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs de vista -->
+    <div class="vista-tabs">
+      <ion-segment [(ngModel)]="vistaActual" (ionChange)="cambiarVista($event)">
+        <ion-segment-button value="todos">
+          <ion-label>Todos</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="hoy">
+          <ion-label>Hoy</ion-label>
+          <ion-badge *ngIf="recordatoriosHoy.length > 0" color="danger">{{ recordatoriosHoy.length }}</ion-badge>
+        </ion-segment-button>
+        <ion-segment-button value="proximos">
+          <ion-label>Próximos</ion-label>
+          <ion-badge *ngIf="recordatoriosProximos.length > 0" color="warning">{{ recordatoriosProximos.length }}</ion-badge>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="cargando" class="loading-container">
+      <ion-spinner color="primary"></ion-spinner>
+      <p>Cargando recordatorios...</p>
+    </div>
+
+    <!-- Lista vacía -->
+    <div *ngIf="!cargando && recordatoriosActuales.length === 0" class="empty-state">
+      <ion-icon name="calendar-outline" class="empty-icon"></ion-icon>
+      <h3>No hay recordatorios</h3>
+      <p *ngIf="vistaActual === 'todos'">¡Crea tu primer recordatorio!</p>
+      <p *ngIf="vistaActual === 'hoy'">No tienes recordatorios para hoy</p>
+      <p *ngIf="vistaActual === 'proximos'">No tienes recordatorios próximos</p>
+      <ion-button
+        *ngIf="vistaActual === 'todos'"
+        expand="block"
+        fill="outline"
+        (click)="crearRecordatorio()">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Crear Recordatorio
+      </ion-button>
+    </div>
+
+    <!-- Lista simple para ahora -->
+    <div *ngIf="!cargando && recordatoriosActuales.length > 0" class="recordatorios-list">
+      <ion-card
+        *ngFor="let recordatorio of recordatoriosActuales"
+        class="recordatorio-card"
+        button
+        (click)="mostrarOpciones(recordatorio)">
+
+        <ion-card-content>
+          <div class="card-content">
+            <div class="recordatorio-info">
+              <h3>{{ recordatorio.titulo }}</h3>
+              <p *ngIf="recordatorio.descripcion">{{ recordatorio.descripcion }}</p>
+              <ion-chip color="primary">
+                <ion-label>{{ formatearFecha(recordatorio.fechaHora) }}</ion-label>
+              </ion-chip>
+            </div>
+
+            <div class="recordatorio-actions">
+              <ion-checkbox
+                [checked]="recordatorio.completado"
+                (ionChange)="completarRecordatorio(recordatorio)">
+              </ion-checkbox>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- FAB para crear -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="crearRecordatorio()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

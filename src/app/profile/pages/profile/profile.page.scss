@@ -1,98 +1,454 @@
-// profile.page.scss (Simplificado)
+/* ===================================================================
+   PROFILE PAGE - DISEÑO ÉPICO ✨
+   =================================================================== */
 
-// Importar fuentes (asegúrate de tenerlas configuradas en tu proyecto, por ejemplo, Inter)
-// Import fonts (make sure you have them configured in your project, e.g., Inter)
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-// Variables de color inspiradas en la imagen
-// Color variables inspired by the image
+// --- Variables Épicas ---
 :host {
-  --ion-color-primary: #7F00FF; // Un morado vibrante (A vibrant purple)
-  --ion-color-primary-contrast: #ffffff;
-  --ion-color-secondary: #6A0DAD; // Un morado más oscuro (A darker purple)
-  --ion-color-light-purple-bg: #E6E0FF; // Fondo general claro (Light general background)
-  --ion-color-yellow-card: #FFF5C3; // Color para las tarjetas (Color for cards)
-  --ion-color-dark-text: #333333;
-  --ion-font-family: 'Inter', sans-serif;
+  --profile-primary: #7F00FF;
+  --profile-primary-rgb: 127, 0, 255;
+  --profile-secondary: #E100FF;
+  --profile-accent: #FF8C00;
+  --profile-bg: #f8f9ff;
+  --profile-card-bg: #ffffff;
+  --profile-text-primary: #1a1a1a;
+  --profile-text-secondary: #666666;
+  --profile-success: #10dc60;
+  --profile-warning: #ffce00;
+  --profile-danger: #f04141;
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-strong: 0 8px 30px rgba(127, 0, 255, 0.15);
+  --border-radius: 16px;
+  --border-radius-large: 24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-ion-toolbar {
-  --background: var(--ion-color-primary);
-  font-family: var(--ion-font-family);
-}
+// --- Header Épico ---
+ion-header ion-toolbar {
+  --background: linear-gradient(135deg, var(--profile-primary), var(--profile-secondary));
+  --color: #ffffff;
 
-ion-title {
+  ion-title {
     font-weight: 700;
-}
-
-.profile-content-simplified {
-  --background: var(--ion-color-light-purple-bg);
-  font-family: var(--ion-font-family);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center; // Centrar el contenido verticalmente (Center content vertically)
-  padding: 20px;
-  height: 100%; // Asegurar que ocupe toda la altura para centrar (Ensure it takes full height for centering)
-}
-
-.profile-header-simplified {
-  text-align: center;
-  margin-bottom: 30px; // Espacio antes de la tarjeta (Space before the card)
-}
-
-.avatar-section-simplified {
-  margin: 0 auto 15px auto;
-
-  .user-avatar-simplified {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 3px solid var(--ion-color-primary);
-    object-fit: cover;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-size: 1.3rem;
   }
 }
 
-.user-name-simplified {
-  font-size: 1.8em;
-  font-weight: 700;
-  margin: 0 0 5px 0;
-  color: var(--ion-color-dark-text);
+// --- Content Principal ---
+.profile-content {
+  --background: var(--profile-bg);
+  --padding-top: 0;
+  --padding-bottom: 20px;
 }
 
-.user-email-simplified {
-  font-size: 1em;
-  color: var(--ion-color-secondary); // Usar un color secundario para el email (Use a secondary color for the email)
-  margin: 0;
+// --- Hero Section del Usuario ---
+.user-hero-section {
+  background: linear-gradient(135deg, var(--profile-primary), var(--profile-secondary));
+  padding: 30px 20px 40px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  // Decoración de fondo
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    z-index: 1;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    z-index: 1;
+  }
 }
 
-.profile-card-simplified {
-  background: var(--ion-color-yellow-card);
-  border-radius: 20px;
-  padding: 30px 25px;
-  width: 100%;
-  max-width: 400px; // Ancho máximo para la tarjeta (Max width for the card)
-  box-shadow: 0 6px 20px rgba(106, 13, 173, 0.1);
-  display: flex; // Para centrar el botón si fuera necesario o para manejar múltiples elementos (To center the button if necessary or to handle multiple elements)
-  flex-direction: column;
+.user-avatar-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 16px;
+  z-index: 2;
+
+  .user-avatar {
+    width: 90px;
+    height: 90px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-out;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  .avatar-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: var(--profile-success);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid white;
+
+    ion-icon {
+      font-size: 14px;
+      color: white;
+    }
+  }
+}
+
+.user-info {
+  position: relative;
+  z-index: 2;
+
+  .user-name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 8px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .user-email {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 20px 0;
+  }
+}
+
+.user-stats {
+  display: flex;
+  justify-content: center;
   align-items: center;
+  gap: 20px;
+
+  .stat-item {
+    text-align: center;
+
+    .stat-number {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.8);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.3);
+  }
 }
 
-.logout-button-simplified {
-  --border-radius: 12px;
-  font-weight: 500;
-  text-transform: none;
-  height: 50px;
-  font-size: 1.1em;
-  width: 100%; // El botón ocupa todo el ancho de la tarjeta (The button takes the full width of the card)
-  margin-top: 10px; // Espacio si hubiera algo encima (Space if there was something above)
+// --- Sección Destacada (Recordatorios) - ARREGLADA ---
+.featured-section {
+  margin: 16px 16px 24px 16px; // ← ARREGLADO: sin margin negativo
+  position: relative;
+  z-index: 3;
 }
 
-// Media query para ajustar en pantallas más grandes si es necesario
-// Media query to adjust on larger screens if necessary
-@media (min-width: 768px) {
-  .profile-card-simplified {
-    max-width: 450px;
+.recordatorios-hero-card {
+  margin: 0;
+  border-radius: var(--border-radius-large);
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-strong);
+  transition: all 0.3s ease-out;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(127, 0, 255, 0.2);
+  }
+
+  .card-gradient-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+      var(--profile-primary) 0%,
+      var(--profile-secondary) 50%,
+      var(--profile-accent) 100%);
+    z-index: 1;
+  }
+
+  ion-card-content {
+    position: relative;
+    z-index: 2;
+    padding: 20px; // ← ARREGLADO: reducido de 24px
+    color: white;
+  }
+}
+
+.hero-card-content {
+  display: flex;
+  align-items: center;
+  gap: 14px; // ← ARREGLADO: reducido de 16px
+  margin-bottom: 12px; // ← ARREGLADO: reducido de 16px
+}
+
+.icon-container {
+  position: relative;
+  flex-shrink: 0;
+
+  .main-icon {
+    font-size: 3rem; // ← ARREGLADO: reducido de 3.5rem
+    color: white;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+    z-index: 3;
+    position: relative;
+    transition: all 0.3s ease-out;
+  }
+
+  .pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px; // ← ARREGLADO: reducido de 70px
+    height: 60px; // ← ARREGLADO: reducido de 70px
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: pulse-ring 2s infinite;
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    --background: var(--profile-danger);
+    --color: white;
+    font-weight: 700;
+    font-size: 0.8rem;
+    z-index: 4;
+    animation: bounce-badge 2s infinite;
+  }
+}
+
+.content-info {
+  flex: 1;
+
+  .card-title {
+    font-size: 1.4rem; // ← ARREGLADO: reducido de 1.6rem
+    font-weight: 700;
+    margin: 0 0 6px 0; // ← ARREGLADO: reducido de 8px
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .next-event {
+    font-size: 1rem; // ← ARREGLADO: reducido de 1.1rem
+    margin: 0 0 10px 0; // ← ARREGLADO: reducido de 12px
+    opacity: 0.95;
+
+    strong {
+      font-weight: 600;
+    }
+  }
+
+  .time-info {
+    .time-chip {
+      --background: rgba(255, 255, 255, 0.2);
+      --color: white;
+      backdrop-filter: blur(10px);
+
+      ion-icon {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+.action-arrow {
+  flex-shrink: 0;
+
+  .arrow-icon {
+    font-size: 1.8rem;
+    color: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease-out;
+  }
+}
+
+.preview-reminders {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px; // ← ARREGLADO: reducido de 16px
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+
+  .reminder-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transition: all 0.3s ease-out;
+
+    &.active {
+      background: white;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .reminder-text {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-left: 8px;
+  }
+}
+
+// --- Menu Principal ---
+.main-menu {
+  margin: 0 16px;
+
+  .menu-list {
+    background: transparent;
+  }
+}
+
+// --- Quick Actions Grid ---
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+
+  .quick-action-card {
+    margin: 0;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    transition: all 0.3s ease-out;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-strong);
+    }
+
+    ion-card-content {
+      padding: 20px;
+      text-align: center;
+
+      ion-icon {
+        font-size: 2rem;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      span {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--profile-text-primary);
+      }
+    }
+  }
+}
+
+// --- Other Options ---
+.other-options {
+  .feedback-item {
+    --background: var(--profile-card-bg);
+    --border-radius: var(--border-radius);
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.3s ease-out;
+
+    &:hover {
+      transform: translateX(4px);
+    }
+
+    ion-label h3 {
+      font-weight: 600;
+      color: var(--profile-text-primary);
+    }
+
+    ion-label p {
+      color: var(--profile-text-secondary);
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// --- Logout Section ---
+.logout-section {
+  margin: 32px 16px 16px 16px;
+
+  .logout-button {
+    --border-radius: var(--border-radius);
+    --border-width: 2px;
+    height: 48px;
+    font-weight: 600;
+    text-transform: none;
+    transition: all 0.3s ease-out;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// --- Animaciones ---
+@keyframes pulse-ring {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.4; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+}
+
+@keyframes bounce-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+// --- Responsive ---
+@media (max-width: 576px) {
+  .quick-actions-grid {
+    gap: 8px;
+
+    .quick-action-card ion-card-content {
+      padding: 16px;
+
+      ion-icon { font-size: 1.8rem; }
+      span { font-size: 0.8rem; }
+    }
+  }
+
+  .hero-card-content {
+    gap: 12px;
+
+    .icon-container .main-icon {
+      font-size: 2.8rem; // ← ARREGLADO también en responsive
+    }
+
+    .content-info .card-title {
+      font-size: 1.2rem; // ← ARREGLADO también en responsive
+    }
   }
 }

@@ -1,0 +1,174 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/profile"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Feedback</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Feedback</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="feedback-container">
+    <!-- Encabezado informativo -->
+    <div class="feedback-header">
+      <ion-icon name="chatbubbles-outline" color="primary"></ion-icon>
+      <h2>Comparte tu opinión</h2>
+      <p>Tu feedback nos ayuda a mejorar la aplicación para todos los usuarios.</p>
+    </div>
+
+    <!-- Formulario -->
+    <form [formGroup]="feedbackForm" (ngSubmit)="enviarFeedback()">
+
+      <!-- Tipo de feedback -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Tipo de feedback</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-radio-group formControlName="tipo" (ionChange)="onTipoChange()">
+            <ion-item *ngFor="let tipo of tiposFeedback" lines="none">
+              <ion-radio slot="start" [value]="tipo.value"></ion-radio>
+              <ion-icon [name]="tipo.icon" [color]="tipo.color" slot="start"></ion-icon>
+              <ion-label>{{ tipo.label }}</ion-label>
+            </ion-item>
+          </ion-radio-group>
+
+          <!-- Error para tipo -->
+          <div *ngIf="hasError('tipo')" class="error-message">
+            <ion-text color="danger">
+              <small>{{ getErrorMessage('tipo') }}</small>
+            </ion-text>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Título -->
+      <ion-card>
+        <ion-card-content>
+          <ion-item>
+            <ion-input
+              label="Título *"
+              labelPlacement="stacked"
+              formControlName="titulo"
+              placeholder="Resumen breve de tu feedback"
+              [class.error-input]="hasError('titulo')">
+            </ion-input>
+          </ion-item>
+
+          <!-- Error para título -->
+          <div *ngIf="hasError('titulo')" class="error-message">
+            <ion-text color="danger">
+              <small>{{ getErrorMessage('titulo') }}</small>
+            </ion-text>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Descripción -->
+      <ion-card>
+        <ion-card-content>
+          <ion-item>
+            <ion-textarea
+              label="Descripción *"
+              labelPlacement="stacked"
+              formControlName="descripcion"
+              placeholder="Describe detalladamente tu feedback..."
+              rows="4"
+              [class.error-input]="hasError('descripcion')">
+            </ion-textarea>
+          </ion-item>
+
+          <!-- Error para descripción -->
+          <div *ngIf="hasError('descripcion')" class="error-message">
+            <ion-text color="danger">
+              <small>{{ getErrorMessage('descripcion') }}</small>
+            </ion-text>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Puntuación (solo para elogios) -->
+      <ion-card *ngIf="feedbackForm.get('tipo')?.value === 'elogio'">
+        <ion-card-header>
+          <ion-card-title>Puntuación</ion-card-title>
+          <ion-card-subtitle>¿Qué tan satisfecho estás?</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="rating-container">
+            <ion-button
+              *ngFor="let star of [1,2,3,4,5]"
+              fill="clear"
+              size="large"
+              [color]="feedbackForm.get('puntuacion')?.value >= star ? 'warning' : 'medium'"
+              (click)="feedbackForm.patchValue({puntuacion: star})">
+              <ion-icon
+                [name]="feedbackForm.get('puntuacion')?.value >= star ? 'star' : 'star-outline'">
+              </ion-icon>
+            </ion-button>
+          </div>
+
+          <!-- Error para puntuación -->
+          <div *ngIf="hasError('puntuacion')" class="error-message">
+            <ion-text color="danger">
+              <small>{{ getErrorMessage('puntuacion') }}</small>
+            </ion-text>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Email -->
+      <ion-card>
+        <ion-card-content>
+          <ion-item>
+            <ion-input
+              label="Email (opcional)"
+              labelPlacement="stacked"
+              formControlName="email"
+              type="email"
+              placeholder="tu@email.com"
+              [class.error-input]="hasError('email')">
+            </ion-input>
+          </ion-item>
+
+          <!-- Error para email -->
+          <div *ngIf="hasError('email')" class="error-message">
+            <ion-text color="danger">
+              <small>{{ getErrorMessage('email') }}</small>
+            </ion-text>
+          </div>
+
+          <ion-note color="medium">
+            <small>Si proporcionas tu email, podremos contactarte si necesitamos más información.</small>
+          </ion-note>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Botones -->
+      <div class="buttons-container">
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="feedbackForm.invalid"
+          color="primary">
+          <ion-icon name="send-outline" slot="start"></ion-icon>
+          Enviar Feedback
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          fill="outline"
+          color="medium"
+          (click)="feedbackForm.reset()">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          Limpiar formulario
+        </ion-button>
+      </div>
+    </form>
+  </div>
+</ion-content>

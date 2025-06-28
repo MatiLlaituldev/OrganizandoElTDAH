@@ -55,7 +55,8 @@ const routes: Routes = [
     import('./wellbeing/pages/wellbeing-stats/wellbeing-stats.module').then(
       (m) => m.WellbeingStatsPageModule
     ),
-},  {
+},
+  {
     path: 'goal-stats',
     loadChildren: () => import('./goals/pages/goal-stats/goal-stats.module').then( m => m.GoalStatsPageModule)
   },
@@ -63,6 +64,15 @@ const routes: Routes = [
     path: 'informe-mensual',
     loadChildren: () => import('./profile/pages/informe-mensual/informe-mensual.module').then( m => m.InformeMensualPageModule)
   },
+  {
+    path: 'feedback',
+    loadChildren: () => import('./profile/pages/feedback/feedback.module').then( m => m.FeedbackPageModule)
+  },
+  {
+    path: 'recordatorios',
+    loadChildren: () => import('./profile/pages/recordatorios/recordatorios.module').then( m => m.RecordatoriosPageModule)
+  },
+
 
 ];
 

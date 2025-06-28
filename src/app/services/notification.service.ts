@@ -4,6 +4,7 @@ import { Habito } from '../models/habito.model';
 import { Tarea } from '../models/tarea.model';
 import { Meta } from '../models/meta.model';
 import { Timestamp } from 'firebase/firestore';
+import { Recordatorio } from '../models/recordatorio.model';
 
 @Injectable({
   providedIn: 'root'
@@ -258,4 +259,57 @@ async programarNotificacionBienestar(userId: string, hora: string): Promise<numb
       }]
     });
   }
+    // ...existing code...
+
+  // -------------------------
+  // NOTIFICACIONES DE RECORDATORIOS
+  // -------------------------
+  async programarNotificacionRecordatorio(recordatorio: Recordatorio, recordatorioId: string): Promise<number | undefined> {
+    if (!recordatorio.fechaHora) return;
+    await this.requestPermission();
+
+    const fecha = this.toDateSafe(recordatorio.fechaHora);
+    if (!fecha) return;
+
+    const notificationId = Math.floor(Math.random() * 1000000);
+    await this.scheduleNotification({
+      notifications: [{
+        id: notificationId,
+        title: `🔔 ${recordatorio.titulo}`,
+        body: recordatorio.descripcion ? recordatorio.descripcion : '¡No olvides este recordatorio!',
+        schedule: { at: fecha },
+        smallIcon: 'ic_stat_icon_config_sample',
+        extra: { tipo: 'recordatorio', id: recordatorioId }
+      }]
+    });
+    return notificationId;
+  }
+
+  // Notificación 15 minutos antes
+  async programarNotificacionRecordatorioAnticipado(recordatorio: Recordatorio, recordatorioId: string): Promise<number | undefined> {
+    if (!recordatorio.fechaHora) return;
+    await this.requestPermission();
+
+    const fecha = this.toDateSafe(recordatorio.fechaHora);
+    if (!fecha) return;
+
+    // 15 minutos antes
+    const fechaAnticipada = new Date(fecha.getTime() - 15 * 60 * 1000);
+    if (fechaAnticipada <= new Date()) return; // No programar si ya pasó
+
+    const notificationId = Math.floor(Math.random() * 1000000);
+    await this.scheduleNotification({
+      notifications: [{
+        id: notificationId,
+        title: `⏰ Recordatorio en 15 min`,
+        body: `"${recordatorio.titulo}" está programado para las ${fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`,
+        schedule: { at: fechaAnticipada },
+        smallIcon: 'ic_stat_icon_config_sample',
+        extra: { tipo: 'recordatorio-anticipado', id: recordatorioId }
+      }]
+    });
+    return notificationId;
+  }
+
+  // ...existing code...
 }
