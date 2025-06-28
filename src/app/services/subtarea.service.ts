@@ -27,4 +27,8 @@ export class SubtareaService {
     const subtareaDoc = doc(this.firestore, `usuarios/${userId}/subtareas/${subtareaId}`);
     return deleteDoc(subtareaDoc);
   }
+    getAllSubtareas(userId: string) {
+    const subtareasRef = collection(this.firestore, `usuarios/${userId}/subtareas`);
+    return collectionData(subtareasRef, { idField: 'id' }) as Observable<Subtarea[]>;
+  }
 }

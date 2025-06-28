@@ -5,6 +5,7 @@ import { Tarea, Subtarea } from '../models/tarea.model';
 import { RegistroTarea } from '../models/registro-tarea.model';
 import { map } from 'rxjs/operators';
 import { docData } from '@angular/fire/firestore';
+import { SubtareaService } from './subtarea.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,9 @@ import { docData } from '@angular/fire/firestore';
 export class TaskService {
   private firestore: Firestore = inject(Firestore);
 
-  constructor() { }
+  constructor(
+    private subtareaService: SubtareaService
+  ) {}
 
   getTasks(userId: string): Observable<Tarea[]> {
     if (!userId) return of([]);
@@ -84,6 +87,31 @@ export class TaskService {
     });
   }
 
+  /**
+   * Eliminación en cascada: elimina todas las subtareas asociadas a una tarea y luego la tarea.
+   */
+  async eliminarTareaYCascada(userId: string, tareaId: string): Promise<void> {
+    // 1. Elimina todas las subtareas asociadas
+    return new Promise<void>((resolve, reject) => {
+      this.subtareaService.getSubtareas(userId, tareaId).subscribe({
+        next: (subtareas) => {
+          const eliminaciones = subtareas.map(subtarea =>
+            subtarea.id ? this.subtareaService.eliminarSubtarea(userId, subtarea.id) : Promise.resolve()
+          );
+          Promise.all(eliminaciones)
+            .then(() => {
+              // 2. Elimina la tarea principal
+              this.eliminarTask(userId, tareaId)
+                .then(() => resolve())
+                .catch(err => reject(err));
+            })
+            .catch(err => reject(err));
+        },
+        error: (err) => reject(err)
+      });
+    });
+  }
+
   getRegistrosPorDia(userId: string, fecha: string): Observable<RegistroTarea[]> {
     const registrosRef = collection(this.firestore, `usuarios/${userId}/registrosTareas`);
     const q = query(registrosRef, where('fecha', '==', fecha));
@@ -144,5 +172,9 @@ export class TaskService {
       const campoAActualizar = `estadoSubtareas.${subtarea.id}`;
       return updateDoc(registroDoc.ref, { [campoAActualizar]: completada });
     }
+  }
+    getTodosRegistrosTareas(userId: string) {
+    const registrosRef = collection(this.firestore, `usuarios/${userId}/registrosTareas`);
+    return collectionData(registrosRef, { idField: 'id' }) as Observable<RegistroTarea[]>;
   }
 }

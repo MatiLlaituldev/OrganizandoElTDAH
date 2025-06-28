@@ -1,0 +1,63 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Estadísticas de tareas y subtareas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Estadísticas históricas de tareas (PRIMERO) -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Histórico de tareas ({{ rango }})</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <apx-chart
+        [series]="historicoSeries"
+        [chart]="{ type: 'bar' }"
+        [xaxis]="{ categories: fechas }"
+        [labels]="fechas">
+      </apx-chart>
+      <p>Porcentaje de cumplimiento: {{ porcentajeCumplimiento }}%</p>
+      <p>Racha actual: {{ rachaActual }} días</p>
+      <p>Promedio completadas/día: {{ promedioPorDia }}</p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Estadísticas de tareas (conteo actual) (SEGUNDO) -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Tareas</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <apx-chart
+        [series]="chartOptionsTareas.series"
+        [chart]="chartOptionsTareas.chart"
+        [labels]="chartOptionsTareas.labels"
+        [colors]="chartOptionsTareas.colors"
+        [legend]="chartOptionsTareas.legend">
+      </apx-chart>
+      <p>Total de tareas: {{ totalTareas }}</p>
+      <p>Completadas: {{ tareasCompletadas }}</p>
+      <p>Pendientes: {{ tareasPendientes }}</p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Estadísticas de subtareas (al final) (TERCERO) -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Subtareas</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <apx-chart
+        [series]="chartOptionsSubtareas.series"
+        [chart]="chartOptionsSubtareas.chart"
+        [labels]="chartOptionsSubtareas.labels"
+        [colors]="chartOptionsSubtareas.colors"
+        [legend]="chartOptionsSubtareas.legend">
+      </apx-chart>
+      <p>Total de subtareas: {{ totalSubtareas }}</p>
+      <p>Completadas: {{ subtareasCompletadas }}</p>
+      <p>Pendientes: {{ subtareasPendientes }}</p>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
