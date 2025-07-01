@@ -19,7 +19,7 @@ import { GoalService } from 'src/app/services/goal.service';
 // --- AÑADIDO ---
 import { Router } from '@angular/router';
 
-// 🔥 ANIMACIONES ÉPICAS
+// 🔥 ANIMACIONES ÉPICAS (SIN LA ANIMACIÓN DEL FAB)
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
 // ViewModel que combina la Tarea con su Registro del día para facilitar su uso en la vista.
@@ -39,7 +39,7 @@ interface Day {
   templateUrl: './task-list.page.html',
   styleUrls: ['./task-list.page.scss'],
   standalone: false,
-  // 🔥 ANIMACIONES ÉPICAS AGREGADAS
+  // 🔥 ANIMACIONES ÉPICAS (SOLO PARA SUBTAREAS, NO FAB)
   animations: [
     trigger('slideDown', [
       transition(':enter', [
@@ -65,7 +65,7 @@ export class TaskListPage implements OnInit, OnDestroy {
   tareasMostradas: TareaViewModel[] = [];
   registrosDelDia: RegistroTarea[] = [];
   etiquetas$!: Observable<Etiqueta[]>;
-  metas$!: Observable<Meta[]>; // <--- NUEVO
+  metas$!: Observable<Meta[]>;
 
   // --- Propiedades de Estado de la UI ---
   segmentoActual: 'pendientes' | 'completadas' = 'pendientes';
@@ -84,23 +84,23 @@ export class TaskListPage implements OnInit, OnDestroy {
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
-    private goalService: GoalService, // <--- NUEVO
-    private router: Router // <--- AÑADIDO
+    private goalService: GoalService,
+    private router: Router
   ) {}
 
   ngOnInit() {
     this.initializeWeekDays();
     this.etiquetas$ = this.etiquetaService.getEtiquetas();
 
-    // --- NUEVO: Cargar metas del usuario ---
+    // --- Cargar metas del usuario ---
     const userSub = this.authService.user$.pipe(
       tap(() => this.isLoading = true),
       switchMap(user => {
         if (user) {
-          this.metas$ = this.goalService.getMetas(user.uid); // <--- NUEVO
+          this.metas$ = this.goalService.getMetas(user.uid);
           return of(user);
         } else {
-          this.metas$ = of([]); // <--- NUEVO
+          this.metas$ = of([]);
           return of(null);
         }
       })
@@ -170,8 +170,14 @@ export class TaskListPage implements OnInit, OnDestroy {
     this.tareasMostradas = tareasFiltradas;
   }
 
+  // 🚀 MÉTODO ARREGLADO PARA TAREAS DIARIAS
   esTareaDelDiaSeleccionado(tarea: Tarea): boolean {
-    if (tarea.recurrencia === 'diaria') return true;
+    // 🔥 SI ES DIARIA, SIEMPRE SE MUESTRA (INDEPENDIENTE DE FECHAS)
+    if (tarea.recurrencia === 'diaria') {
+      return true;
+    }
+
+    // 📅 PARA TAREAS NO DIARIAS, APLICAR LÓGICA DE FECHAS
     const diaSeleccionado = new Date(this.selectedDate$.value);
     diaSeleccionado.setHours(0, 0, 0, 0);
 
@@ -181,12 +187,22 @@ export class TaskListPage implements OnInit, OnDestroy {
     const fechaVencimiento = this.getDisplayDateForPipe(tarea.fechaVencimiento);
     if (fechaVencimiento) fechaVencimiento.setHours(23, 59, 59, 999);
 
+    // 🔥 LÓGICA MEJORADA PARA TAREAS NO DIARIAS
     if (!fechaVencimiento && fechaCreacion) {
+      // Si no hay fecha vencimiento, mostrar solo el día de creación
       return fechaCreacion.getTime() === diaSeleccionado.getTime();
     } else if (fechaCreacion && fechaVencimiento) {
+      // Si hay ambas fechas, mostrar en el rango
       return diaSeleccionado >= fechaCreacion && diaSeleccionado <= fechaVencimiento;
+    } else if (fechaVencimiento && !fechaCreacion) {
+      // Si solo hay fecha vencimiento, mostrar hasta esa fecha
+      return diaSeleccionado <= fechaVencimiento;
     }
-    return false;
+
+    // 🚨 FALLBACK: Si no hay fechas válidas, mostrar solo hoy
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    return diaSeleccionado.getTime() === hoy.getTime();
   }
 
   estaCompletadaHoy(tarea: TareaViewModel): boolean {
@@ -353,7 +369,7 @@ export class TaskListPage implements OnInit, OnDestroy {
     return meta ? meta.titulo : null;
   }
 
-  // --- NUEVO: Navegación al detalle de tarea ---
+  // --- Navegación al detalle de tarea ---
   verDetalleTarea(tarea: Tarea) {
     if (tarea.id) {
       this.router.navigate(['/task-detail', tarea.id]);
@@ -362,7 +378,6 @@ export class TaskListPage implements OnInit, OnDestroy {
 
   // 🔥 MÉTODO PARA TOGGLE DE SUBTAREAS
   toggleSubtasksView(tarea: TareaViewModel): void {
-    // Alternar el estado de showSubtasks
     tarea.showSubtasks = !tarea.showSubtasks;
   }
 
