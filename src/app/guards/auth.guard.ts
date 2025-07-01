@@ -26,8 +26,8 @@ export class AuthGuard implements CanActivate {
       tap(isLoggedIn => {
         // Si el resultado es `false` (no está logueado), se ejecuta este efecto secundario.
         if (!isLoggedIn) {
-          console.log('AuthGuard: Acceso denegado. Usuario no autenticado. Redirigiendo a /auth/login...');
-          this.router.navigate(['/auth/login']); // Redirige al usuario a la página de inicio de sesión.
+          console.log('AuthGuard: Acceso denegado. Usuario no autenticado. Redirigiendo a /auth/welcome...');
+          this.router.navigate(['/auth/welcome']); // Redirige al usuario a la página de bienvenida.
         }
       })
     );
