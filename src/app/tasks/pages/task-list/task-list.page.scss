@@ -976,7 +976,7 @@
   }
 }
 
-// --- FAB Épico ---
+// --- FAB Épico SIN ANIMACIÓN ROTATIVA ---
 .epic-fab {
   .epic-fab-button {
     --background: linear-gradient(45deg, #667eea, #764ba2);
@@ -994,7 +994,7 @@
     .epic-fab-icon {
       font-size: 32px;
       color: white;
-      animation: rotateAdd 4s linear infinite;
+      /* ❌ ANIMACIÓN REMOVIDA - animation: rotateAdd 4s linear infinite; */
     }
   }
 }
